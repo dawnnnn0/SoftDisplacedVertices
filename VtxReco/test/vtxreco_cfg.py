@@ -36,11 +36,14 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.GlobalTag.globaltag = '106X_mc2017_realistic_v10'
 
 process.out.outputCommands.append('drop *')
+process.out.outputCommands.append('keep *_pfMet_*_*')
+process.out.outputCommands.append('keep *_ak4PFJets_*_*')
+process.out.outputCommands.append('keep *_offlineBeamSpot_*_*')
 process.out.outputCommands.append('keep *_VertexTracks_*_*')
 process.out.outputCommands.append('keep *_inclusiveVertexFinderSoftDV_*_*')
 process.out.outputCommands.append('keep *_inclusiveSecondaryVerticesSoftDV_*_*')
 
-#process.TFileService = cms.Service("TFileService", fileName = cms.string("vtxreco.root") )
+process.TFileService = cms.Service("TFileService", fileName = cms.string("vtxreco_histos.root") )
 
 process.p = cms.Path(process.trig_filter + process.inclusiveVertexingTaskSoftDV)
 process.outp = cms.EndPath(process.out)
