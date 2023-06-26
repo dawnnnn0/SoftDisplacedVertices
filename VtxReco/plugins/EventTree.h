@@ -1,3 +1,6 @@
+#ifndef SoftDV_EventTree_h
+#define SoftDV_EventTree_h
+
 #include "TTree.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/Math/interface/deltaR.h"
@@ -5,6 +8,10 @@
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/METReco/interface/METFwd.h"
+#include "DataFormats/METReco/interface/PFMET.h"
+#include "DataFormats/METReco/interface/PFMETFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -32,9 +39,10 @@ struct eventInfo
   std::vector<double> vtx_acollinearity;
 };
 
-class EventHistos : public edm::EDAnalyzer {
+template <class Jet, class MET>
+class EventTree : public edm::EDAnalyzer {
   public:
-    explicit EventHistos(const edm::ParameterSet&);
+    explicit EventTree(const edm::ParameterSet&);
     void analyze(const edm::Event&, const edm::EventSetup&);
 
   private:
@@ -43,8 +51,8 @@ class EventHistos : public edm::EDAnalyzer {
     void initEventStructure();
     
     const edm::EDGetTokenT<reco::BeamSpot> beamspot_token;
-    const edm::EDGetTokenT<reco::PFJetCollection> jet_token;
-    const edm::EDGetTokenT<reco::METCollection> met_token;
+    const edm::EDGetTokenT<Jet> jet_token;
+    const edm::EDGetTokenT<MET> met_token;
     const edm::EDGetTokenT<reco::VertexCollection> vtx_token;
 
     TTree *eventTree;
@@ -54,21 +62,23 @@ class EventHistos : public edm::EDAnalyzer {
     VertexDistance3D distcalc_3d;
 };
 
-EventHistos::EventHistos(const edm::ParameterSet& cfg)
+template <class Jet, class MET>
+EventTree<Jet, MET>::EventTree(const edm::ParameterSet& cfg)
   : beamspot_token(consumes<reco::BeamSpot>(cfg.getParameter<edm::InputTag>("beamspot_token"))),
-    jet_token(consumes<reco::PFJetCollection>(cfg.getParameter<edm::InputTag>("jet_token"))),
-    met_token(consumes<reco::METCollection>(cfg.getParameter<edm::InputTag>("met_token"))),
+    jet_token(consumes<Jet>(cfg.getParameter<edm::InputTag>("jet_token"))),
+    met_token(consumes<MET>(cfg.getParameter<edm::InputTag>("met_token"))),
     vtx_token(consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("vtx_token")))
 {
   evInfo = new eventInfo;
 }
 
-void EventHistos::analyze(const edm::Event& event, const edm::EventSetup&) {
+template <class Jet, class MET>
+void EventTree<Jet, MET>::analyze(const edm::Event& event, const edm::EventSetup&) {
   initEventStructure();
-  edm::Handle<reco::PFJetCollection> jets;
+  edm::Handle<Jet> jets;
   event.getByToken(jet_token, jets);
 
-  edm::Handle<reco::METCollection> mets;
+  edm::Handle<MET> mets;
   event.getByToken(met_token, mets);
 
   edm::Handle<reco::VertexCollection> vertices;
@@ -77,7 +87,7 @@ void EventHistos::analyze(const edm::Event& event, const edm::EventSetup&) {
   int jet_leading_idx = -1;
   double jet_pt_max = -1;
   for(size_t ijet=0; ijet<jets->size(); ++ijet){
-    const reco::PFJet& jet = jets->at(ijet);
+    const auto& jet = jets->at(ijet);
     evInfo->jet_pt.push_back(jet.pt());
     evInfo->jet_eta.push_back(jet.eta());
     evInfo->jet_phi.push_back(jet.phi());
@@ -87,14 +97,15 @@ void EventHistos::analyze(const edm::Event& event, const edm::EventSetup&) {
     }
   }
 
-  const reco::MET& met = mets->at(0);
+  const auto& met = mets->at(0);
   evInfo->met_pt = met.pt();
   evInfo->met_phi = met.phi();
 
   edm::Handle<reco::BeamSpot> beamspot;
   event.getByToken(beamspot_token, beamspot);
 
-  const reco::PFJet& leading_jet = jets->at(jet_leading_idx);
+  //const reco::PFJet& leading_jet = jets->at(jet_leading_idx);
+  const auto& leading_jet = jets->at(jet_leading_idx);
   const reco::Vertex fake_bs_vtx(beamspot->position(), beamspot->covariance3D());
   evInfo->n_vtx = vertices->size();
   for(size_t ivtx=0; ivtx<vertices->size(); ++ivtx) {
@@ -114,9 +125,12 @@ void EventHistos::analyze(const edm::Event& event, const edm::EventSetup&) {
     evInfo->vtx_acollinearity.push_back(reco::deltaPhi(l_vector, vtx.p4()));
   }
 
+  eventTree->Fill();
+
 }
 
-void EventHistos::beginJob()
+template <class Jet, class MET>
+void EventTree<Jet, MET>::beginJob()
 {
   edm::Service<TFileService> fs;
   eventTree = fs->make<TTree>( "tree_DV", "tree_DV" );
@@ -140,10 +154,12 @@ void EventHistos::beginJob()
 
 }
 
-void EventHistos::endJob()
+template <class Jet, class MET>
+void EventTree<Jet, MET>::endJob()
 {}
 
-void EventHistos::initEventStructure()
+template <class Jet, class MET>
+void EventTree<Jet, MET>::initEventStructure()
 {
   evInfo->n_vtx = -1;
   evInfo->jet_pt.clear();
@@ -163,4 +179,4 @@ void EventHistos::initEventStructure()
   evInfo->vtx_acollinearity.clear();
 }
 
-DEFINE_FWK_MODULE(EventHistos);
+#endif
