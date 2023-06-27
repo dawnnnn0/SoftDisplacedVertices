@@ -2,21 +2,24 @@ import FWCore.ParameterSet.Config as cms
 from SoftDisplacedVertices.VtxReco.VertexReco_cff import VertexRecoSeq
 
 useMINIAOD = True
+useIVF = False
 
 process = cms.Process("VtxReco")
 
 if useMINIAOD:
   process.load("SoftDisplacedVertices.VtxReco.TracksMiniAOD_cfi")
 process.load("SoftDisplacedVertices.VtxReco.VertexReco_cff")
+#process.load("SoftDisplacedVertices.VtxReco.Vertexer_cfi")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
 
 process.source = cms.Source("PoolSource",
   fileNames = cms.untracked.vstring(
     #'file:/users/ang.li/public/SoftDV/CMSSW_10_6_30/src/SoftDisplacedVertices/VtxReco/test/splitSUSY_M2000_1950_ctau1p0_AOD_2017.root',
-    'root://cms-xrd-global.cern.ch//store/mc/RunIISummer20UL17MiniAODv2/splitSUSY_M2000_1950_ctau1p0_TuneCP2_13TeV-pythia8/MINIAODSIM/106X_mc2017_realistic_v9-v2/80000/03435A66-8AC7-7B4C-9744-0D774D27E48B.root',
+    #'root://cms-xrd-global.cern.ch//store/mc/RunIISummer20UL17MiniAODv2/splitSUSY_M2000_1950_ctau1p0_TuneCP2_13TeV-pythia8/MINIAODSIM/106X_mc2017_realistic_v9-v2/80000/03435A66-8AC7-7B4C-9744-0D774D27E48B.root',
+    'root://cms-xrd-global.cern.ch//store/mc/RunIISummer20UL17MiniAODv2/splitSUSY_M2000_1950_ctau1p0_TuneCP2_13TeV-pythia8/MINIAODSIM/106X_mc2017_realistic_v9-v2/80000/12B0D985-23FA-1B45-B3F9-51E4F20B630B.root'
   )
 )
 
@@ -53,11 +56,14 @@ else:
   process.out.outputCommands.append('keep *_ak4PFJets_*_*')
 process.out.outputCommands.append('keep *_offlineBeamSpot_*_*')
 process.out.outputCommands.append('keep *_VertexTracks_*_*')
-process.out.outputCommands.append('keep *_inclusiveVertexFinderSoftDV_*_*')
-process.out.outputCommands.append('keep *_inclusiveSecondaryVerticesSoftDV_*_*')
+if useIVF:
+  process.out.outputCommands.append('keep *_inclusiveVertexFinderSoftDV_*_*')
+  process.out.outputCommands.append('keep *_IVFSecondaryVerticesSoftDV_*_*')
+else:
+  process.out.outputCommands.append('keep *_MFVSecondaryVerticesSoftDV_*_*')
 
 process.TFileService = cms.Service("TFileService", fileName = cms.string("vtxreco_histos.root") )
 
-VertexRecoSeq(process, useMINIAOD=useMINIAOD)
+VertexRecoSeq(process, useMINIAOD=useMINIAOD, useIVF=useIVF)
 process.p = cms.Path(process.trig_filter + process.vtxreco)
 process.outp = cms.EndPath(process.out)

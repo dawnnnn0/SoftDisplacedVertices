@@ -9,4 +9,8 @@
 <use name="DataFormats/PatCandidates"/>
 <use name="DataFormats/METReco"/>
 <use name="RecoVertex/VertexTools"/>
+<use name="RecoVertex/KalmanVertexFit"/>
+<use name="TrackingTools/IPTools"/>
+<use name="TrackingTools/Records"/>
+<use name="TrackingTools/TransientTrack"/>
 <flags EDM_PLUGIN="1"/>

@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-useMINIAOD = False
+useMINIAOD = True
+useIVF = False
 
 process = cms.Process("Histos")
 
@@ -10,7 +11,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.source = cms.Source("PoolSource",
   fileNames = cms.untracked.vstring(
-    'file:/users/ang.li/public/SoftDV/CMSSW_10_6_30/src/SoftDisplacedVertices/VtxReco/test/TestRun/vtxreco_AOD.root'
+    'file:/users/ang.li/public/SoftDV/CMSSW_10_6_30/src/SoftDisplacedVertices/VtxReco/test/TestRun/vtxreco_MINIAOD_MFV.root'
   )
 )
 
@@ -20,16 +21,19 @@ process.EventTreeAOD = cms.EDAnalyzer("EventTreeAOD",
     beamspot_token = cms.InputTag('offlineBeamSpot'),
     jet_token = cms.InputTag('ak4PFJets'),
     met_token = cms.InputTag('pfMet'),
-    vtx_token = cms.InputTag('inclusiveSecondaryVerticesSoftDV'),
+    vtx_token = cms.InputTag('IVFSecondaryVerticesSoftDV'),
 )
 
 process.EventTreeMINIAOD = cms.EDAnalyzer("EventTreeMINIAOD",
     beamspot_token = cms.InputTag('offlineBeamSpot'),
     jet_token = cms.InputTag('slimmedJets'),
     met_token = cms.InputTag('slimmedMETs'),
-    vtx_token = cms.InputTag('inclusiveSecondaryVerticesSoftDV'),
+    vtx_token = cms.InputTag('IVFSecondaryVerticesSoftDV'),
 )
 
+if not useIVF:
+  process.EventTreeAOD.vtx_token = cms.InputTag('MFVSecondaryVerticesSoftDV')
+  process.EventTreeMINIAOD.vtx_token = cms.InputTag('MFVSecondaryVerticesSoftDV')
 
 #process.options = cms.untracked.PSet(
 #    SkipEvent= cms.untracked.vstring("ProductNotFound"), # make this exception fatal
