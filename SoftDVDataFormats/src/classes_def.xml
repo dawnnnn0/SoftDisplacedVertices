@@ -1,3 +1,11 @@
 <lcgdict>
  <class name="edm::Wrapper<std::vector<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> > > >"/>
+
+ <class name="SoftDV::Particle"/>
+ <class name="std::vector<SoftDV::Particle>"/>
+ <class name="edm::Wrapper<std::vector<SoftDV::Particle>>"/>
+
+ <class name="SoftDV::LLP"/>
+ <class name="std::vector<SoftDV::LLP>"/>
+ <class name="edm::Wrapper<std::vector<SoftDV::LLP>>"/>
 </lcgdict>

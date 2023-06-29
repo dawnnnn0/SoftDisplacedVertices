@@ -18,6 +18,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
 #include "RecoVertex/VertexTools/interface/VertexDistanceXY.h"
+#include "SoftDisplacedVertices/SoftDVDataFormats/interface/GenInfo.h"
 
 struct eventInfo
 {
@@ -27,6 +28,7 @@ struct eventInfo
   std::vector<double> jet_phi;
   double met_pt;
   double met_phi;
+  std::vector<double> gen_vtx_dist;
   std::vector<double> vtx_x;
   std::vector<double> vtx_y;
   std::vector<double> vtx_z;
@@ -54,6 +56,7 @@ class EventTree : public edm::EDAnalyzer {
     const edm::EDGetTokenT<Jet> jet_token;
     const edm::EDGetTokenT<MET> met_token;
     const edm::EDGetTokenT<reco::VertexCollection> vtx_token;
+    const edm::EDGetTokenT<std::vector<SoftDV::LLP>> llp_gen_token;
 
     TTree *eventTree;
     eventInfo *evInfo;
@@ -67,7 +70,8 @@ EventTree<Jet, MET>::EventTree(const edm::ParameterSet& cfg)
   : beamspot_token(consumes<reco::BeamSpot>(cfg.getParameter<edm::InputTag>("beamspot_token"))),
     jet_token(consumes<Jet>(cfg.getParameter<edm::InputTag>("jet_token"))),
     met_token(consumes<MET>(cfg.getParameter<edm::InputTag>("met_token"))),
-    vtx_token(consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("vtx_token")))
+    vtx_token(consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("vtx_token"))),
+    llp_gen_token(consumes<std::vector<SoftDV::LLP>>(cfg.getParameter<edm::InputTag>("llp_gen_token")))
 {
   evInfo = new eventInfo;
 }
@@ -83,6 +87,29 @@ void EventTree<Jet, MET>::analyze(const edm::Event& event, const edm::EventSetup
 
   edm::Handle<reco::VertexCollection> vertices;
   event.getByToken(vtx_token, vertices);
+
+  edm::Handle<std::vector<SoftDV::LLP>> genllps;
+  event.getByToken(llp_gen_token, genllps);
+
+  for(size_t illp=0; illp<genllps->size(); ++illp){
+    const auto& llp = genllps->at(illp);
+    if (!llp.valid()) continue;
+    math::XYZPoint llp_decay = llp.decay_point();
+    //SoftDV::Point llp_decay = llp.decay_point(0);
+    double min_dist = 999;
+    //size_t min_ivtx = 999;
+    for(size_t ivtx=0; ivtx<vertices->size(); ++ivtx) {
+      const reco::Vertex& vtx = vertices->at(ivtx);
+      math::XYZPoint vtx_pos = vtx.position();
+      math::XYZVector l_vtx_gen = vtx_pos-llp_decay;
+      double gen_dist = std::sqrt(l_vtx_gen.Mag2());
+      if (gen_dist<min_dist){
+        min_dist = gen_dist;
+        //min_ivtx = ivtx;
+      }
+    }
+    evInfo->gen_vtx_dist.push_back(min_dist);
+  }
 
   int jet_leading_idx = -1;
   double jet_pt_max = -1;
@@ -141,6 +168,7 @@ void EventTree<Jet, MET>::beginJob()
   eventTree->Branch("jet_phi",    &evInfo->jet_phi);
   eventTree->Branch("met_pt",     &evInfo->met_pt);
   eventTree->Branch("met_phi",    &evInfo->met_phi);
+  eventTree->Branch("gen_vtx_dist",      &evInfo->gen_vtx_dist);
   eventTree->Branch("vtx_x",      &evInfo->vtx_x);
   eventTree->Branch("vtx_y",      &evInfo->vtx_y);
   eventTree->Branch("vtx_z",      &evInfo->vtx_z);
@@ -167,6 +195,7 @@ void EventTree<Jet, MET>::initEventStructure()
   evInfo->jet_phi.clear();
   evInfo->met_pt = -1;
   evInfo->met_phi = -1;
+  evInfo->gen_vtx_dist.clear();
   evInfo->vtx_x.clear();
   evInfo->vtx_y.clear();
   evInfo->vtx_z.clear();

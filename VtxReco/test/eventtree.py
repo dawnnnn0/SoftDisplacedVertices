@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 useMINIAOD = True
-useIVF = False
+useIVF = True
 
 process = cms.Process("Histos")
 
@@ -11,7 +11,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.source = cms.Source("PoolSource",
   fileNames = cms.untracked.vstring(
-    'file:/users/ang.li/public/SoftDV/CMSSW_10_6_30/src/SoftDisplacedVertices/VtxReco/test/TestRun/vtxreco_MINIAOD_MFV.root'
+    'file:/users/ang.li/public/SoftDV/CMSSW_10_6_30/src/SoftDisplacedVertices/VtxReco/test/TestRun/vtxreco.root'
   )
 )
 
@@ -22,6 +22,7 @@ process.EventTreeAOD = cms.EDAnalyzer("EventTreeAOD",
     jet_token = cms.InputTag('ak4PFJets'),
     met_token = cms.InputTag('pfMet'),
     vtx_token = cms.InputTag('IVFSecondaryVerticesSoftDV'),
+    llp_gen_token = cms.InputTag('GenInfo'),
 )
 
 process.EventTreeMINIAOD = cms.EDAnalyzer("EventTreeMINIAOD",
@@ -29,6 +30,7 @@ process.EventTreeMINIAOD = cms.EDAnalyzer("EventTreeMINIAOD",
     jet_token = cms.InputTag('slimmedJets'),
     met_token = cms.InputTag('slimmedMETs'),
     vtx_token = cms.InputTag('IVFSecondaryVerticesSoftDV'),
+    llp_gen_token = cms.InputTag('GenInfo'),
 )
 
 if not useIVF:

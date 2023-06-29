@@ -2,13 +2,14 @@ import FWCore.ParameterSet.Config as cms
 from SoftDisplacedVertices.VtxReco.VertexReco_cff import VertexRecoSeq
 
 useMINIAOD = True
-useIVF = False
+useIVF = True
 
 process = cms.Process("VtxReco")
 
 if useMINIAOD:
   process.load("SoftDisplacedVertices.VtxReco.TracksMiniAOD_cfi")
 process.load("SoftDisplacedVertices.VtxReco.VertexReco_cff")
+process.load("SoftDisplacedVertices.VtxReco.GenProducer_cfi")
 #process.load("SoftDisplacedVertices.VtxReco.Vertexer_cfi")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
@@ -56,6 +57,7 @@ else:
   process.out.outputCommands.append('keep *_ak4PFJets_*_*')
 process.out.outputCommands.append('keep *_offlineBeamSpot_*_*')
 process.out.outputCommands.append('keep *_VertexTracks_*_*')
+process.out.outputCommands.append('keep *_GenInfo_*_*')
 if useIVF:
   process.out.outputCommands.append('keep *_inclusiveVertexFinderSoftDV_*_*')
   process.out.outputCommands.append('keep *_IVFSecondaryVerticesSoftDV_*_*')
@@ -64,6 +66,10 @@ else:
 
 process.TFileService = cms.Service("TFileService", fileName = cms.string("vtxreco_histos.root") )
 
+#gen info
+process.GenInfo.llp_id = 1000021
+process.GenInfo.gen_particles_token = cms.InputTag('prunedGenParticles')
+
 VertexRecoSeq(process, useMINIAOD=useMINIAOD, useIVF=useIVF)
-process.p = cms.Path(process.trig_filter + process.vtxreco)
+process.p = cms.Path(process.trig_filter + process.GenInfo + process.vtxreco)
 process.outp = cms.EndPath(process.out)
