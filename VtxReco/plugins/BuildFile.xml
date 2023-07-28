@@ -13,4 +13,5 @@
 <use name="TrackingTools/IPTools"/>
 <use name="TrackingTools/Records"/>
 <use name="TrackingTools/TransientTrack"/>
+<use name="SoftDisplacedVertices/SoftDVDataFormats"/>
 <flags EDM_PLUGIN="1"/>

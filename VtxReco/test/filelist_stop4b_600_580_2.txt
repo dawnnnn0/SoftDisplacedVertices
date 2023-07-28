@@ -1,0 +1,16 @@
+file:/scratch-cbe/users/dietrich.liko/antrag/stop4b_600_580_2/TestAntragIVF1_AODSIM_600_580_2_0.root
+file:/scratch-cbe/users/dietrich.liko/antrag/stop4b_600_580_2/TestAntragIVF1_AODSIM_600_580_2_10.root
+file:/scratch-cbe/users/dietrich.liko/antrag/stop4b_600_580_2/TestAntragIVF1_AODSIM_600_580_2_12.root
+file:/scratch-cbe/users/dietrich.liko/antrag/stop4b_600_580_2/TestAntragIVF1_AODSIM_600_580_2_14.root
+file:/scratch-cbe/users/dietrich.liko/antrag/stop4b_600_580_2/TestAntragIVF1_AODSIM_600_580_2_15.root
+file:/scratch-cbe/users/dietrich.liko/antrag/stop4b_600_580_2/TestAntragIVF1_AODSIM_600_580_2_16.root
+file:/scratch-cbe/users/dietrich.liko/antrag/stop4b_600_580_2/TestAntragIVF1_AODSIM_600_580_2_17.root
+file:/scratch-cbe/users/dietrich.liko/antrag/stop4b_600_580_2/TestAntragIVF1_AODSIM_600_580_2_18.root
+file:/scratch-cbe/users/dietrich.liko/antrag/stop4b_600_580_2/TestAntragIVF1_AODSIM_600_580_2_2.root
+file:/scratch-cbe/users/dietrich.liko/antrag/stop4b_600_580_2/TestAntragIVF1_AODSIM_600_580_2_3.root
+file:/scratch-cbe/users/dietrich.liko/antrag/stop4b_600_580_2/TestAntragIVF1_AODSIM_600_580_2_4.root
+file:/scratch-cbe/users/dietrich.liko/antrag/stop4b_600_580_2/TestAntragIVF1_AODSIM_600_580_2_5.root
+file:/scratch-cbe/users/dietrich.liko/antrag/stop4b_600_580_2/TestAntragIVF1_AODSIM_600_580_2_6.root
+file:/scratch-cbe/users/dietrich.liko/antrag/stop4b_600_580_2/TestAntragIVF1_AODSIM_600_580_2_7.root
+file:/scratch-cbe/users/dietrich.liko/antrag/stop4b_600_580_2/TestAntragIVF1_AODSIM_600_580_2_8.root
+file:/scratch-cbe/users/dietrich.liko/antrag/stop4b_600_580_2/TestAntragIVF1_AODSIM_600_580_2_9.root

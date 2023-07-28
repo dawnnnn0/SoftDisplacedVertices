@@ -8,4 +8,7 @@
  <class name="SoftDV::LLP"/>
  <class name="std::vector<SoftDV::LLP>"/>
  <class name="edm::Wrapper<std::vector<SoftDV::LLP>>"/>
+
+ <class name="std::vector<std::vector<reco::Track> >"/>
+ <class name="edm::Wrapper<std::vector<std::vector<reco::Track> >>"/>
 </lcgdict>

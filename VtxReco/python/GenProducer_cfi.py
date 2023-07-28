@@ -6,5 +6,6 @@ GenInfo = cms.EDProducer('GenProducer',
                                  beamspot_token = cms.InputTag('offlineBeamSpot'),
                                  #last_flag_check = cms.bool(False), # needs to be false now that we're using MiniAOD
                                  debug = cms.bool(False),
-                                 llp_id = cms.int32(-1)
+                                 llp_id = cms.int32(-1),
+                                 lsp_id = cms.int32(-1)
                                  )

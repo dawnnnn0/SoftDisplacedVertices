@@ -6,6 +6,9 @@
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 
 namespace SoftDV {
 
@@ -28,11 +31,12 @@ namespace SoftDV {
 
   struct LLP : public Particle {
     std::vector<Particle> decay_products;
+    std::vector<reco::GenParticle> gen_tracks;
 
     LLP():
-      Particle(),decay_products(std::vector<Particle>()) {}
+      Particle(),decay_products(std::vector<Particle>()),gen_tracks(std::vector<reco::GenParticle>()) {}
     LLP(int pdgid, double charge, PolarLorentzVector polarp4, Point vertex, std::vector<Particle> decay_products):
-      Particle(pdgid,charge,polarp4,vertex),decay_products(decay_products) {}
+      Particle(pdgid,charge,polarp4,vertex),decay_products(decay_products),gen_tracks(std::vector<reco::GenParticle>()) {}
     bool valid() const {return decay_products.size()>0;}
     Point decay_point(size_t i=0) const {
       if (!(i<decay_products.size()))
@@ -40,14 +44,16 @@ namespace SoftDV {
       return decay_products[i].vertex;
     }
 
-    Vector flight() const {
+    Vector flight(Point pv) const {
       if (!valid())
         throw std::invalid_argument("LLP not valid!");
-      Vector gen_vec = Vector(vertex);
+      Vector gen_vec = Vector(pv);
       Vector decay_vec = Vector(decay_point(0));
       return decay_vec - gen_vec;
     }
-    double ct() const { return std::sqrt(flight().Mag2())/polarp4.Beta()/polarp4.Gamma();}
+    double ct(Point pv) const { return std::sqrt(flight(pv).Mag2())/polarp4.Beta()/polarp4.Gamma();}
+    //void addGenTracks(std::vector<reco::GenParticle> gts){ self.gen_tracks = gts;}
+    std::vector<reco::GenParticle> getGenTracks() const {return gen_tracks;}
   };
 
   class GenInfo {
@@ -71,7 +77,10 @@ namespace SoftDV {
       std::vector<LLP> llps_;
   };
 
+
 }
+double gen_dxy(const reco::GenParticle& gtk, const edm::Handle<reco::BeamSpot>& beamspot); 
+double gen_dz(const reco::GenParticle& gtk, const edm::Handle<reco::BeamSpot>& beamspot);
 
 
 #endif

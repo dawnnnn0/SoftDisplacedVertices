@@ -9,9 +9,13 @@ from RecoVertex.AdaptiveVertexFinder.inclusiveVertexFinder_cfi import *
 from RecoVertex.AdaptiveVertexFinder.vertexMerger_cfi import *
 from RecoVertex.AdaptiveVertexFinder.trackVertexArbitrator_cfi import *
 
+VertexTracksLoose = VertexTracks.clone(
+    min_track_nsigmadxy = cms.double(2),
+    )
+
 inclusiveVertexFinderSoftDV = inclusiveVertexFinder.clone(
-    tracks = cms.InputTag("VertexTracks","seed"),
-    minPt = 1.0,
+    #tracks = cms.InputTag("VertexTracks","seed"),
+    minPt = 0.5,
     )
 
 vertexMergerSoftDV = vertexMerger.clone(
@@ -20,7 +24,8 @@ vertexMergerSoftDV = vertexMerger.clone(
 
 trackVertexArbitratorSoftDV = trackVertexArbitrator.clone(
     secondaryVertices = cms.InputTag("vertexMergerSoftDV"),
-    tracks = cms.InputTag("VertexTracks","seed"),
+    #tracks = cms.InputTag("VertexTracks","seed"),
+    #tracks = cms.InputTag("VertexTracksLoose","seed"),
     )
 
 IVFSecondaryVerticesSoftDV = vertexMerger.clone(
@@ -35,12 +40,22 @@ inclusiveVertexFinderSoftDV.minHits = cms.uint32(6)
 inclusiveVertexFinderSoftDV.maximumLongitudinalImpactParameter = cms.double(20.)
 inclusiveVertexFinderSoftDV.vertexMinAngleCosine = cms.double(0.00001)
 
-trackVertexArbitratorSoftDV.dRCut = cms.double(1.57)
+#inclusiveVertexFinderSoftDV.clusterizer.clusterMinAngleCosine = cms.double(0.00001) #new
+#inclusiveVertexFinderSoftDV.clusterizer.distanceRatio = cms.double(1) #new
+
+trackVertexArbitratorSoftDV.dRCut = cms.double(1.57) #old
 trackVertexArbitratorSoftDV.distCut = cms.double(0.1)
 trackVertexArbitratorSoftDV.trackMinPixels = cms.int32(0)
 
+#vertexMergerSoftDV.maxFraction = cms.double(0.4)
 
-#MFVSecondaryVerticesSoftDV = mfvVerticesAOD.clone()
+#trackVertexArbitratorSoftDV.trackMinPt = cms.double(0.4)
+#trackVertexArbitratorSoftDV.dLenFraction = cms.double(1.0)
+#trackVertexArbitratorSoftDV.dRCut = cms.double(5.0) #new
+
+#IVFSecondaryVerticesSoftDV.minSignificance = cms.double(5.0)
+
+MFVSecondaryVerticesSoftDV = mfvVerticesAOD.clone()
 
 def VertexRecoSeq(process, name="vtxreco", useMINIAOD=False, useIVF=False):
   if not useIVF:
@@ -60,15 +75,18 @@ def VertexRecoSeq(process, name="vtxreco", useMINIAOD=False, useIVF=False):
     inclusiveVertexFinderSoftDV.primaryVertices = cms.InputTag('offlineSlimmedPrimaryVertices')
     trackVertexArbitratorSoftDV.primaryVertices = cms.InputTag('offlineSlimmedPrimaryVertices')
     VertexTracks.tracks = cms.InputTag('TracksMiniAOD')
+    VertexTracksLoose.tracks = cms.InputTag('TracksMiniAOD')
 
     trackSeq = cms.Sequence(
         TracksMiniAOD *      
-        VertexTracks
+        VertexTracks *
+        VertexTracksLoose
     )
 
   else:
     trackSeq = cms.Sequence(
-        VertexTracks
+        VertexTracks *
+        VertexTracksLoose
     )
 
   VtxReco = cms.Sequence(

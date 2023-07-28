@@ -104,7 +104,7 @@ bool VertexTracks::filter(edm::Event& event, const edm::EventSetup& setup) {
       fabs(nsigmadxybs) > min_track_nsigmadxy &&
       nhits >= min_track_nhits &&
       normchi2 < max_track_normchi2 && 
-      dz < max_track_dz &&
+      fabs(dz) < max_track_dz &&
       sigmapt_ratio < max_track_sigmapt_ratio;
 
     if (histos) {
