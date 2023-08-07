@@ -14,6 +14,7 @@ process.source = cms.Source("PoolSource",
     'file:/users/ang.li/public/SoftDV/CMSSW_10_6_30/src/SoftDisplacedVertices/VtxReco/test/TestRun/vtxreco.root'
   )
 )
+process.source.duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
 
 process.TFileService = cms.Service("TFileService", fileName = cms.string("tree.root") )
 

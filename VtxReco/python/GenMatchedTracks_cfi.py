@@ -5,4 +5,5 @@ GenMatchedTracks = cms.EDProducer("GenMatchedTracks",
     tracks = cms.InputTag('generalTracks'),
     beamspot = cms.InputTag('offlineBeamSpot'),
     histos = cms.bool(True),
+    debug = cms.bool(False),
     )

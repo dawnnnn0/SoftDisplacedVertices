@@ -40,10 +40,10 @@ inclusiveVertexFinderSoftDV.minHits = cms.uint32(6)
 inclusiveVertexFinderSoftDV.maximumLongitudinalImpactParameter = cms.double(20.)
 inclusiveVertexFinderSoftDV.vertexMinAngleCosine = cms.double(0.00001)
 
-#inclusiveVertexFinderSoftDV.clusterizer.clusterMinAngleCosine = cms.double(0.00001) #new
-#inclusiveVertexFinderSoftDV.clusterizer.distanceRatio = cms.double(1) #new
+inclusiveVertexFinderSoftDV.clusterizer.clusterMinAngleCosine = cms.double(0.00001) #new
+inclusiveVertexFinderSoftDV.clusterizer.distanceRatio = cms.double(1) #new
 
-trackVertexArbitratorSoftDV.dRCut = cms.double(1.57) #old
+#trackVertexArbitratorSoftDV.dRCut = cms.double(1.57) #old
 trackVertexArbitratorSoftDV.distCut = cms.double(0.1)
 trackVertexArbitratorSoftDV.trackMinPixels = cms.int32(0)
 
@@ -51,7 +51,7 @@ trackVertexArbitratorSoftDV.trackMinPixels = cms.int32(0)
 
 #trackVertexArbitratorSoftDV.trackMinPt = cms.double(0.4)
 #trackVertexArbitratorSoftDV.dLenFraction = cms.double(1.0)
-#trackVertexArbitratorSoftDV.dRCut = cms.double(5.0) #new
+trackVertexArbitratorSoftDV.dRCut = cms.double(5.0) #new
 
 #IVFSecondaryVerticesSoftDV.minSignificance = cms.double(5.0)
 

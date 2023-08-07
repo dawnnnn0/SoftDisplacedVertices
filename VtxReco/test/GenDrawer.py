@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("Drawer")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(2) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(5) )
 
 import FWCore.Utilities.FileUtils as FileUtils
 inputDatafileList = FileUtils.loadListFromFile('/users/ang.li/public/SoftDV/CMSSW_10_6_30/src/SoftDisplacedVertices/VtxReco/test/filelist_stop4b_600_588_200.txt')
@@ -23,9 +23,9 @@ process.printTree = cms.EDAnalyzer("ParticleTreeDrawer",
                                    printP4 = cms.untracked.bool(False),
                                    printPtEtaPhi = cms.untracked.bool(False),
                                    printVertex = cms.untracked.bool(False),
-                                   printStatus = cms.untracked.bool(False),
+                                   printStatus = cms.untracked.bool(True),
                                    printIndex = cms.untracked.bool(False),
-                                   #status = cms.untracked.vint32( 3 )
+                                   #status = cms.untracked.vint32( 1 )
                                    )
 
 process.p = cms.Path(process.printTree)

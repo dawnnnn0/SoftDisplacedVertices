@@ -38,6 +38,7 @@ struct eventInfo
   std::vector<int> gen_vtx_n_gen_tk;
   std::vector<int> gen_vtx_n_matched_tk;
   std::vector<int> gen_vtx_n_matched_vtx;
+  std::vector<bool> gen_vtx_match_by_dist;
   std::vector<int> vtx_match;
   std::vector<double> vtx_x;
   std::vector<double> vtx_y;
@@ -146,6 +147,7 @@ void EventTree<Jet, MET>::analyze(const edm::Event& event, const edm::EventSetup
     //double min_dist = 999;
     //size_t min_ivtx = 999;
     bool gen_matched = false;
+    bool gen_matched_dist = false;
     std::vector<int> match_vtx_idx;
     const auto m_tracks = matched_tracks->at(illp);
     evInfo->gen_vtx_n_reco_matched_tk.push_back(m_tracks.size());
@@ -210,25 +212,32 @@ void EventTree<Jet, MET>::analyze(const edm::Event& event, const edm::EventSetup
     evInfo->gen_vtx_match.push_back(gen_matched);
 
 
-    //for(size_t ivtx=0; ivtx<vertices->size(); ++ivtx) {
-    //  if(std::find(match_idx.begin(), match_idx.end(), ivtx) != match_idx.end())
-    //    continue;
-    //  const reco::Vertex& vtx = vertices->at(ivtx);
-    //  math::XYZPoint vtx_pos = vtx.position();
-    //  math::XYZVector l_vtx_gen = vtx_pos-llp_decay;
-    //  double gen_dist = std::sqrt(l_vtx_gen.Perp2());
-    //  if (gen_dist<min_dist){
-    //    min_dist = gen_dist;
-    //    min_ivtx = ivtx;
-    //  }
-    //}
+    for(size_t ivtx=0; ivtx<vertices->size(); ++ivtx) {
+      //if(std::find(match_idx.begin(), match_idx.end(), ivtx) != match_idx.end())
+      //  continue;
+      const reco::Vertex& vtx = vertices->at(ivtx);
+      const auto d_gen = gen_dist(vtx,llp_decay,true);
+      double d_gen_sig = fabs(d_gen.significance());
+      if (d_gen_sig<10) {
+        gen_matched_dist = true;
+        break;
+      }
+      //math::XYZPoint vtx_pos = vtx.position();
+      //math::XYZVector l_vtx_gen = vtx_pos-llp_decay;
+      //double gen_dist = std::sqrt(l_vtx_gen.Perp2());
+      //if (gen_dist<min_dist){
+      //  min_dist = gen_dist;
+      //  min_ivtx = ivtx;
+      //}
+    }
     //if (min_dist<0.01) {
     //  n_match += 1;
     //  match_idx.push_back(min_ivtx);
-    //  gen_matched = true;
+    //  gen_matched_dist = true;
     //}
     //evInfo->gen_vtx_dist.push_back(min_dist);
     //evInfo->gen_vtx_match.push_back(gen_matched);
+    evInfo->gen_vtx_match_by_dist.push_back(gen_matched_dist);
   }
   evInfo->n_gen_vtx = n_gen_vtx;
   evInfo->gen_vtx_dist = matched_distance;
@@ -321,6 +330,7 @@ void EventTree<Jet, MET>::beginJob()
   eventTree->Branch("gen_vtx_n_gen_tk", &evInfo->gen_vtx_n_gen_tk);
   eventTree->Branch("gen_vtx_n_matched_tk", &evInfo->gen_vtx_n_matched_tk);
   eventTree->Branch("gen_vtx_n_matched_vtx", &evInfo->gen_vtx_n_matched_vtx);
+  eventTree->Branch("gen_vtx_match_by_dist", &evInfo->gen_vtx_match_by_dist);
   eventTree->Branch("vtx_match",      &evInfo->vtx_match);
   eventTree->Branch("vtx_x",      &evInfo->vtx_x);
   eventTree->Branch("vtx_y",      &evInfo->vtx_y);
@@ -358,6 +368,7 @@ void EventTree<Jet, MET>::initEventStructure()
   evInfo->gen_vtx_n_gen_tk.clear();
   evInfo->gen_vtx_n_matched_tk.clear();
   evInfo->gen_vtx_n_matched_vtx.clear();
+  evInfo->gen_vtx_match_by_dist.clear();
   evInfo->vtx_match.clear();
   evInfo->vtx_x.clear();
   evInfo->vtx_y.clear();

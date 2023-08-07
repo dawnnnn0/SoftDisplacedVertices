@@ -15,20 +15,23 @@ process.load("SoftDisplacedVertices.VtxReco.GenMatchedTracks_cfi")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(3) )
 
 import FWCore.Utilities.FileUtils as FileUtils
 inputDatafileList = FileUtils.loadListFromFile('/users/ang.li/public/SoftDV/CMSSW_10_6_30/src/SoftDisplacedVertices/VtxReco/test/filelist_stop4b_600_588_200.txt')
 
 process.source = cms.Source("PoolSource",
   fileNames = cms.untracked.vstring(
+    'file:/scratch-cbe/users/ang.li/antrag/stop4b_600_588_200/TestAntragIVF1_AODSIM_600_588_200_0.root',
     #'file:/users/ang.li/public/SoftDV/CMSSW_10_6_30/src/SoftDisplacedVertices/VtxReco/test/splitSUSY_M2000_1950_ctau1p0_AOD_2017.root',
     #'root://cms-xrd-global.cern.ch//store/mc/RunIISummer20UL17MiniAODv2/splitSUSY_M2000_1950_ctau1p0_TuneCP2_13TeV-pythia8/MINIAODSIM/106X_mc2017_realistic_v9-v2/80000/03435A66-8AC7-7B4C-9744-0D774D27E48B.root',
     #'root://cms-xrd-global.cern.ch//store/mc/RunIISummer20UL17MiniAODv2/splitSUSY_M2000_1950_ctau1p0_TuneCP2_13TeV-pythia8/MINIAODSIM/106X_mc2017_realistic_v9-v2/80000/12B0D985-23FA-1B45-B3F9-51E4F20B630B.root',
     #'root://cms-xrd-global.cern.ch//store/mc/RunIISummer20UL17MiniAOD/ZJetsToNuNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8/MINIAODSIM/106X_mc2017_realistic_v6-v1/00000/E5DF4692-A6EA-0545-B901-D071F3385AAB.root',
-    cms.untracked.vstring( *inputDatafileList)
+    #cms.untracked.vstring( *inputDatafileList)
   )
 )
+
+#process.source.duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
 
 process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('vtxreco.root'),
@@ -90,6 +93,7 @@ if useMINIAOD:
   process.GenInfo.gen_particles_token = cms.InputTag('prunedGenParticles')
   process.GenMatchedTracks.tracks = cms.InputTag('TracksMiniAOD')
 #process.GenInfo.debug=True
+process.GenMatchedTracks.debug=True
 
 VertexRecoSeq(process, useMINIAOD=useMINIAOD, useIVF=useIVF)
 process.p = cms.Path(process.trig_filter + process.GenInfo + process.vtxreco + process.GenMatchedTracks)

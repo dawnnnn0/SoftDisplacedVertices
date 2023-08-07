@@ -7,8 +7,10 @@
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 
 namespace SoftDV {
 
@@ -82,5 +84,6 @@ namespace SoftDV {
 double gen_dxy(const reco::GenParticle& gtk, const edm::Handle<reco::BeamSpot>& beamspot); 
 double gen_dz(const reco::GenParticle& gtk, const edm::Handle<reco::BeamSpot>& beamspot);
 
+Measurement1D gen_dist(const reco::Vertex& sv, const SoftDV::Point& gen, const bool use3d);
 
 #endif

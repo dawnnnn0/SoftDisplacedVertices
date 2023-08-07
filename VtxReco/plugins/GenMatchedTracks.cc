@@ -31,6 +31,7 @@ struct gentkInfo
   std::vector<double> matched_track_dxy_err;
   std::vector<double> matched_track_dz;
   std::vector<double> matched_track_dz_err;
+  std::vector<double> matched_track_dr;
   std::vector<int> matched_track_n_gentk;
 };
 
@@ -49,6 +50,7 @@ class GenMatchedTracks : public edm::EDProducer {
     const edm::EDGetTokenT<reco::TrackCollection> tracks_token;
     const edm::EDGetTokenT<reco::BeamSpot> beamspot_token;
     const bool histos;
+    const bool debug;
 
     MatchResult matchtracks(const reco::GenParticle&, const edm::Handle<reco::TrackCollection>&, const edm::Handle<reco::BeamSpot>& );
     Match matchchi2(const reco::GenParticle&, const reco::TrackRef&, const edm::Handle<reco::BeamSpot>& );
@@ -77,7 +79,8 @@ GenMatchedTracks::GenMatchedTracks(const edm::ParameterSet& cfg)
   : llp_gen_token(consumes<std::vector<SoftDV::LLP>>(cfg.getParameter<edm::InputTag>("llp_gen_token"))),
     tracks_token(consumes<reco::TrackCollection>(cfg.getParameter<edm::InputTag>("tracks"))),
     beamspot_token(consumes<reco::BeamSpot>(cfg.getParameter<edm::InputTag>("beamspot"))),
-    histos(cfg.getParameter<bool>("histos"))
+    histos(cfg.getParameter<bool>("histos")),
+    debug(cfg.getParameter<bool>("debug"))
 {
   gtInfo = new gentkInfo;
 
@@ -118,6 +121,7 @@ GenMatchedTracks::GenMatchedTracks(const edm::ParameterSet& cfg)
     gentkTree->Branch("matched_track_dxy_err",  &gtInfo->matched_track_dxy_err);
     gentkTree->Branch("matched_track_dz",       &gtInfo->matched_track_dz);
     gentkTree->Branch("matched_track_dz_err",   &gtInfo->matched_track_dz_err);
+    gentkTree->Branch("matched_track_dr",   &gtInfo->matched_track_dr);
     gentkTree->Branch("matched_track_n_gentk",  &gtInfo->matched_track_n_gentk);
   }
 }
@@ -145,8 +149,14 @@ void GenMatchedTracks::produce(edm::Event& event, const edm::EventSetup& setup) 
     std::vector<reco::Track> matched_tks;
     const auto gen_tks = llp.getGenTracks();
     if (histos) n_gentracks_LLP->Fill(gen_tks.size());
+    if (debug){
+      std::cout << "Processing LLP " << illp << " with gen tracks " << gen_tks.size() << " at x " << llp.decay_point().x() << " y " << llp.decay_point().y() << " z " << llp.decay_point().z() << std::endl;
+    }
     int n_matched_tracks = 0;
     for (const auto& gtk:gen_tks){
+      if (debug) {
+        std::cout << "LLP gen track pt " << gtk.pt() << " eta " << gtk.eta() << " phi " << gtk.phi() << std::endl;
+      }
       const auto matchres = matchtracks(gtk, tracks, beamspot);
       gtInfo->gen_pt.push_back(gtk.pt());
       gtInfo->gen_eta.push_back(gtk.eta());
@@ -162,6 +172,10 @@ void GenMatchedTracks::produce(edm::Event& event, const edm::EventSetup& setup) 
         track_match[matchres.first] += 1;
         reco::TrackRef tk(tracks, matchres.first);
 
+        if (debug) {
+          std::cout << "  Matched track pt " << tk->pt() << " eta " << tk->eta() << " phi " << tk->phi() << " dxy " << tk->dxy(*beamspot) << " dz " << tk->dz((*beamspot).position()) << ". And dr " << matchres.second.second << std::endl;
+        }
+
         gtInfo->matched_track_pt.push_back(tk->pt());
         gtInfo->matched_track_eta.push_back(tk->eta());
         gtInfo->matched_track_phi.push_back(tk->phi());
@@ -169,6 +183,7 @@ void GenMatchedTracks::produce(edm::Event& event, const edm::EventSetup& setup) 
         gtInfo->matched_track_dxy_err.push_back(tk->dxyError());
         gtInfo->matched_track_dz.push_back(tk->dz((*beamspot).position()));
         gtInfo->matched_track_dz_err.push_back(tk->dzError());
+        gtInfo->matched_track_dr.push_back(matchres.second.second);
 
         matched_tks.push_back(*tk);
         if (histos) {
@@ -195,7 +210,7 @@ void GenMatchedTracks::produce(edm::Event& event, const edm::EventSetup& setup) 
         gtInfo->matched_track_dxy_err.push_back(-1);
         gtInfo->matched_track_dz.push_back(-1);
         gtInfo->matched_track_dz_err.push_back(-1);
-      
+        gtInfo->matched_track_dr.push_back(-1);
       }
     }
     if (histos)  n_matched_tracks_LLP->Fill(n_matched_tracks);
@@ -206,16 +221,12 @@ void GenMatchedTracks::produce(edm::Event& event, const edm::EventSetup& setup) 
       n_matched_tracks_gentrack->Fill(track_match[i]);
     }
   }
-  std::cout << "number of gen particles " << (gtInfo->gen_tk_idx).size() << std::endl;
   for(size_t i=0; i<(gtInfo->gen_tk_idx).size(); ++i){
-    std::cout << "  match track idx " << gtInfo->gen_tk_idx[i];
     if (gtInfo->gen_tk_idx[i]==-1)
       gtInfo->matched_track_n_gentk.push_back(0);
     else {
-      std::cout << " number of matches " << track_match[gtInfo->gen_tk_idx[i]];
       gtInfo->matched_track_n_gentk.push_back(track_match[gtInfo->gen_tk_idx[i]]);
     }
-    std::cout << std::endl;
   }
 
   gentkTree->Fill();
@@ -281,6 +292,7 @@ void GenMatchedTracks::initStructure()
   gtInfo->matched_track_dxy_err.clear();
   gtInfo->matched_track_dz.clear();
   gtInfo->matched_track_dz_err.clear();
+  gtInfo->matched_track_dr.clear();
   gtInfo->matched_track_n_gentk.clear();
 }
 

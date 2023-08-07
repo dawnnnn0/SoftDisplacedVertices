@@ -7,5 +7,7 @@ GenInfo = cms.EDProducer('GenProducer',
                                  #last_flag_check = cms.bool(False), # needs to be false now that we're using MiniAOD
                                  debug = cms.bool(False),
                                  llp_id = cms.int32(-1),
-                                 lsp_id = cms.int32(-1)
+                                 lsp_id = cms.int32(-1),
+                                 match_by_dist = cms.bool(False),
+                                 match_by_daughter = cms.bool(True),
                                  )
