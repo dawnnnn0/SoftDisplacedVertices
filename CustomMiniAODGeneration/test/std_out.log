@@ -1,0 +1,17 @@
+Running the command: cmsRun -e -j customMiniAOD_Report.xml customMiniAODv2_cfg.py || exit 0 ;
+ 
+Validation report of SUS-RunIISummer20UL18MiniAODv2-00068 sequence 1/1
+Processed events: 100
+Produced events: 100
+Threads: 10
+Peak value RSS: 2047.64 MB
+Peak value Vsize: 3491.33 MB
+Total size: 20.7982 MB
+Total job time: 77.3824 s
+Total CPU time: 161.646 s
+Event throughput: 3.70401
+CPU efficiency: 20.88 %
+Size per event: 212.9735 kB
+Time per event: .2699 s
+Filter efficiency percent: 100.00000000 %
+Filter efficiency fraction: 1.0000000000

@@ -2,14 +2,13 @@ import FWCore.ParameterSet.Config as cms
 
 from SoftDisplacedVertices.VtxReco.TracksMiniAOD_cfi import TracksMiniAOD
 from SoftDisplacedVertices.VtxReco.VertexTracks_cfi import VertexTracks
-from SoftDisplacedVertices.VtxReco.TracksMiniAOD_cfi import TracksMiniAOD
 from SoftDisplacedVertices.VtxReco.Vertexer_cfi import mfvVerticesAOD, mfvVerticesMINIAOD
 
 from RecoVertex.AdaptiveVertexFinder.inclusiveVertexFinder_cfi import *
 from RecoVertex.AdaptiveVertexFinder.vertexMerger_cfi import *
 from RecoVertex.AdaptiveVertexFinder.trackVertexArbitrator_cfi import *
 
-VertexTracksLoose = VertexTracks.clone(
+VertexTracksLoose = VertexTracks.clone( # omit cloning
     min_track_nsigmadxy = cms.double(2),
     )
 
@@ -35,62 +34,35 @@ IVFSecondaryVerticesSoftDV = vertexMerger.clone(
 )
 
 #inclusiveVertexFinderSoftDV.vertexReco.smoothing = cms.bool(False)
+#trackVertexArbitratorSoftDV.dRCut = cms.double(1.57) #old
+#vertexMergerSoftDV.maxFraction = cms.double(0.4)
+#trackVertexArbitratorSoftDV.trackMinPt = cms.double(0.4)
+#trackVertexArbitratorSoftDV.dLenFraction = cms.double(1.0)
+#IVFSecondaryVerticesSoftDV.minSignificance = cms.double(5.0)
+
+
 inclusiveVertexFinderSoftDV.minPt = cms.double(0.5)
 inclusiveVertexFinderSoftDV.minHits = cms.uint32(6)
 inclusiveVertexFinderSoftDV.maximumLongitudinalImpactParameter = cms.double(20.)
 inclusiveVertexFinderSoftDV.vertexMinAngleCosine = cms.double(0.00001)
-
 inclusiveVertexFinderSoftDV.clusterizer.clusterMinAngleCosine = cms.double(0.00001) #new
 inclusiveVertexFinderSoftDV.clusterizer.distanceRatio = cms.double(1) #new
-
-#trackVertexArbitratorSoftDV.dRCut = cms.double(1.57) #old
 trackVertexArbitratorSoftDV.distCut = cms.double(0.1)
 trackVertexArbitratorSoftDV.trackMinPixels = cms.int32(0)
-
-#vertexMergerSoftDV.maxFraction = cms.double(0.4)
-
-#trackVertexArbitratorSoftDV.trackMinPt = cms.double(0.4)
-#trackVertexArbitratorSoftDV.dLenFraction = cms.double(1.0)
 trackVertexArbitratorSoftDV.dRCut = cms.double(5.0) #new
 
-#IVFSecondaryVerticesSoftDV.minSignificance = cms.double(5.0)
-
-MFVSecondaryVerticesSoftDV = mfvVerticesAOD.clone()
 
 def VertexRecoSeq(process, name="vtxreco", useMINIAOD=False, useIVF=False):
-  if not useIVF:
-    #process.MFVSecondaryVerticesSoftDV = process.mfvVerticesAOD.clone()
-    process.MFVSecondaryVerticesSoftDV = getattr(process,'mfvVertices'+('MINIAOD' if useMINIAOD else 'AOD')).clone()
-    DVSeq = cms.Sequence(
-        process.MFVSecondaryVerticesSoftDV
-    )
-  else:
-    DVSeq = cms.Sequence(
-        inclusiveVertexFinderSoftDV *
-        vertexMergerSoftDV *
-        trackVertexArbitratorSoftDV *
-        IVFSecondaryVerticesSoftDV
-    )
-  if useMINIAOD:
-    inclusiveVertexFinderSoftDV.primaryVertices = cms.InputTag('offlineSlimmedPrimaryVertices')
-    trackVertexArbitratorSoftDV.primaryVertices = cms.InputTag('offlineSlimmedPrimaryVertices')
-    VertexTracks.tracks = cms.InputTag('TracksMiniAOD')
-    VertexTracksLoose.tracks = cms.InputTag('TracksMiniAOD')
+    assert useIVF==True and useMINIAOD==False, "Check the code. Do you intend to use a different setup?"
 
-    trackSeq = cms.Sequence(
-        TracksMiniAOD *      
-        VertexTracks *
-        VertexTracksLoose
-    )
+    trackSeq = cms.Sequence(VertexTracksLoose)
+    # DVSeq    = cms.Sequence(inclusiveVertexFinderSoftDV *
+    #                         vertexMergerSoftDV *
+    #                         trackVertexArbitratorSoftDV *
+    #                         IVFSecondaryVerticesSoftDV
+    #                         )
+    
 
-  else:
-    trackSeq = cms.Sequence(
-        VertexTracks *
-        VertexTracksLoose
-    )
+    VtxReco = cms.Sequence(trackSeq)
 
-  VtxReco = cms.Sequence(
-      trackSeq *
-      DVSeq
-  )
-  setattr(process,name,VtxReco)
+    setattr(process,name,VtxReco)

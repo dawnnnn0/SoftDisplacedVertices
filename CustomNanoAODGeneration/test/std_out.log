@@ -1,0 +1,203 @@
+Running the command: cmsRun -e -j customNanoAOD_Report.xml customNanoAOD_cfg.py || exit 0 ;
+ 
+Will recalculate the following discriminators on AK8 jets: pfParticleNetMassRegressionJetTags:mass
+                         : Booking "muonMVATTH" of type "BDT" from /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/mu_BDTG_2017.weights.xml.
+                         : Reading weight file: /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/mu_BDTG_2017.weights.xml
+<HEADER> DataSetInfo              : [Default] : Added class "Signal"
+<HEADER> DataSetInfo              : [Default] : Added class "Background"
+                         : Booked classifier "BDTG" of type: "BDT"
+                         : Booking "muonMVATTH" of type "BDT" from /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/mu_BDTG_2017.weights.xml.
+                         : Reading weight file: /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/mu_BDTG_2017.weights.xml
+<HEADER> DataSetInfo              : [Default] : Added class "Signal"
+<HEADER> DataSetInfo              : [Default] : Added class "Background"
+                         : Booked classifier "BDTG" of type: "BDT"
+                         : Booking "muonMVATTH" of type "BDT" from /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/mu_BDTG_2017.weights.xml.
+                         : Reading weight file: /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/mu_BDTG_2017.weights.xml
+<HEADER> DataSetInfo              : [Default] : Added class "Signal"
+<HEADER> DataSetInfo              : [Default] : Added class "Background"
+                         : Booked classifier "BDTG" of type: "BDT"
+                         : Booking "muonMVATTH" of type "BDT" from /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/mu_BDTG_2017.weights.xml.
+                         : Reading weight file: /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/mu_BDTG_2017.weights.xml
+<HEADER> DataSetInfo              : [Default] : Added class "Signal"
+<HEADER> DataSetInfo              : [Default] : Added class "Background"
+                         : Booked classifier "BDTG" of type: "BDT"
+                         : Booking "muonMVATTH" of type "BDT" from /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/mu_BDTG_2017.weights.xml.
+                         : Reading weight file: /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/mu_BDTG_2017.weights.xml
+<HEADER> DataSetInfo              : [Default] : Added class "Signal"
+<HEADER> DataSetInfo              : [Default] : Added class "Background"
+                         : Booked classifier "BDTG" of type: "BDT"
+                         : Booking "muonMVATTH" of type "BDT" from /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/mu_BDTG_2017.weights.xml.
+                         : Reading weight file: /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/mu_BDTG_2017.weights.xml
+<HEADER> DataSetInfo              : [Default] : Added class "Signal"
+<HEADER> DataSetInfo              : [Default] : Added class "Background"
+                         : Booked classifier "BDTG" of type: "BDT"
+                         : Booking "muonMVATTH" of type "BDT" from /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/mu_BDTG_2017.weights.xml.
+                         : Reading weight file: /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/mu_BDTG_2017.weights.xml
+<HEADER> DataSetInfo              : [Default] : Added class "Signal"
+<HEADER> DataSetInfo              : [Default] : Added class "Background"
+                         : Booked classifier "BDTG" of type: "BDT"
+                         : Booking "muonMVATTH" of type "BDT" from /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/mu_BDTG_2017.weights.xml.
+                         : Reading weight file: /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/mu_BDTG_2017.weights.xml
+<HEADER> DataSetInfo              : [Default] : Added class "Signal"
+<HEADER> DataSetInfo              : [Default] : Added class "Background"
+                         : Booked classifier "BDTG" of type: "BDT"
+                         : Booking "muonMVATTH" of type "BDT" from /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/mu_BDTG_2017.weights.xml.
+                         : Reading weight file: /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/mu_BDTG_2017.weights.xml
+<HEADER> DataSetInfo              : [Default] : Added class "Signal"
+<HEADER> DataSetInfo              : [Default] : Added class "Background"
+                         : Booked classifier "BDTG" of type: "BDT"
+                         : Booking "muonMVATTH" of type "BDT" from /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/mu_BDTG_2017.weights.xml.
+                         : Reading weight file: /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/mu_BDTG_2017.weights.xml
+<HEADER> DataSetInfo              : [Default] : Added class "Signal"
+<HEADER> DataSetInfo              : [Default] : Added class "Background"
+                         : Booked classifier "BDTG" of type: "BDT"
+                         : Booking "muonMVALowPt" of type "BDT" from /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/mu_BDTG_lowpt.weights.xml.
+                         : Reading weight file: /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/mu_BDTG_lowpt.weights.xml
+<HEADER> DataSetInfo              : [Default] : Added class "Signal"
+<HEADER> DataSetInfo              : [Default] : Added class "Background"
+                         : Booked classifier "BDTG" of type: "BDT"
+                         : Booking "muonMVALowPt" of type "BDT" from /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/mu_BDTG_lowpt.weights.xml.
+                         : Reading weight file: /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/mu_BDTG_lowpt.weights.xml
+<HEADER> DataSetInfo              : [Default] : Added class "Signal"
+<HEADER> DataSetInfo              : [Default] : Added class "Background"
+                         : Booked classifier "BDTG" of type: "BDT"
+                         : Booking "muonMVALowPt" of type "BDT" from /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/mu_BDTG_lowpt.weights.xml.
+                         : Reading weight file: /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/mu_BDTG_lowpt.weights.xml
+<HEADER> DataSetInfo              : [Default] : Added class "Signal"
+<HEADER> DataSetInfo              : [Default] : Added class "Background"
+                         : Booked classifier "BDTG" of type: "BDT"
+                         : Booking "muonMVALowPt" of type "BDT" from /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/mu_BDTG_lowpt.weights.xml.
+                         : Reading weight file: /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/mu_BDTG_lowpt.weights.xml
+<HEADER> DataSetInfo              : [Default] : Added class "Signal"
+<HEADER> DataSetInfo              : [Default] : Added class "Background"
+                         : Booked classifier "BDTG" of type: "BDT"
+                         : Booking "muonMVALowPt" of type "BDT" from /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/mu_BDTG_lowpt.weights.xml.
+                         : Reading weight file: /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/mu_BDTG_lowpt.weights.xml
+<HEADER> DataSetInfo              : [Default] : Added class "Signal"
+<HEADER> DataSetInfo              : [Default] : Added class "Background"
+                         : Booked classifier "BDTG" of type: "BDT"
+                         : Booking "muonMVALowPt" of type "BDT" from /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/mu_BDTG_lowpt.weights.xml.
+                         : Reading weight file: /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/mu_BDTG_lowpt.weights.xml
+<HEADER> DataSetInfo              : [Default] : Added class "Signal"
+<HEADER> DataSetInfo              : [Default] : Added class "Background"
+                         : Booked classifier "BDTG" of type: "BDT"
+                         : Booking "muonMVALowPt" of type "BDT" from /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/mu_BDTG_lowpt.weights.xml.
+                         : Reading weight file: /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/mu_BDTG_lowpt.weights.xml
+<HEADER> DataSetInfo              : [Default] : Added class "Signal"
+<HEADER> DataSetInfo              : [Default] : Added class "Background"
+                         : Booked classifier "BDTG" of type: "BDT"
+                         : Booking "muonMVALowPt" of type "BDT" from /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/mu_BDTG_lowpt.weights.xml.
+                         : Reading weight file: /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/mu_BDTG_lowpt.weights.xml
+<HEADER> DataSetInfo              : [Default] : Added class "Signal"
+<HEADER> DataSetInfo              : [Default] : Added class "Background"
+                         : Booked classifier "BDTG" of type: "BDT"
+                         : Booking "muonMVALowPt" of type "BDT" from /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/mu_BDTG_lowpt.weights.xml.
+                         : Reading weight file: /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/mu_BDTG_lowpt.weights.xml
+<HEADER> DataSetInfo              : [Default] : Added class "Signal"
+<HEADER> DataSetInfo              : [Default] : Added class "Background"
+                         : Booked classifier "BDTG" of type: "BDT"
+                         : Booking "muonMVALowPt" of type "BDT" from /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/mu_BDTG_lowpt.weights.xml.
+                         : Reading weight file: /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/mu_BDTG_lowpt.weights.xml
+<HEADER> DataSetInfo              : [Default] : Added class "Signal"
+<HEADER> DataSetInfo              : [Default] : Added class "Background"
+                         : Booked classifier "BDTG" of type: "BDT"
+                         : Booking "electronMVATTH" of type "BDT" from /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/el_BDTG_2017.weights.xml.
+                         : Reading weight file: /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/el_BDTG_2017.weights.xml
+<HEADER> DataSetInfo              : [Default] : Added class "Signal"
+<HEADER> DataSetInfo              : [Default] : Added class "Background"
+                         : Booked classifier "BDTG" of type: "BDT"
+                         : Booking "electronMVATTH" of type "BDT" from /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/el_BDTG_2017.weights.xml.
+                         : Reading weight file: /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/el_BDTG_2017.weights.xml
+<HEADER> DataSetInfo              : [Default] : Added class "Signal"
+<HEADER> DataSetInfo              : [Default] : Added class "Background"
+                         : Booked classifier "BDTG" of type: "BDT"
+                         : Booking "electronMVATTH" of type "BDT" from /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/el_BDTG_2017.weights.xml.
+                         : Reading weight file: /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/el_BDTG_2017.weights.xml
+<HEADER> DataSetInfo              : [Default] : Added class "Signal"
+<HEADER> DataSetInfo              : [Default] : Added class "Background"
+                         : Booked classifier "BDTG" of type: "BDT"
+                         : Booking "electronMVATTH" of type "BDT" from /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/el_BDTG_2017.weights.xml.
+                         : Reading weight file: /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/el_BDTG_2017.weights.xml
+<HEADER> DataSetInfo              : [Default] : Added class "Signal"
+<HEADER> DataSetInfo              : [Default] : Added class "Background"
+                         : Booked classifier "BDTG" of type: "BDT"
+                         : Booking "electronMVATTH" of type "BDT" from /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/el_BDTG_2017.weights.xml.
+                         : Reading weight file: /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/el_BDTG_2017.weights.xml
+<HEADER> DataSetInfo              : [Default] : Added class "Signal"
+<HEADER> DataSetInfo              : [Default] : Added class "Background"
+                         : Booked classifier "BDTG" of type: "BDT"
+                         : Booking "electronMVATTH" of type "BDT" from /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/el_BDTG_2017.weights.xml.
+                         : Reading weight file: /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/el_BDTG_2017.weights.xml
+<HEADER> DataSetInfo              : [Default] : Added class "Signal"
+<HEADER> DataSetInfo              : [Default] : Added class "Background"
+                         : Booked classifier "BDTG" of type: "BDT"
+                         : Booking "electronMVATTH" of type "BDT" from /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/el_BDTG_2017.weights.xml.
+                         : Reading weight file: /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/el_BDTG_2017.weights.xml
+<HEADER> DataSetInfo              : [Default] : Added class "Signal"
+<HEADER> DataSetInfo              : [Default] : Added class "Background"
+                         : Booked classifier "BDTG" of type: "BDT"
+                         : Booking "electronMVATTH" of type "BDT" from /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/el_BDTG_2017.weights.xml.
+                         : Reading weight file: /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/el_BDTG_2017.weights.xml
+<HEADER> DataSetInfo              : [Default] : Added class "Signal"
+<HEADER> DataSetInfo              : [Default] : Added class "Background"
+                         : Booked classifier "BDTG" of type: "BDT"
+                         : Booking "electronMVATTH" of type "BDT" from /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/el_BDTG_2017.weights.xml.
+                         : Reading weight file: /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/el_BDTG_2017.weights.xml
+<HEADER> DataSetInfo              : [Default] : Added class "Signal"
+<HEADER> DataSetInfo              : [Default] : Added class "Background"
+                         : Booked classifier "BDTG" of type: "BDT"
+                         : Booking "electronMVATTH" of type "BDT" from /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/el_BDTG_2017.weights.xml.
+                         : Reading weight file: /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_6_28/external/slc7_amd64_gcc700/data/PhysicsTools/NanoAOD/data/el_BDTG_2017.weights.xml
+<HEADER> DataSetInfo              : [Default] : Added class "Signal"
+<HEADER> DataSetInfo              : [Default] : Added class "Background"
+                         : Booked classifier "BDTG" of type: "BDT"
+Rivet.Analysis.Handler: WARN  Analysis 'HiggsTemplateCrossSections' is unvalidated: be careful, it may be broken!
+==============================================================
+========     HiggsTemplateCrossSections Initialization     =========
+==============================================================
+Rivet.Analysis.HiggsTemplateCrossSections: WARN  No HIGGSPRODMODE shell variable found. Needed when running Rivet stand-alone.
+==============================================================
+========             Higgs prod mode 0              =========
+========          Sucessful Initialization           =========
+==============================================================
+Rivet.Analysis.HiggsTemplateCrossSections: WARN  Unkown Higgs production mechanism. Cannot classify event. Classification for all events will most likely fail.
+Rivet.Analysis.HiggsTemplateCrossSections: WARN  Unkown Higgs production mechanism. Cannot classify event. Classification for all events will most likely fail.
+Rivet.Analysis.HiggsTemplateCrossSections: WARN  Unkown Higgs production mechanism. Cannot classify event. Classification for all events will most likely fail.
+Rivet.Analysis.HiggsTemplateCrossSections: WARN  Unkown Higgs production mechanism. Cannot classify event. Classification for all events will most likely fail.
+Rivet.Analysis.HiggsTemplateCrossSections: WARN  Unkown Higgs production mechanism. Cannot classify event. Classification for all events will most likely fail.
+Rivet.Analysis.HiggsTemplateCrossSections: WARN  Unkown Higgs production mechanism. Cannot classify event. Classification for all events will most likely fail.
+Rivet.Analysis.HiggsTemplateCrossSections: WARN  Unkown Higgs production mechanism. Cannot classify event. Classification for all events will most likely fail.
+Rivet.Analysis.HiggsTemplateCrossSections: WARN  Unkown Higgs production mechanism. Cannot classify event. Classification for all events will most likely fail.
+Rivet.Analysis.HiggsTemplateCrossSections: WARN  Unkown Higgs production mechanism. Cannot classify event. Classification for all events will most likely fail.
+Rivet.Analysis.HiggsTemplateCrossSections: WARN  Unkown Higgs production mechanism. Cannot classify event. Classification for all events will most likely fail.
+Rivet.Analysis.HiggsTemplateCrossSections: WARN  Unkown Higgs production mechanism. Cannot classify event. Classification for all events will most likely fail.
+Rivet.Analysis.HiggsTemplateCrossSections: WARN  Unkown Higgs production mechanism. Cannot classify event. Classification for all events will most likely fail.
+Rivet.Analysis.HiggsTemplateCrossSections: WARN  Unkown Higgs production mechanism. Cannot classify event. Classification for all events will most likely fail.
+Rivet.Analysis.HiggsTemplateCrossSections: WARN  Unkown Higgs production mechanism. Cannot classify event. Classification for all events will most likely fail.
+Rivet.Analysis.HiggsTemplateCrossSections: WARN  Unkown Higgs production mechanism. Cannot classify event. Classification for all events will most likely fail.
+Rivet.Analysis.HiggsTemplateCrossSections: WARN  Unkown Higgs production mechanism. Cannot classify event. Classification for all events will most likely fail.
+Rivet.Analysis.HiggsTemplateCrossSections: WARN  Unkown Higgs production mechanism. Cannot classify event. Classification for all events will most likely fail.
+Rivet.Analysis.HiggsTemplateCrossSections: WARN  Unkown Higgs production mechanism. Cannot classify event. Classification for all events will most likely fail.
+Rivet.Analysis.HiggsTemplateCrossSections: WARN  Unkown Higgs production mechanism. Cannot classify event. Classification for all events will most likely fail.
+Rivet.Analysis.HiggsTemplateCrossSections: INFO   ====================================================== 
+Rivet.Analysis.HiggsTemplateCrossSections: INFO        Higgs Template X-Sec Categorization Tool          
+Rivet.Analysis.HiggsTemplateCrossSections: INFO                  Status Code Summary                     
+Rivet.Analysis.HiggsTemplateCrossSections: INFO   ====================================================== 
+Rivet.Analysis.HiggsTemplateCrossSections: INFO       >>>> All 0 events successfully categorized!
+Rivet.Analysis.HiggsTemplateCrossSections: INFO   ====================================================== 
+Rivet.Analysis.HiggsTemplateCrossSections: INFO   ====================================================== 
+Validation report of SUS-RunIISummer20UL18MiniAOD-00069 sequence 1/1
+Processed events: 100
+Produced events: 100
+Threads: 10
+Peak value RSS: 3224.03 MB
+Peak value Vsize: 4892.73 MB
+Total size: 0 MB
+Total job time: 86.8304 s
+Total CPU time: 100.267 s
+Event throughput: 5.51272
+CPU efficiency: 11.54 %
+Size per event: 0 kB
+Time per event: .1813 s
+Filter efficiency percent: 100.00000000 %
+Filter efficiency fraction: 1.0000000000
