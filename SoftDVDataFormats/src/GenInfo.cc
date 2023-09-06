@@ -1,21 +1,25 @@
 #include "SoftDisplacedVertices/SoftDVDataFormats/interface/GenInfo.h"
 
-double gen_dxy(const reco::GenParticle& gtk, const edm::Handle<reco::BeamSpot>& beamspot){
+double gen_dxy(const reco::GenParticle& gtk, const SoftDV::Point& refpoint){
   // calculate dxy for gen track
   double r = 88.*gtk.pt();
   double cx = gtk.vx() + gtk.charge() * r * sin(gtk.phi());
   double cy = gtk.vy() - gtk.charge() * r * cos(gtk.phi());
-  double dxy = fabs(r-sqrt(pow((cx-( beamspot->x0() )), 2) + pow((cy-( beamspot->y0() )), 2)));
+  double dxy = fabs(r-sqrt(pow((cx-( refpoint.x() )), 2) + pow((cy-( refpoint.y() )), 2)));
 
   return dxy;
 }
 
-double gen_dz(const reco::GenParticle& gtk, const edm::Handle<reco::BeamSpot>& beamspot) {
-  double rz = sqrt(pow((gtk.vx()-( beamspot->x0() )), 2) + pow((gtk.vy()-( beamspot->y0() )), 2));
-  double z = gtk.vz() - beamspot->z0();
+double gen_dz(const reco::GenParticle& gtk, const SoftDV::Point& refpoint) {
+  double rz = sqrt(pow((gtk.vx()-( refpoint.x() )), 2) + pow((gtk.vy()-( refpoint.y() )), 2));
+  double z = gtk.vz() - refpoint.z();
   double dz = z-rz*(gtk.pz()/gtk.pt());
 
   return dz;
+}
+
+double gen_dxy_reco(const reco::GenParticle& gtk, const SoftDV::Point& refpoint) {
+  return (-(gtk.vx() - refpoint.x()) * gtk.py() + (gtk.vy() - refpoint.y()) * gtk.px()) / gtk.pt();
 }
 
 Measurement1D gen_dist(const reco::Vertex& sv, const SoftDV::Point& gen, const bool use3d) {

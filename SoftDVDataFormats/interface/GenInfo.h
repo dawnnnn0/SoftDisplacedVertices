@@ -81,8 +81,9 @@ namespace SoftDV {
 
 
 }
-double gen_dxy(const reco::GenParticle& gtk, const edm::Handle<reco::BeamSpot>& beamspot); 
-double gen_dz(const reco::GenParticle& gtk, const edm::Handle<reco::BeamSpot>& beamspot);
+double gen_dxy(const reco::GenParticle& gtk, const SoftDV::Point& refpoint); 
+double gen_dz(const reco::GenParticle& gtk, const SoftDV::Point& refpoint);
+double gen_dxy_reco(const reco::GenParticle& gtk, const SoftDV::Point& refpoint); 
 
 Measurement1D gen_dist(const reco::Vertex& sv, const SoftDV::Point& gen, const bool use3d);
 
