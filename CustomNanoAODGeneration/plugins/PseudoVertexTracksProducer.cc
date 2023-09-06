@@ -1,3 +1,10 @@
+/*
+Comment: Ali Kaan Güven
+This is kept just for the sake of demonstrating how one codes a simple producer.
+This plugin is NOT used in the main code.
+*/
+
+
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
