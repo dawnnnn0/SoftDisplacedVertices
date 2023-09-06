@@ -50,6 +50,25 @@ struct eventInfo
   std::vector<double> vtx_dphi_jet1;
   std::vector<double> vtx_dphi_met;
   std::vector<double> vtx_acollinearity;
+  std::vector<double> matched_track_vx;
+  std::vector<double> matched_track_vy;
+  std::vector<double> matched_track_vz;
+  std::vector<double> matched_track_pt;
+  std::vector<double> matched_track_pt_err;
+  std::vector<double> matched_track_eta;
+  std::vector<double> matched_track_phi;
+  std::vector<double> matched_track_dxybs;
+  std::vector<double> matched_track_dxypv;
+  std::vector<double> matched_track_dxy_err;
+  std::vector<double> matched_track_dzbs;
+  std::vector<double> matched_track_dzpv;
+  std::vector<double> matched_track_dz_err;
+  std::vector<double> matched_track_nhits;
+  std::vector<double> matched_track_nlayers;
+  std::vector<double> matched_track_normchi2;
+  std::vector<double> matched_track_dphimet;
+  std::vector<double> matched_track_dphijet;
+  std::vector<double> matched_track_drjet;
 };
 
 template <class Jet, class MET>
@@ -123,6 +142,27 @@ void EventTree<Jet, MET>::analyze(const edm::Event& event, const edm::EventSetup
   edm::Handle<std::vector<std::vector<reco::Track>>> matched_tracks;
   event.getByToken(gen_matched_track_token, matched_tracks);
 
+  int jet_leading_idx = -1;
+  double jet_pt_max = -1;
+  for(size_t ijet=0; ijet<jets->size(); ++ijet){
+    const auto& jet = jets->at(ijet);
+    evInfo->jet_pt.push_back(jet.pt());
+    evInfo->jet_eta.push_back(jet.eta());
+    evInfo->jet_phi.push_back(jet.phi());
+    if (jet.pt()>jet_pt_max) {
+      jet_leading_idx = ijet;
+      jet_pt_max = jet.pt();
+    }
+  }
+
+  const auto& met = mets->at(0);
+  evInfo->met_pt = met.pt();
+  evInfo->met_phi = met.phi();
+
+
+  //const reco::PFJet& leading_jet = jets->at(jet_leading_idx);
+  const auto& leading_jet = jets->at(jet_leading_idx);
+
   //int n_match = 0;
   int n_gen_vtx = 0;
   //std::vector<int> match_idx;
@@ -152,6 +192,27 @@ void EventTree<Jet, MET>::analyze(const edm::Event& event, const edm::EventSetup
     const auto m_tracks = matched_tracks->at(illp);
     evInfo->gen_vtx_n_reco_matched_tk.push_back(m_tracks.size());
     evInfo->gen_vtx_n_gen_tk.push_back(llp.getGenTracks().size());
+    for (const auto& m_tk:m_tracks){
+      evInfo->matched_track_vx.push_back(m_tk.vx());
+      evInfo->matched_track_vy.push_back(m_tk.vy());
+      evInfo->matched_track_vz.push_back(m_tk.vz());
+      evInfo->matched_track_pt.push_back(m_tk.pt());
+      evInfo->matched_track_pt_err.push_back(m_tk.ptError());
+      evInfo->matched_track_eta.push_back(m_tk.eta());
+      evInfo->matched_track_phi.push_back(m_tk.phi());
+      evInfo->matched_track_dxybs.push_back(m_tk.dxy(*beamspot));
+      evInfo->matched_track_dxypv.push_back(m_tk.dxy(primary_vertex->position()));
+      evInfo->matched_track_dxy_err.push_back(m_tk.dxyError());
+      evInfo->matched_track_dzbs.push_back(m_tk.dz((*beamspot).position()));
+      evInfo->matched_track_dzpv.push_back(m_tk.dz(primary_vertex->position()));
+      evInfo->matched_track_dz_err.push_back(m_tk.dzError());
+      evInfo->matched_track_nhits.push_back(m_tk.hitPattern().numberOfValidHits());
+      evInfo->matched_track_nlayers.push_back(m_tk.hitPattern().trackerLayersWithMeasurement());
+      evInfo->matched_track_normchi2.push_back(m_tk.normalizedChi2());
+      evInfo->matched_track_dphimet.push_back(reco::deltaPhi(m_tk.phi(), met.phi()));
+      evInfo->matched_track_dphijet.push_back(reco::deltaPhi(m_tk.phi(), leading_jet.phi()));
+      evInfo->matched_track_drjet.push_back(reco::deltaR(m_tk.eta(),m_tk.phi(),leading_jet.eta(),leading_jet.phi()));
+    }
 
     if (debug) {
       std::cout << "LLP " << illp << " matched tracks " << std::endl;
@@ -256,26 +317,6 @@ void EventTree<Jet, MET>::analyze(const edm::Event& event, const edm::EventSetup
   }
 
 
-  int jet_leading_idx = -1;
-  double jet_pt_max = -1;
-  for(size_t ijet=0; ijet<jets->size(); ++ijet){
-    const auto& jet = jets->at(ijet);
-    evInfo->jet_pt.push_back(jet.pt());
-    evInfo->jet_eta.push_back(jet.eta());
-    evInfo->jet_phi.push_back(jet.phi());
-    if (jet.pt()>jet_pt_max) {
-      jet_leading_idx = ijet;
-      jet_pt_max = jet.pt();
-    }
-  }
-
-  const auto& met = mets->at(0);
-  evInfo->met_pt = met.pt();
-  evInfo->met_phi = met.phi();
-
-
-  //const reco::PFJet& leading_jet = jets->at(jet_leading_idx);
-  const auto& leading_jet = jets->at(jet_leading_idx);
   evInfo->n_vtx = vertices->size();
   for(size_t ivtx=0; ivtx<vertices->size(); ++ivtx) {
     int matched = -1;
@@ -342,6 +383,25 @@ void EventTree<Jet, MET>::beginJob()
   eventTree->Branch("vtx_dphi_jet1", &evInfo->vtx_dphi_jet1);
   eventTree->Branch("vtx_dphi_met",  &evInfo->vtx_dphi_met);
   eventTree->Branch("vtx_acollinearity", &evInfo->vtx_acollinearity);
+  eventTree->Branch("matched_track_vx",       &evInfo->matched_track_vx);
+  eventTree->Branch("matched_track_vy",       &evInfo->matched_track_vy);
+  eventTree->Branch("matched_track_vz",       &evInfo->matched_track_vz);
+  eventTree->Branch("matched_track_pt",       &evInfo->matched_track_pt);
+  eventTree->Branch("matched_track_pt_err",   &evInfo->matched_track_pt_err);
+  eventTree->Branch("matched_track_eta",      &evInfo->matched_track_eta);
+  eventTree->Branch("matched_track_phi",      &evInfo->matched_track_phi);
+  eventTree->Branch("matched_track_dxybs",    &evInfo->matched_track_dxybs);
+  eventTree->Branch("matched_track_dxypv",    &evInfo->matched_track_dxypv);
+  eventTree->Branch("matched_track_dxy_err",  &evInfo->matched_track_dxy_err);
+  eventTree->Branch("matched_track_dzbs",     &evInfo->matched_track_dzbs);
+  eventTree->Branch("matched_track_dzpv",     &evInfo->matched_track_dzpv);
+  eventTree->Branch("matched_track_dz_err",   &evInfo->matched_track_dz_err);
+  eventTree->Branch("matched_track_nhits",    &evInfo->matched_track_nhits);
+  eventTree->Branch("matched_track_nlayers",  &evInfo->matched_track_nlayers);
+  eventTree->Branch("matched_track_normchi2", &evInfo->matched_track_normchi2);
+  eventTree->Branch("matched_track_dphimet",  &evInfo->matched_track_dphimet);
+  eventTree->Branch("matched_track_dphijet",  &evInfo->matched_track_dphijet);
+  eventTree->Branch("matched_track_drjet",    &evInfo->matched_track_drjet);
 
 }
 
@@ -380,6 +440,25 @@ void EventTree<Jet, MET>::initEventStructure()
   evInfo->vtx_dphi_jet1.clear();
   evInfo->vtx_dphi_met.clear();
   evInfo->vtx_acollinearity.clear();
+  evInfo->matched_track_vx.clear();
+  evInfo->matched_track_vy.clear();
+  evInfo->matched_track_vz.clear();
+  evInfo->matched_track_pt.clear();
+  evInfo->matched_track_pt_err.clear();
+  evInfo->matched_track_eta.clear();
+  evInfo->matched_track_phi.clear();
+  evInfo->matched_track_dxybs.clear();
+  evInfo->matched_track_dxypv.clear();
+  evInfo->matched_track_dxy_err.clear();
+  evInfo->matched_track_dzbs.clear();
+  evInfo->matched_track_dzpv.clear();
+  evInfo->matched_track_dz_err.clear();
+  evInfo->matched_track_nhits.clear();
+  evInfo->matched_track_nlayers.clear();
+  evInfo->matched_track_normchi2.clear();
+  evInfo->matched_track_dphimet.clear();
+  evInfo->matched_track_dphijet.clear();
+  evInfo->matched_track_drjet.clear();
 }
 
 #endif

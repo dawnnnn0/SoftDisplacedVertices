@@ -14,7 +14,7 @@ VertexTracksLoose = VertexTracks.clone(
     )
 
 inclusiveVertexFinderSoftDV = inclusiveVertexFinder.clone(
-    #tracks = cms.InputTag("VertexTracks","seed"),
+    tracks = cms.InputTag("VertexTracks","seed"),
     minPt = 0.5,
     )
 
@@ -24,7 +24,7 @@ vertexMergerSoftDV = vertexMerger.clone(
 
 trackVertexArbitratorSoftDV = trackVertexArbitrator.clone(
     secondaryVertices = cms.InputTag("vertexMergerSoftDV"),
-    #tracks = cms.InputTag("VertexTracks","seed"),
+    tracks = cms.InputTag("VertexTracks","seed"),
     #tracks = cms.InputTag("VertexTracksLoose","seed"),
     )
 
