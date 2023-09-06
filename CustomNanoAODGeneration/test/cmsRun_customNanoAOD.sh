@@ -8,7 +8,7 @@ echo "Running the command: cmsRun -e -j $REPORT_NAME $CONFIG_FILE_NAME || exit $
 echo " "
 
 # Run the cmsRun
-cmsRun -n 10 -e -j $REPORT_NAME $CONFIG_FILE_NAME || exit $? ;
+cmsRun -n 1 -e -j $REPORT_NAME $CONFIG_FILE_NAME || exit $? ;
 
 # Parse values from SUS-RunIISummer20UL18NanoAOD-00069_report.xml report
 processedEvents=$(grep -Po "(?<=<Metric Name=\"NumberEvents\" Value=\")(.*)(?=\"/>)" $REPORT_NAME | tail -n 1)

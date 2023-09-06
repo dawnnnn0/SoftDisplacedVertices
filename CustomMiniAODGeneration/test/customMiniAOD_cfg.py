@@ -263,8 +263,8 @@ process.MINIAODSIMoutput = output_mod
 # Defining globally acessible service object that does not affect physics results.
 process.TFileService = cms.Service("TFileService", fileName = cms.string("/users/alikaan.gueven/AOD_to_nanoAOD/data/vtxreco_histos.root") )
 
-VertexRecoSeq(process, useMINIAOD=False, useIVF=True)
-process.p = cms.Path(process.trig_filter + process.vtxreco)
+VertexFilterSeq(process, useMINIAOD=False, useIVF=True)
+process.p = cms.Path(process.trig_filter + process.vtxfilter)
 
 
 # Path and EndPath definitions

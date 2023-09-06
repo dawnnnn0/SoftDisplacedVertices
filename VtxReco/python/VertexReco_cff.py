@@ -1,19 +1,20 @@
 import FWCore.ParameterSet.Config as cms
 
 from SoftDisplacedVertices.VtxReco.TracksMiniAOD_cfi import TracksMiniAOD
-from SoftDisplacedVertices.VtxReco.VertexTracks_cfi import VertexTracks
+from SoftDisplacedVertices.VtxReco.VertexTracks_cfi import VertexTracksFilter
 from SoftDisplacedVertices.VtxReco.Vertexer_cfi import mfvVerticesAOD, mfvVerticesMINIAOD
 
 from RecoVertex.AdaptiveVertexFinder.inclusiveVertexFinder_cfi import *
 from RecoVertex.AdaptiveVertexFinder.vertexMerger_cfi import *
 from RecoVertex.AdaptiveVertexFinder.trackVertexArbitrator_cfi import *
 
-VertexTracksLoose = VertexTracks.clone( # omit cloning
-    min_track_nsigmadxy = cms.double(2),
-    )
+
+
+VertexTracksFilter.min_track_nsigmadxy = cms.double(2)
 
 inclusiveVertexFinderSoftDV = inclusiveVertexFinder.clone(
-    #tracks = cms.InputTag("VertexTracks","seed"),
+    primaryVertices = cms.InputTag('offlineSlimmedPrimaryVertices'),
+    tracks = cms.InputTag("VertexTracksFilter","seed"),
     minPt = 0.5,
     )
 
@@ -22,9 +23,9 @@ vertexMergerSoftDV = vertexMerger.clone(
     )
 
 trackVertexArbitratorSoftDV = trackVertexArbitrator.clone(
+    primaryVertices = cms.InputTag('offlineSlimmedPrimaryVertices'),
     secondaryVertices = cms.InputTag("vertexMergerSoftDV"),
-    #tracks = cms.InputTag("VertexTracks","seed"),
-    #tracks = cms.InputTag("VertexTracksLoose","seed"),
+    tracks = cms.InputTag("VertexTracksFilter","seed"),
     )
 
 IVFSecondaryVerticesSoftDV = vertexMerger.clone(
@@ -52,10 +53,10 @@ trackVertexArbitratorSoftDV.trackMinPixels = cms.int32(0)
 trackVertexArbitratorSoftDV.dRCut = cms.double(5.0) #new
 
 
-def VertexRecoSeq(process, name="vtxreco", useMINIAOD=False, useIVF=False):
+def VertexFilterSeq(process, name="vtxfilter", useMINIAOD=False, useIVF=False):
     assert useIVF==True and useMINIAOD==False, "Check the code. Do you intend to use a different setup?"
 
-    trackSeq = cms.Sequence(VertexTracksLoose)
+    trackSeq = cms.Sequence(VertexTracksFilter)
     # DVSeq    = cms.Sequence(inclusiveVertexFinderSoftDV *
     #                         vertexMergerSoftDV *
     #                         trackVertexArbitratorSoftDV *
@@ -63,6 +64,22 @@ def VertexRecoSeq(process, name="vtxreco", useMINIAOD=False, useIVF=False):
     #                         )
     
 
-    VtxReco = cms.Sequence(trackSeq)
+    VtxFilter = cms.Sequence(trackSeq)
 
+    setattr(process,name,VtxFilter)
+
+
+def VertexRecoSeq(process, name="vtxreco", useMINIAOD=False, useIVF=False):
+    assert useIVF==True and useMINIAOD==False, "Check the code. Do you intend to use a different setup?"
+
+
+    DVSeq = cms.Sequence(inclusiveVertexFinderSoftDV *
+                         vertexMergerSoftDV *
+                         trackVertexArbitratorSoftDV *
+                         IVFSecondaryVerticesSoftDV
+                         )
+    
+
+    VtxReco = cms.Sequence(DVSeq)
+    
     setattr(process,name,VtxReco)

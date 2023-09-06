@@ -8,7 +8,7 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
 from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
 
-from SoftDisplacedVertices.VtxReco.VertexReco_cff import VertexRecoSeq
+from SoftDisplacedVertices.VtxReco.VertexReco_cff import VertexFilterSeq
 import HLTrigger.HLTfilters.hltHighLevel_cfi as hlt
 
 
@@ -197,19 +197,11 @@ output_mod = cms.OutputModule("PoolOutputModule",
 
 # Preparing Ang's output definitions in the MiniAOD output
 # output_mod.outputCommands.append('drop *') # already included in MINIAODSIMEventContent.outputCommands
-output_mod.outputCommands.append('keep *_pfMet_*_*')
-output_mod.outputCommands.append('keep *_ak4PFJets_*_*')
-output_mod.outputCommands.append('keep *_offlinePrimaryVertices_*_*')
-output_mod.outputCommands.append('keep *_generalTracks_*_*')
-output_mod.outputCommands.append('keep *_offlineBeamSpot_*_*')
-output_mod.outputCommands.append('keep *_VertexTracks*_*_*')
-output_mod.outputCommands.append('keep *_inclusiveVertexFinderSoftDV_*_*')
-output_mod.outputCommands.append('keep *_vertexMergerSoftDV_*_*')
-output_mod.outputCommands.append('keep *_trackVertexArbitratorSoftDV_*_*')
-output_mod.outputCommands.append('keep *_IVFSecondaryVerticesSoftDV_*_*')
-
-
+output_mod.outputCommands.append('keep *_VertexTracksFilter_*_*')
 process.MINIAODSIMoutput = output_mod
+
+# process.MINIAODSIMEventContent.outputCommands.append('keep *_VertexTracksFilter_*_*')
+# process.RAWMINIAODSIMEventContent.outputCommands.append('keep *_VertexTracksFilter_*_*')
 
 # HLT trigger requirement
 process.trig_filter = hlt.hltHighLevel.clone(
@@ -227,8 +219,8 @@ process.GlobalTag = GlobalTag(process.GlobalTag, '106X_upgrade2018_realistic_v16
 # Defining globally acessible service object that does not affect physics results.
 process.TFileService = cms.Service("TFileService", fileName = cms.string("/users/alikaan.gueven/AOD_to_nanoAOD/data/vtxreco_histos.root") )
 
-VertexRecoSeq(process, useMINIAOD=False, useIVF=True)
-process.p = cms.Path(process.trig_filter + process.vtxreco)
+VertexFilterSeq(process, useMINIAOD=False, useIVF=True)
+process.p = cms.Path(process.trig_filter + process.vtxfilter)
 
 
 # Path and EndPath definitions
