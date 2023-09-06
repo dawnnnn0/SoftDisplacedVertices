@@ -1,3 +1,8 @@
+"""
+WARNING:
+You must adapt your the input source and output filename before you run this.
+"""
+
 # Auto generated configuration file
 # using: 
 # Revision: 1.19 

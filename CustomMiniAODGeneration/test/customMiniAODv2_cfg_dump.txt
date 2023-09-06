@@ -5807,7 +5807,6 @@ process.MINIAODSIMEventContent = cms.PSet(
         'keep *_genParticles_t0_*', 
         'keep PileupSummaryInfos_slimmedAddPileupInfo_*_*', 
         'keep L1GtTriggerMenuLite_l1GtTriggerMenuLite__*', 
-        'keep *_VertexTracksFilter_*_*', 
         'keep *_VertexTracksFilter_*_*'
     )
 )
@@ -7943,8 +7942,7 @@ process.RAWMINIAODSIMEventContent = cms.PSet(
         'keep *_hltScoutingTrackPacker_*_*', 
         'keep edmTriggerResults_*_*_*', 
         'keep FEDRawDataCollection_rawDataCollector_*_*', 
-        'keep FEDRawDataCollection_source_*_*', 
-        'keep *_VertexTracksFilter_*_*'
+        'keep FEDRawDataCollection_source_*_*'
     )
 )
 
@@ -58144,7 +58142,6 @@ process.MINIAODSIMoutput = cms.OutputModule("PoolOutputModule",
         'keep *_genParticles_t0_*', 
         'keep PileupSummaryInfos_slimmedAddPileupInfo_*_*', 
         'keep L1GtTriggerMenuLite_l1GtTriggerMenuLite__*', 
-        'keep *_VertexTracksFilter_*_*', 
         'keep *_VertexTracksFilter_*_*'
     ),
     overrideBranchesSplitLevel = cms.untracked.VPSet(

@@ -1,3 +1,7 @@
+"""
+WARNING:
+You must adapt your the input source and output filename before you run this.
+"""
 
 # Auto generated configuration file
 # using: 
@@ -140,9 +144,11 @@ process.myEventContent = cms.EDAnalyzer("EventContentAnalyzer")
 
 # Path and EndPath definitions
 process.reco_step = cms.Path(process.trig_filter + process.vtxreco)
-process.CustomFlatTables = cms.Sequence( process.CustomFlatTable + process.CustomVertexTable)
-process.custom_flattable_step = cms.Path(process.myEventContent + process.CustomFlatTables)
-# process.custom_flattable_step = cms.Path(process.CustomFlatTables)
+process.CustomFlatTables = cms.Sequence(process.CustomFlatTable)
+process.custom_flattable_step = cms.Path(process.CustomFlatTables)
+
+# process.CustomFlatTables = cms.Sequence( process.CustomFlatTable + process.CustomVertexTable)
+# process.custom_flattable_step = cms.Path(process.myEventContent + process.CustomFlatTables)
 
 
 process.nanoAOD_step = cms.Path(process.nanoSequenceMC)

@@ -5631,8 +5631,7 @@ process.MINIAODEventContent = cms.PSet(
         'keep recoForwardProtons_ctppsProtons_*_*', 
         'keep recoTracks_displacedStandAloneMuons__*', 
         'keep *_prefiringweight_*_*', 
-        'keep *_packedPFCandidates_hcalDepthEnergyFractions_*', 
-        'keep *_VertexTracks*_*_*'
+        'keep *_packedPFCandidates_hcalDepthEnergyFractions_*'
     )
 )
 
@@ -5737,8 +5736,7 @@ process.MINIAODSIMEventContent = cms.PSet(
         'keep *_genParticles_xyz0_*', 
         'keep *_genParticles_t0_*', 
         'keep PileupSummaryInfos_slimmedAddPileupInfo_*_*', 
-        'keep L1GtTriggerMenuLite_l1GtTriggerMenuLite__*', 
-        'keep *_VertexTracks*_*_*'
+        'keep L1GtTriggerMenuLite_l1GtTriggerMenuLite__*'
     )
 )
 
@@ -5854,8 +5852,7 @@ process.MicroEventContent = cms.PSet(
         'keep recoForwardProtons_ctppsProtons_*_*', 
         'keep recoTracks_displacedStandAloneMuons__*', 
         'keep *_prefiringweight_*_*', 
-        'keep *_packedPFCandidates_hcalDepthEnergyFractions_*', 
-        'keep *_VertexTracks*_*_*'
+        'keep *_packedPFCandidates_hcalDepthEnergyFractions_*'
     )
 )
 
@@ -5980,8 +5977,7 @@ process.MicroEventContentMC = cms.PSet(
         'keep *_genParticles_xyz0_*', 
         'keep *_genParticles_t0_*', 
         'keep PileupSummaryInfos_slimmedAddPileupInfo_*_*', 
-        'keep L1GtTriggerMenuLite_l1GtTriggerMenuLite__*', 
-        'keep *_VertexTracks*_*_*'
+        'keep L1GtTriggerMenuLite_l1GtTriggerMenuLite__*'
     )
 )
 
@@ -6019,8 +6015,7 @@ process.NANOAODSIMEventContent = cms.PSet(
         'keep edmTriggerResults_*_*_*', 
         'keep String_*_genModel_*', 
         'keep nanoaodMergeableCounterTable_*Table_*_*', 
-        'keep nanoaodUniqueString_nanoMetadata_*_*', 
-        'keep *Table*_*Table*_*_customNanoAOD'
+        'keep nanoaodUniqueString_nanoMetadata_*_*'
     )
 )
 
@@ -7662,8 +7657,7 @@ process.RAWMINIAODEventContent = cms.PSet(
         'keep *_hltScoutingTrackPacker_*_*', 
         'keep edmTriggerResults_*_*_*', 
         'keep FEDRawDataCollection_rawDataCollector_*_*', 
-        'keep FEDRawDataCollection_source_*_*', 
-        'keep *_VertexTracks*_*_*'
+        'keep FEDRawDataCollection_source_*_*'
     )
 )
 
@@ -7789,8 +7783,7 @@ process.RAWMINIAODSIMEventContent = cms.PSet(
         'keep *_hltScoutingTrackPacker_*_*', 
         'keep edmTriggerResults_*_*_*', 
         'keep FEDRawDataCollection_rawDataCollector_*_*', 
-        'keep FEDRawDataCollection_source_*_*', 
-        'keep *_VertexTracks*_*_*'
+        'keep FEDRawDataCollection_source_*_*'
     )
 )
 
@@ -15404,7 +15397,6 @@ process.noPrediscriminants = cms.PSet(
 )
 
 process.options = cms.untracked.PSet(
-    SkipEvent = cms.untracked.vstring('ProductNotFound'),
     canDeleteEarly = cms.untracked.vstring()
 )
 
@@ -20487,13 +20479,14 @@ process.selections2016 = cms.VPSet(
     )
 )
 
-process.CustomFlatTables = cms.EDProducer("SimpleTrackFlatTableProducer",
+process.CustomFlatTable = cms.EDProducer("SimpleTrackFlatTableProducer",
     cut = cms.string(''),
     doc = cms.string('Preselected subset of generalTracks'),
     extension = cms.bool(False),
     name = cms.string('customTracks'),
     singleton = cms.bool(False),
-    src = cms.InputTag("slimmedElectrons"),
+    skipNonExistingSrc = cms.bool(True),
+    src = cms.InputTag("VertexTracksFilter","seed"),
     variables = cms.PSet(
         charge = cms.PSet(
             compression = cms.string('none'),
@@ -20502,8 +20495,78 @@ process.CustomFlatTables = cms.EDProducer("SimpleTrackFlatTableProducer",
             mcOnly = cms.bool(False),
             precision = cms.int32(-1),
             type = cms.string('int')
+        ),
+        pt = cms.PSet(
+            compression = cms.string('none'),
+            doc = cms.string('transverse momentum'),
+            expr = cms.string('pt'),
+            mcOnly = cms.bool(False),
+            precision = cms.int32(-1),
+            type = cms.string('float')
+        ),
+        px = cms.PSet(
+            compression = cms.string('none'),
+            doc = cms.string('x coordinate of momentum vector'),
+            expr = cms.string('px'),
+            mcOnly = cms.bool(False),
+            precision = cms.int32(-1),
+            type = cms.string('float')
+        ),
+        py = cms.PSet(
+            compression = cms.string('none'),
+            doc = cms.string('y coordinate of momentum vector'),
+            expr = cms.string('py'),
+            mcOnly = cms.bool(False),
+            precision = cms.int32(-1),
+            type = cms.string('float')
+        ),
+        pz = cms.PSet(
+            compression = cms.string('none'),
+            doc = cms.string('z coordinate of momentum vector'),
+            expr = cms.string('pz'),
+            mcOnly = cms.bool(False),
+            precision = cms.int32(-1),
+            type = cms.string('float')
+        ),
+        vx = cms.PSet(
+            compression = cms.string('none'),
+            doc = cms.string('x coordinate of the reference point on track'),
+            expr = cms.string('vx'),
+            mcOnly = cms.bool(False),
+            precision = cms.int32(-1),
+            type = cms.string('float')
+        ),
+        vy = cms.PSet(
+            compression = cms.string('none'),
+            doc = cms.string('y coordinate of the reference point on track'),
+            expr = cms.string('vy'),
+            mcOnly = cms.bool(False),
+            precision = cms.int32(-1),
+            type = cms.string('float')
+        ),
+        vz = cms.PSet(
+            compression = cms.string('none'),
+            doc = cms.string('z coordinate of the reference point on track'),
+            expr = cms.string('vz'),
+            mcOnly = cms.bool(False),
+            precision = cms.int32(-1),
+            type = cms.string('float')
         )
     )
+)
+
+
+process.CustomVertexTable = cms.EDProducer("VertexTableProducer",
+    dlenMin = cms.double(0),
+    dlenSigMin = cms.double(0),
+    goodPvCut = cms.string(''),
+    pvName = cms.string('offlineSlimmedPrimaryVertices'),
+    pvSrc = cms.InputTag("offlineSlimmedPrimaryVertices"),
+    storeCharge = cms.bool(True),
+    svCut = cms.string(''),
+    svDoc = cms.string('First attempt to create a vertex table'),
+    svName = cms.string('inclusiveVertexFinderSoftDV'),
+    svSrc = cms.InputTag("IVFSecondaryVerticesSoftDV")
 )
 
 
@@ -20672,6 +20735,11 @@ process.MEtoEDMConverter = cms.EDProducer("MEtoEDMConverter",
     Name = cms.untracked.string('MEtoEDMConverter'),
     Verbosity = cms.untracked.int32(0),
     deleteAfterCopy = cms.untracked.bool(True)
+)
+
+
+process.PseudoVertexTracks = cms.EDProducer("PseudoVertexTracksProducer",
+    tracks = cms.InputTag("VertexTracksFilter")
 )
 
 
@@ -38138,6 +38206,9 @@ process.MEtoMEComparitor = cms.EDAnalyzer("MEtoMEComparitor",
 )
 
 
+process.myEventContent = cms.EDAnalyzer("EventContentAnalyzer")
+
+
 process.NANOAODSIMoutput = cms.OutputModule("NanoAODOutputModule",
     compressionAlgorithm = cms.untracked.string('LZMA'),
     compressionLevel = cms.untracked.int32(9),
@@ -38152,8 +38223,7 @@ process.NANOAODSIMoutput = cms.OutputModule("NanoAODOutputModule",
         'keep edmTriggerResults_*_*_*', 
         'keep String_*_genModel_*', 
         'keep nanoaodMergeableCounterTable_*Table_*_*', 
-        'keep nanoaodUniqueString_nanoMetadata_*_*', 
-        'keep *Table*_*Table*_*_customNanoAOD'
+        'keep nanoaodUniqueString_nanoMetadata_*_*'
     )
 )
 
@@ -44954,6 +45024,9 @@ process.producePatPFMETCorrections = cms.Sequence(process.producePatPFMETCorrect
 process.genParticleSequence = cms.Sequence(process.finalGenParticles)
 
 
+process.CustomFlatTables = cms.Sequence(process.CustomFlatTable)
+
+
 process.muonSequence = cms.Sequence(process.slimmedMuonsUpdated+process.isoForMu+process.ptRatioRelForMu+process.slimmedMuonsWithUserData+process.finalMuons+process.finalLooseMuons)
 
 
@@ -45194,7 +45267,10 @@ process.nanoSequenceCommon = cms.Sequence(process.nanoMetadata+process.pfMet+pro
 process.nanoSequence = cms.Sequence(process.nanoSequenceCommon+process.nanoSequenceOnlyData+process.nanoSequenceOnlyFullSim)
 
 
-process.custom_step = cms.Path(process.CustomFlatTables)
+process.reco_step = cms.Path(process.trig_filter+process.vtxreco)
+
+
+process.custom_flattable_step = cms.Path(process.CustomFlatTables)
 
 
 process.nanoAOD_step = cms.Path(process.nanoSequenceMC)
@@ -45289,5 +45365,5 @@ process.simSiStripDigis = cms.EDAlias(
     )
 )
 
-process.schedule = cms.Schedule(*[ process.nanoAOD_step, process.custom_step, process.endjob_step, process.NANOAODSIMoutput_step ], tasks=[process.patAlgosToolsTask])
+process.schedule = cms.Schedule(*[ process.reco_step, process.custom_flattable_step, process.nanoAOD_step, process.endjob_step, process.NANOAODSIMoutput_step ], tasks=[process.patAlgosToolsTask])
 

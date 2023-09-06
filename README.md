@@ -6,8 +6,8 @@ This package is currently in a very preliminary stage. Tracks are selected and p
 This version utilizes the chain:
  [SUS-chain_RunIISummer20UL18wmLHEGEN_flowRunIISummer20UL18SIM_flowRunIISummer20UL18DIGIPremix_flowRunIISummer20UL18HLT_flowRunIISummer20UL18RECO_flowRunIISummer20UL18MiniAODv2_flowRunIISummer20UL18NanoAODv9-00066](https://cms-pdmv.cern.ch/mcm/chained_requests?prepid=SUS-chain_RunIISummer20UL18wmLHEGEN_flowRunIISummer20UL18SIM_flowRunIISummer20UL18DIGIPremix_flowRunIISummer20UL18HLT_flowRunIISummer20UL18RECO_flowRunIISummer20UL18MiniAODv2_flowRunIISummer20UL18NanoAODv9-00066).
 
-[SUS-RunIISummer20UL18MiniAODv2-00068](https://cms-pdmv.cern.ch/mcm/requests?prepid=SUS-RunIISummer20UL18MiniAODv2-00068&page=0), is the first file we generate by extending the default miniAOD with additional collections. \
-[SUS-RunIISummer20UL18NanoAODv9-00068](https://cms-pdmv.cern.ch/mcm/requests?prepid=SUS-RunIISummer20UL18NanoAODv9-00068&page=0) is the final product which contains new secondary vertex collections as flat tables.
+[SUS-RunIISummer20UL18MiniAODv2-00068](https://cms-pdmv.cern.ch/mcm/requests?prepid=SUS-RunIISummer20UL18MiniAODv2-00068&page=0), is the first file we generate. \
+[SUS-RunIISummer20UL18NanoAODv9-00068](https://cms-pdmv.cern.ch/mcm/requests?prepid=SUS-RunIISummer20UL18NanoAODv9-00068&page=0) is the final product.
 
 For different MC files it might be worth checking:
  - [History of MC Production Campaigns](https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmVMcCampaigns)
@@ -29,3 +29,20 @@ git checkout temp_main
 scram b -j8
 ```
 
+To produce miniAOD:
+```
+cd CMSSW_10_6_30/src/CustomMiniAODGeneration/test
+cmsenv
+bash cmsRun_customMiniAODv2.sh >std_out.log 2>std_err.log
+```
+
+To produce nanoAOD:
+```
+cd CMSSW_10_6_30/src/CustomNanoAODGeneration/test
+cmsenv
+bash cmsRun_customNanoAOD.sh >std_out.log 2>std_err.log
+```
+
+N.B. Please modify the paths to the input and output files in:
+ - SoftDisplacedVertices/CustomMiniAODGeneration/test/customMiniAODv2_cfg.py
+ - SoftDisplacedVertices/CustomNanoAODGeneration/test/customNanoAOD_cfg.py

@@ -4,14 +4,14 @@ Validation report of SUS-RunIISummer20UL18MiniAODv2-00068 sequence 1/1
 Processed events: 100
 Produced events: 100
 Threads: 10
-Peak value RSS: 2026.89 MB
-Peak value Vsize: 3405.59 MB
-Total size: 9.78698 MB
-Total job time: 118.876 s
-Total CPU time: 163.055 s
-Event throughput: 2.79539
-CPU efficiency: 13.71 %
-Size per event: 100.2186 kB
-Time per event: .3577 s
+Peak value RSS: 2040.4 MB
+Peak value Vsize: 3205.84 MB
+Total size: 9.78398 MB
+Total job time: 97.1029 s
+Total CPU time: 153.104 s
+Event throughput: 2.17874
+CPU efficiency: 15.76 %
+Size per event: 100.1879 kB
+Time per event: .4589 s
 Filter efficiency percent: 100.00000000 %
 Filter efficiency fraction: 1.0000000000
