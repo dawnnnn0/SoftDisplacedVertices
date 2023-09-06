@@ -34,7 +34,7 @@ class GenProducer : public edm::EDProducer {
       if (gtk.status()!=1) return false;
       if ( (gtk.charge()==0) || (fabs(gtk.charge())<1) ) return false;
       if (gtk.pt()<0.5 || fabs(gtk.eta()) > 2.5 ) return false;
-      double dxy_gen = gen_dxy(gtk,beamspot);
+      double dxy_gen = gen_dxy(gtk,beamspot->position());
       if (dxy_gen<0.005) return false;
 
       return true;

@@ -2,6 +2,8 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
@@ -15,29 +17,51 @@
 
 struct gentkInfo
 {
+  double bs_x;
+  double bs_y;
+  double bs_z;
+  double pv_x;
+  double pv_y;
+  double pv_z;
   std::vector<double> gen_pt;
   std::vector<double> gen_eta;
   std::vector<double> gen_phi;
-  std::vector<double> gen_dxy;
-  std::vector<double> gen_dz;
+  std::vector<double> gen_dxybs;
+  std::vector<double> gen_dxybs_reco;
+  std::vector<double> gen_dxypv;
+  std::vector<double> gen_dxypv_reco;
+  std::vector<double> gen_dzbs;
+  std::vector<double> gen_dzpv;
   std::vector<double> gen_charge;
+  std::vector<double> gen_vx;
+  std::vector<double> gen_vy;
+  std::vector<double> gen_vz;
   std::vector<bool> gen_match;
   std::vector<int> gen_llp_idx;
   std::vector<int> gen_tk_idx;
+  std::vector<double> matched_track_vx;
+  std::vector<double> matched_track_vy;
+  std::vector<double> matched_track_vz;
   std::vector<double> matched_track_pt;
+  std::vector<double> matched_track_pt_err;
   std::vector<double> matched_track_eta;
   std::vector<double> matched_track_phi;
-  std::vector<double> matched_track_dxy;
+  std::vector<double> matched_track_dxybs;
+  std::vector<double> matched_track_dxypv;
   std::vector<double> matched_track_dxy_err;
-  std::vector<double> matched_track_dz;
+  std::vector<double> matched_track_dzbs;
+  std::vector<double> matched_track_dzpv;
   std::vector<double> matched_track_dz_err;
   std::vector<double> matched_track_dr;
+  std::vector<double> matched_track_chi2;
+  std::vector<double> matched_track_nhits;
+  std::vector<double> matched_track_normchi2;
   std::vector<int> matched_track_n_gentk;
 };
 
 
 class GenMatchedTracks : public edm::EDProducer {
-  typedef std::pair<double,double> Match; //the first element is chi2 and the second element is dr
+  typedef std::pair<double,std::vector<double>> Match; //the first element is chi2 and the second element is dr
   typedef std::pair<int, Match> MatchResult; //the first element is the index of matched track and the second element is Match
 
   public:
@@ -49,11 +73,12 @@ class GenMatchedTracks : public edm::EDProducer {
     const edm::EDGetTokenT<std::vector<SoftDV::LLP>> llp_gen_token;
     const edm::EDGetTokenT<reco::TrackCollection> tracks_token;
     const edm::EDGetTokenT<reco::BeamSpot> beamspot_token;
+    const edm::EDGetTokenT<reco::VertexCollection> primary_vertices_token;
     const bool histos;
     const bool debug;
 
-    MatchResult matchtracks(const reco::GenParticle&, const edm::Handle<reco::TrackCollection>&, const edm::Handle<reco::BeamSpot>& );
-    Match matchchi2(const reco::GenParticle&, const reco::TrackRef&, const edm::Handle<reco::BeamSpot>& );
+    MatchResult matchtracks(const reco::GenParticle&, const edm::Handle<reco::TrackCollection>&, const SoftDV::Point& );
+    Match matchchi2(const reco::GenParticle&, const reco::TrackRef&, const SoftDV::Point& );
 
     TTree *gentkTree;
     gentkInfo *gtInfo;
@@ -79,6 +104,7 @@ GenMatchedTracks::GenMatchedTracks(const edm::ParameterSet& cfg)
   : llp_gen_token(consumes<std::vector<SoftDV::LLP>>(cfg.getParameter<edm::InputTag>("llp_gen_token"))),
     tracks_token(consumes<reco::TrackCollection>(cfg.getParameter<edm::InputTag>("tracks"))),
     beamspot_token(consumes<reco::BeamSpot>(cfg.getParameter<edm::InputTag>("beamspot"))),
+    primary_vertices_token(consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("primary_vertices"))),
     histos(cfg.getParameter<bool>("histos")),
     debug(cfg.getParameter<bool>("debug"))
 {
@@ -105,23 +131,45 @@ GenMatchedTracks::GenMatchedTracks(const edm::ParameterSet& cfg)
     sigmapt_ratio = fs->make<TH1D>("sigmapt_ratio","sigmapt_ratio",50,0,0.1);
 
     gentkTree = fs->make<TTree>("gentkTree","gentkTree");
+    gentkTree->Branch("bs_x",     &gtInfo->bs_x);
+    gentkTree->Branch("bs_y",     &gtInfo->bs_y);
+    gentkTree->Branch("bs_z",     &gtInfo->bs_z);
+    gentkTree->Branch("pv_x",     &gtInfo->pv_x);
+    gentkTree->Branch("pv_y",     &gtInfo->pv_y);
+    gentkTree->Branch("pv_z",     &gtInfo->pv_z);
     gentkTree->Branch("gen_pt",   &gtInfo->gen_pt);
     gentkTree->Branch("gen_eta",  &gtInfo->gen_eta);
     gentkTree->Branch("gen_phi",  &gtInfo->gen_phi);
-    gentkTree->Branch("gen_dxy",  &gtInfo->gen_dxy);
-    gentkTree->Branch("gen_dz",   &gtInfo->gen_dz);
+    gentkTree->Branch("gen_dxybs",  &gtInfo->gen_dxybs);
+    gentkTree->Branch("gen_dxybs_reco",  &gtInfo->gen_dxybs_reco);
+    gentkTree->Branch("gen_dxypv",  &gtInfo->gen_dxypv);
+    gentkTree->Branch("gen_dxypv_reco",  &gtInfo->gen_dxypv_reco);
+    gentkTree->Branch("gen_dzbs",   &gtInfo->gen_dzbs);
+    gentkTree->Branch("gen_dzpv",   &gtInfo->gen_dzpv);
     gentkTree->Branch("gen_charge",&gtInfo->gen_charge);
+    gentkTree->Branch("gen_vx",&gtInfo->gen_vx);
+    gentkTree->Branch("gen_vy",&gtInfo->gen_vy);
+    gentkTree->Branch("gen_vz",&gtInfo->gen_vz);
     gentkTree->Branch("gen_match", &gtInfo->gen_match);
     gentkTree->Branch("gen_llp_idx",&gtInfo->gen_llp_idx);
     gentkTree->Branch("gen_tk_idx",&gtInfo->gen_tk_idx);
+    gentkTree->Branch("matched_track_vx",&gtInfo->matched_track_vx);
+    gentkTree->Branch("matched_track_vy",&gtInfo->matched_track_vy);
+    gentkTree->Branch("matched_track_vz",&gtInfo->matched_track_vz);
     gentkTree->Branch("matched_track_pt",   &gtInfo->matched_track_pt);
+    gentkTree->Branch("matched_track_pt_err",   &gtInfo->matched_track_pt_err);
     gentkTree->Branch("matched_track_eta",  &gtInfo->matched_track_eta);
     gentkTree->Branch("matched_track_phi",  &gtInfo->matched_track_phi);
-    gentkTree->Branch("matched_track_dxy",  &gtInfo->matched_track_dxy);
+    gentkTree->Branch("matched_track_dxybs",  &gtInfo->matched_track_dxybs);
+    gentkTree->Branch("matched_track_dxypv",  &gtInfo->matched_track_dxypv);
     gentkTree->Branch("matched_track_dxy_err",  &gtInfo->matched_track_dxy_err);
-    gentkTree->Branch("matched_track_dz",       &gtInfo->matched_track_dz);
+    gentkTree->Branch("matched_track_dzbs",       &gtInfo->matched_track_dzbs);
+    gentkTree->Branch("matched_track_dzpv",       &gtInfo->matched_track_dzpv);
     gentkTree->Branch("matched_track_dz_err",   &gtInfo->matched_track_dz_err);
     gentkTree->Branch("matched_track_dr",   &gtInfo->matched_track_dr);
+    gentkTree->Branch("matched_track_chi2",   &gtInfo->matched_track_chi2);
+    gentkTree->Branch("matched_track_nhits",   &gtInfo->matched_track_nhits);
+    gentkTree->Branch("matched_track_normchi2",   &gtInfo->matched_track_normchi2);
     gentkTree->Branch("matched_track_n_gentk",  &gtInfo->matched_track_n_gentk);
   }
 }
@@ -141,6 +189,18 @@ void GenMatchedTracks::produce(edm::Event& event, const edm::EventSetup& setup) 
   edm::Handle<reco::BeamSpot> beamspot;
   event.getByToken(beamspot_token, beamspot);
 
+  edm::Handle<reco::VertexCollection> primary_vertices;
+  event.getByToken(primary_vertices_token, primary_vertices);
+  const reco::Vertex* primary_vertex = &primary_vertices->at(0);
+  if (primary_vertices->size()==0)
+    throw cms::Exception("GenMatchedTracks") << "No Primary Vertices available!";
+
+  gtInfo->bs_x = beamspot->position().x();
+  gtInfo->bs_y = beamspot->position().y();
+  gtInfo->bs_z = beamspot->position().z();
+  gtInfo->pv_x = primary_vertex->position().x();
+  gtInfo->pv_y = primary_vertex->position().y();
+  gtInfo->pv_z = primary_vertex->position().z();
   std::vector<int> track_match(tracks->size(),0);
 
   for (size_t illp=0; illp<genllps->size(); ++illp){
@@ -157,13 +217,19 @@ void GenMatchedTracks::produce(edm::Event& event, const edm::EventSetup& setup) 
       if (debug) {
         std::cout << "LLP gen track pt " << gtk.pt() << " eta " << gtk.eta() << " phi " << gtk.phi() << std::endl;
       }
-      const auto matchres = matchtracks(gtk, tracks, beamspot);
+      const auto matchres = matchtracks(gtk, tracks, primary_vertex->position());
       gtInfo->gen_pt.push_back(gtk.pt());
       gtInfo->gen_eta.push_back(gtk.eta());
       gtInfo->gen_phi.push_back(gtk.phi());
-      gtInfo->gen_dxy.push_back(gen_dxy(gtk,beamspot));
-      gtInfo->gen_dz.push_back(gen_dz(gtk,beamspot));
+      gtInfo->gen_dxybs.push_back(gen_dxy(gtk,beamspot->position()));
+      gtInfo->gen_dxybs_reco.push_back(gen_dxy_reco(gtk,beamspot->position()));
+      gtInfo->gen_dxypv.push_back(gen_dxy(gtk,primary_vertex->position()));
+      gtInfo->gen_dxypv_reco.push_back(gen_dxy_reco(gtk,primary_vertex->position()));
+      gtInfo->gen_dzbs.push_back(gen_dz(gtk,beamspot->position()));
       gtInfo->gen_charge.push_back(gtk.charge());
+      gtInfo->gen_vx.push_back(gtk.vx());
+      gtInfo->gen_vy.push_back(gtk.vy());
+      gtInfo->gen_vz.push_back(gtk.vz());
       gtInfo->gen_llp_idx.push_back(illp);
       gtInfo->gen_tk_idx.push_back(matchres.first);
       if (matchres.first!=-1){
@@ -173,17 +239,26 @@ void GenMatchedTracks::produce(edm::Event& event, const edm::EventSetup& setup) 
         reco::TrackRef tk(tracks, matchres.first);
 
         if (debug) {
-          std::cout << "  Matched track pt " << tk->pt() << " eta " << tk->eta() << " phi " << tk->phi() << " dxy " << tk->dxy(*beamspot) << " dz " << tk->dz((*beamspot).position()) << ". And dr " << matchres.second.second << std::endl;
+          std::cout << "  Matched track pt " << tk->pt() << " eta " << tk->eta() << " phi " << tk->phi() << " dxy " << tk->dxy(*beamspot) << " dz " << tk->dz((*beamspot).position()) << ". And dr " << matchres.second.second[0] << std::endl;
         }
 
+        gtInfo->matched_track_vx.push_back(tk->vx());
+        gtInfo->matched_track_vy.push_back(tk->vy());
+        gtInfo->matched_track_vz.push_back(tk->vz());
         gtInfo->matched_track_pt.push_back(tk->pt());
+        gtInfo->matched_track_pt_err.push_back(tk->ptError());
         gtInfo->matched_track_eta.push_back(tk->eta());
         gtInfo->matched_track_phi.push_back(tk->phi());
-        gtInfo->matched_track_dxy.push_back(tk->dxy(*beamspot));
+        gtInfo->matched_track_dxybs.push_back(tk->dxy(*beamspot));
+        gtInfo->matched_track_dxypv.push_back(tk->dxy(primary_vertex->position()));
         gtInfo->matched_track_dxy_err.push_back(tk->dxyError());
-        gtInfo->matched_track_dz.push_back(tk->dz((*beamspot).position()));
+        gtInfo->matched_track_dzbs.push_back(tk->dz((*beamspot).position()));
+        gtInfo->matched_track_dzpv.push_back(tk->dz(primary_vertex->position()));
         gtInfo->matched_track_dz_err.push_back(tk->dzError());
-        gtInfo->matched_track_dr.push_back(matchres.second.second);
+        gtInfo->matched_track_dr.push_back(matchres.second.second[0]);
+        gtInfo->matched_track_chi2.push_back(matchres.second.first);
+        gtInfo->matched_track_nhits.push_back(tk->hitPattern().numberOfValidHits());
+        gtInfo->matched_track_normchi2.push_back(tk->normalizedChi2());
 
         matched_tks.push_back(*tk);
         if (histos) {
@@ -203,14 +278,23 @@ void GenMatchedTracks::produce(edm::Event& event, const edm::EventSetup& setup) 
       }
       else {
         gtInfo->gen_match.push_back(false);
+        gtInfo->matched_track_vx.push_back(-1);
+        gtInfo->matched_track_vy.push_back(-1);
+        gtInfo->matched_track_vz.push_back(-1);
         gtInfo->matched_track_pt.push_back(-1);
+        gtInfo->matched_track_pt_err.push_back(-1);
         gtInfo->matched_track_eta.push_back(-1);
         gtInfo->matched_track_phi.push_back(-1);
-        gtInfo->matched_track_dxy.push_back(-1);
+        gtInfo->matched_track_dxybs.push_back(-1);
+        gtInfo->matched_track_dxypv.push_back(-1);
         gtInfo->matched_track_dxy_err.push_back(-1);
-        gtInfo->matched_track_dz.push_back(-1);
+        gtInfo->matched_track_dzbs.push_back(-1);
+        gtInfo->matched_track_dzpv.push_back(-1);
         gtInfo->matched_track_dz_err.push_back(-1);
         gtInfo->matched_track_dr.push_back(-1);
+        gtInfo->matched_track_chi2.push_back(-1);
+        gtInfo->matched_track_nhits.push_back(-1);
+        gtInfo->matched_track_normchi2.push_back(-1);
       }
     }
     if (histos)  n_matched_tracks_LLP->Fill(n_matched_tracks);
@@ -233,13 +317,14 @@ void GenMatchedTracks::produce(edm::Event& event, const edm::EventSetup& setup) 
   event.put(std::move(matched_tracks));
 }
 
-GenMatchedTracks::MatchResult GenMatchedTracks::matchtracks(const reco::GenParticle& gtk, const edm::Handle<reco::TrackCollection>& tracks, const edm::Handle<reco::BeamSpot>& beamspot) {
-  Match min_match(999,999);
+GenMatchedTracks::MatchResult GenMatchedTracks::matchtracks(const reco::GenParticle& gtk, const edm::Handle<reco::TrackCollection>& tracks, const SoftDV::Point& refpoint) {
+  Match min_match(999,std::vector<double>());
   int tk_idx = -1;
   for (size_t i=0; i<tracks->size(); ++i){
     reco::TrackRef tk(tracks, i);
-    Match match = matchchi2(gtk,tk,beamspot);
-    if (match.first<min_match.first && match.second<0.2){
+    Match match = matchchi2(gtk,tk,refpoint);
+    if (match.first<min_match.first && match.second[0]<0.2 && match.second[1]<3){
+    //if (match.first<min_match.first && match.second[0]<0.2){
       min_match = match;
       tk_idx = i;
     }
@@ -247,23 +332,15 @@ GenMatchedTracks::MatchResult GenMatchedTracks::matchtracks(const reco::GenParti
   return MatchResult(tk_idx,min_match);
 }
 
-GenMatchedTracks::Match GenMatchedTracks::matchchi2(const reco::GenParticle& gtk, const reco::TrackRef& rtk, const edm::Handle<reco::BeamSpot>& beamspot) {
+GenMatchedTracks::Match GenMatchedTracks::matchchi2(const reco::GenParticle& gtk, const reco::TrackRef& rtk, const SoftDV::Point& refpoint) {
 
-  // calculate dxy for gen track
-  //double r = 88.*gtk.pt();
-  //double cx = gtk.vx() + gtk.charge() * r * sin(gtk.phi());
-  //double cy = gtk.vy() - gtk.charge() * r * cos(gtk.phi());
-  //double dxy = fabs(r-sqrt(pow((cx-( beamspot->x0() )), 2) + pow((cy-( beamspot->y0() )), 2)));
-  //double rz = sqrt(pow((gtk.vx()-( beamspot->x0() )), 2) + pow((gtk.vy()-( beamspot->y0() )), 2));
-  //double z = gtk.vz() - beamspot->z0();
-  //double dz = z-rz*(gtk.pz()/gtk.pt());
-
-  double dxy = gen_dxy(gtk,beamspot);
-  double dz = gen_dz(gtk,beamspot);
+  //double dxy = gen_dxy_reco(gtk,refpoint);
+  double dxy = gen_dxy(gtk,refpoint);
+  double dz = gen_dz(gtk,refpoint);
 
   std::vector<double> a;
-  a.push_back( ( fabs(rtk->dxy(*beamspot)) - fabs(dxy) ) / rtk->dxyError() );
-  a.push_back( ( rtk->dz((*beamspot).position())- dz ) / 4*rtk->dzError() );
+  a.push_back( ( fabs(rtk->dxy(refpoint)) - fabs(dxy) ) / rtk->dxyError() );
+  a.push_back( ( rtk->dz(refpoint)- dz ) / (4*rtk->dzError()) );
   a.push_back( ( rtk->charge()/rtk->pt() - gtk.charge()/gtk.pt()) / (1.0/rtk->ptError()) );
   double dr = reco::deltaR(rtk->eta(), rtk->phi(), gtk.eta(), gtk.phi());
   a.push_back(dr/0.01);
@@ -271,28 +348,51 @@ GenMatchedTracks::Match GenMatchedTracks::matchchi2(const reco::GenParticle& gtk
   for (double& xa:a){
     asum += xa*xa;
   }
-  return std::pair<double,double>(0.25*asum,dr);
+  std::vector<double> m({dr,fabs( fabs(rtk->dxy(refpoint)) - fabs(dxy) ) / rtk->dxyError()});
+  return std::pair<double,std::vector<double>>(0.25*asum,m);
 }
 
 void GenMatchedTracks::initStructure()
 {
+  gtInfo->bs_x = -1;
+  gtInfo->bs_y = -1;
+  gtInfo->bs_z = -1;
+  gtInfo->pv_x = -1;
+  gtInfo->pv_y = -1;
+  gtInfo->pv_z = -1;
   gtInfo->gen_pt.clear();
   gtInfo->gen_eta.clear();
   gtInfo->gen_phi.clear();
-  gtInfo->gen_dxy.clear();
-  gtInfo->gen_dz.clear();
+  gtInfo->gen_dxybs.clear();
+  gtInfo->gen_dxybs_reco.clear();
+  gtInfo->gen_dxypv.clear();
+  gtInfo->gen_dxypv_reco.clear();
+  gtInfo->gen_dzbs.clear();
+  gtInfo->gen_dzpv.clear();
   gtInfo->gen_charge.clear();
+  gtInfo->gen_vx.clear();
+  gtInfo->gen_vy.clear();
+  gtInfo->gen_vz.clear();
   gtInfo->gen_match.clear();
   gtInfo->gen_llp_idx.clear();
   gtInfo->gen_tk_idx.clear();
+  gtInfo->matched_track_vx.clear();
+  gtInfo->matched_track_vy.clear();
+  gtInfo->matched_track_vz.clear();
   gtInfo->matched_track_pt.clear();
+  gtInfo->matched_track_pt_err.clear();
   gtInfo->matched_track_eta.clear();
   gtInfo->matched_track_phi.clear();
-  gtInfo->matched_track_dxy.clear();
+  gtInfo->matched_track_dxybs.clear();
+  gtInfo->matched_track_dxypv.clear();
   gtInfo->matched_track_dxy_err.clear();
-  gtInfo->matched_track_dz.clear();
+  gtInfo->matched_track_dzbs.clear();
+  gtInfo->matched_track_dzpv.clear();
   gtInfo->matched_track_dz_err.clear();
   gtInfo->matched_track_dr.clear();
+  gtInfo->matched_track_chi2.clear();
+  gtInfo->matched_track_nhits.clear();
+  gtInfo->matched_track_normchi2.clear();
   gtInfo->matched_track_n_gentk.clear();
 }
 
