@@ -12,10 +12,11 @@ process.load("SoftDisplacedVertices.VtxReco.VertexReco_cff")
 process.load("SoftDisplacedVertices.VtxReco.GenProducer_cfi")
 #process.load("SoftDisplacedVertices.VtxReco.Vertexer_cfi")
 process.load("SoftDisplacedVertices.VtxReco.GenMatchedTracks_cfi")
+process.load("SoftDisplacedVertices.VtxReco.TrackTree_cfi")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(3) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 
 import FWCore.Utilities.FileUtils as FileUtils
 inputDatafileList = FileUtils.loadListFromFile('/users/ang.li/public/SoftDV/CMSSW_10_6_30/src/SoftDisplacedVertices/VtxReco/test/filelist_stop4b_600_588_200.txt')
@@ -92,9 +93,13 @@ process.GenInfo.lsp_id = 1000022
 if useMINIAOD:
   process.GenInfo.gen_particles_token = cms.InputTag('prunedGenParticles')
   process.GenMatchedTracks.tracks = cms.InputTag('TracksMiniAOD')
+  process.GenMatchedTracks.primary_vertices = cms.InputTag('offlineSlimmedPrimaryVertices')
+  process.TrackTree.tracks = cms.InputTag('TracksMiniAOD')
 #process.GenInfo.debug=True
-process.GenMatchedTracks.debug=True
+#process.GenMatchedTracks.debug=True
+process.VertexTracksLoose.min_track_nsigmadxy=cms.double(2)
+process.VertexTracks.min_track_nsigmadxy=cms.double(2)
 
 VertexRecoSeq(process, useMINIAOD=useMINIAOD, useIVF=useIVF)
-process.p = cms.Path(process.trig_filter + process.GenInfo + process.vtxreco + process.GenMatchedTracks)
+process.p = cms.Path(process.trig_filter + process.GenInfo + process.vtxreco + process.GenMatchedTracks + process.TrackTree)
 process.outp = cms.EndPath(process.out)
