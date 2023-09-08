@@ -18,9 +18,7 @@
 
 // system include files
 #include <memory>
-// #include <string>
-#include <iostream>
-// #include <sstream>
+#include <string>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -58,7 +56,6 @@ private:
    const std::string genVtxName_;
    const std::string genVtxDoc_;
    const std::string genPartName_;
-   const std::string genPartDoc_;
 };
 
 //
@@ -75,13 +72,12 @@ private:
 GenSecondaryVertexTableProducer::GenSecondaryVertexTableProducer(const edm::ParameterSet &pset)
     : src_(pset.getParameter<edm::InputTag>("src")),
       srcToken_(consumes<reco::GenParticleCollection>(src_)),
-      genVtxName_(pset.getParameter<std::string>("genVtxName")),
-      genVtxDoc_(pset.getParameter<std::string>("genVtxDoc")),
-      genPartName_(pset.getParameter<std::string>("genPartName")),
-      genPartDoc_(pset.getParameter<std::string>("genPartDoc"))
+      genVtxName_(pset.getParameter<std::string>("genSVtxName")),
+      genVtxDoc_(pset.getParameter<std::string>("genSVtxDoc")),
+      genPartName_(pset.getParameter<std::string>("genPartName"))
 {
-   produces<nanoaod::FlatTable>("GenSV");
-   produces<nanoaod::FlatTable>("GenSVPart");
+   produces<nanoaod::FlatTable>("GenSVtx");
+   produces<nanoaod::FlatTable>("GenPart");
 }
 
 GenSecondaryVertexTableProducer::~GenSecondaryVertexTableProducer()
@@ -104,7 +100,7 @@ void GenSecondaryVertexTableProducer::produce(edm::Event &iEvent, const edm::Eve
          continue;
 
       math::XYZPoint vtx = gp.vertex();
-      float min_dist2 = 0.05 * 0.05;
+      float min_dist2 = 0.005 * 0.005;
       int min_idx = -1;
       for (std::size_t ivx = 0; ivx < vertices.size(); ++ivx)
       {
@@ -159,11 +155,9 @@ void GenSecondaryVertexTableProducer::produce(edm::Event &iEvent, const edm::Eve
    };
 
    auto partTable = std::make_unique<nanoaod::FlatTable>(genParticles->size(), genPartName_, false, true);
-   partTable->setDoc(genPartDoc_);
    partTable->addColumn<int>("svxIdx", gp_vtx_idx, "secondary vertex index", nanoaod::FlatTable::IntColumn);
-
-   iEvent.put(std::move(vtxTable), "GenSV");
-   iEvent.put(std::move(vtxTable), "GenSVPart");
+   iEvent.put(std::move(vtxTable), "GenSVtx");
+   iEvent.put(std::move(partTable), "GenPart");
 }
 
 // ------------ method called once each stream before processing any runs, lumis or events  ------------
