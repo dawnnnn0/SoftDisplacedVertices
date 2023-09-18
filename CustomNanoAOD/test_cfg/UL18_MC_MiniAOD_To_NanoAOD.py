@@ -2,17 +2,18 @@
 # using: 
 # Revision: 1.19 
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
-# with command line options: NANO --step NANO --mc --eventcontent NANOAODSIM --datatier NANOAODSIM --conditions 102X_upgrade2018_realistic_v15 --era Run2_2018,run2_nanoAOD_102Xv1 --customise_commands=process.add_(cms.Service('InitRootHandlers', EnableIMT = cms.untracked.bool(False)));process.MessageLogger.cerr.FwkReport.reportEvery=1000 --number -1 --no_exec --python_filename Proposal_MiniAOD_To_NanoAOD.py
+# with command line options: NANO --step NANO --mc --eventcontent NANOAODSIM --datatier NANOAODSIM --conditions 106X_upgrade2018_realistic_v16_L1v1 --era Run2_2018,run2_nanoAOD_106Xv2 --customise_commands=process.add_(cms.Service('InitRootHandlers', EnableIMT = cms.untracked.bool(False)));process.MessageLogger.cerr.FwkReport.reportEvery=1000 --number -1 --no_exec --python_filename MC_Run2018_MiniAOD_To_NanoAOD.py
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.StandardSequences.Eras import eras
+from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
+from Configuration.Eras.Modifier_run2_nanoAOD_106Xv2_cff import run2_nanoAOD_106Xv2
 
 from FWCore.ParameterSet.VarParsing import VarParsing
 
 options = VarParsing ('analysis')
 options.parseArguments()
 
-process = cms.Process('NANO',eras.Run2_2018,eras.run2_nanoAOD_102Xv1)
+process = cms.Process('NANO',Run2_2018,run2_nanoAOD_106Xv2)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -64,7 +65,7 @@ process.NANOAODSIMoutput = cms.OutputModule("NanoAODOutputModule",
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '102X_upgrade2018_realistic_v15', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '106X_upgrade2018_realistic_v16_L1v1', '')
 
 # Path and EndPath definitions
 process.nanoAOD_step = cms.Path(process.nanoSequenceMC)
@@ -78,7 +79,7 @@ associatePatAlgosToolsTask(process)
 
 # customisation of the process.
 
-from SoftDisplacedVertices.CustomNanoAODGeneration.nanoAOD_cff import nanoAOD_customise_SoftDisplacedVerticesMC
+from SoftDisplacedVertices.CustomNanoAOD.nanoAOD_cff import nanoAOD_customize_SoftVertexMC
 nanoAOD_customise_SoftDisplacedVerticesMC(process)
 
 # Automatic addition of the customisation function from PhysicsTools.NanoAOD.nano_cff
@@ -90,14 +91,14 @@ process = nanoAOD_customizeMC(process)
 # End of customisation functions
 
 # Customisation from command line
-from PhysicsTools.NanoAOD.common_cff import *
 
-process.genParticleTable.variables = cms.PSet(process.genParticleTable.variables,
-        vx = Var("vx", float,precision=10),
+# Additional Customisation
+from PhysicsTools.NanoAOD.common_cff import *
+process.genParticleTable.variables = cms.PSet(process.genParticleTable.variables, 
+        vx = Var("vx", float,precision=10), 
         vy = Var("vy", float,precision=10),
         vz = Var("vz", float,precision=10),
 )
-
 process.add_(cms.Service('InitRootHandlers', EnableIMT = cms.untracked.bool(False)));process.MessageLogger.cerr.FwkReport.reportEvery=1000
 # Add early deletion of temporary data products to reduce peak memory need
 from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEarlyDelete

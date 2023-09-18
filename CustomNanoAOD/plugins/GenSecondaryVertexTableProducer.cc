@@ -72,11 +72,11 @@ private:
 GenSecondaryVertexTableProducer::GenSecondaryVertexTableProducer(const edm::ParameterSet &pset)
     : src_(pset.getParameter<edm::InputTag>("src")),
       srcToken_(consumes<reco::GenParticleCollection>(src_)),
-      genVtxName_(pset.getParameter<std::string>("genSVtxName")),
-      genVtxDoc_(pset.getParameter<std::string>("genSVtxDoc")),
+      genVtxName_(pset.getParameter<std::string>("genVtxName")),
+      genVtxDoc_(pset.getParameter<std::string>("genVtxDoc")),
       genPartName_(pset.getParameter<std::string>("genPartName"))
 {
-   produces<nanoaod::FlatTable>("GenSVtx");
+   produces<nanoaod::FlatTable>("GenVtx");
    produces<nanoaod::FlatTable>("GenPart");
 }
 
@@ -92,41 +92,45 @@ void GenSecondaryVertexTableProducer::produce(edm::Event &iEvent, const edm::Eve
    iEvent.getByToken(srcToken_, genParticles);
 
    std::vector<math::XYZPoint> vertices;
-   std::vector<std::vector<std::size_t>> vtx_gp_idx;
-   for (std::size_t igp = 0; igp < genParticles->size(); ++igp)
+   std::vector<std::vector<long>> vtx_gp_idx;
+   for (auto gp = genParticles->begin(); gp != genParticles->end(); ++gp)
    {
-      const reco::GenParticle &gp = (*genParticles)[igp];
-      if (gp.status() != 1 || abs(gp.charge()) != 1)
+      if (gp->status() != 1 || abs(gp->charge()) != 1)
          continue;
 
-      math::XYZPoint vtx = gp.vertex();
+      math::XYZPoint vtx = gp->vertex();
       float min_dist2 = 0.005 * 0.005;
       int min_idx = -1;
-      for (std::size_t ivx = 0; ivx < vertices.size(); ++ivx)
+      for (auto vtx1 = vertices.begin(); vtx1 != vertices.end(); ++vtx1)
       {
-         float dist2 = (vtx - vertices[ivx]).mag2();
+         float dist2 = (vtx - (*vtx1)).mag2();
          if (dist2 < min_dist2)
          {
             min_dist2 = dist2;
-            min_idx = ivx;
+            min_idx = vtx1 - vertices.begin();
          }
       }
       if (min_idx >= 0)
       {
-         std::cout << "Adding track " << igp << " to vertex " << min_idx << std::endl;
-         vtx_gp_idx[min_idx].push_back(igp);
+         vtx_gp_idx[min_idx].push_back(gp - genParticles->begin());
       }
       else
       {
          vertices.push_back(vtx);
-         vtx_gp_idx.push_back({igp});
-         std::cout << "Adding new vertex " << vertices.size() << " for track " << igp << std::endl;
+         vtx_gp_idx.push_back({gp - genParticles->begin()});
       };
    };
    for (std::size_t ivx = 0; ivx < vertices.size();)
    {
-      std::cout << "vertex " << ivx << ": Nr Tracks " << vtx_gp_idx[ivx].size() << std::endl;
-      ++ivx;
+      if (vtx_gp_idx[ivx].size() == 1)
+      {
+         vertices.erase(vertices.begin() + ivx);
+         vtx_gp_idx.erase(vtx_gp_idx.begin() + ivx);
+      }
+      else
+      {
+         ++ivx;
+      };
    }
 
    std::vector<float> vtx_x, vtx_y, vtx_z;
@@ -156,7 +160,7 @@ void GenSecondaryVertexTableProducer::produce(edm::Event &iEvent, const edm::Eve
 
    auto partTable = std::make_unique<nanoaod::FlatTable>(genParticles->size(), genPartName_, false, true);
    partTable->addColumn<int>("svxIdx", gp_vtx_idx, "secondary vertex index", nanoaod::FlatTable::IntColumn);
-   iEvent.put(std::move(vtxTable), "GenSVtx");
+   iEvent.put(std::move(vtxTable), "GenVtx");
    iEvent.put(std::move(partTable), "GenPart");
 }
 
@@ -172,8 +176,9 @@ void GenSecondaryVertexTableProducer::fillDescriptions(edm::ConfigurationDescrip
    edm::ParameterSetDescription desc;
 
    desc.add<edm::InputTag>("src")->setComment("std::vector<GenParticle> gen particle input collections");
-   desc.add<std::string>("genVtxName")->setComment("name of the flat table ouput");
+   desc.add<std::string>("genVtxName")->setComment("name of the flat table ouput for vertices");
    desc.add<std::string>("genVtxDoc")->setComment("a few words of documentation");
+   desc.add<std::string>("genPartName")->setComment("name of the existing flat table ouput for particles");
 
    descriptions.addWithDefaultLabel(desc);
 }

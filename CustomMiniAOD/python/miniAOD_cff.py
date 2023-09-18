@@ -15,7 +15,13 @@ def miniAOD_customise_SoftDisplacedVerticesMC(process):
 
     miniAOD_customise_SoftDisplacedVertices(process)
 
-    # keep stable charged particles
-    process.prunedGenParticles.select.append("keep status == 1 && abs(charge) == 1")
+    process.prunedGenParticlesWithStableCharged = process.prunedGenParticles.clone()
+    process.prunedGenParticlesWithStableCharged.select.append("keep status == 1 && abs(charge) == 1 && pt > 0.5 && abs(eta) < 2.5")
+    process.MINIAODSIMEventContent.outputCommands.append('keep recoGenParticles_prunedGenParticlesWithStableCharged_*_*')
+
+    task = getPatAlgosToolsTask(process)
+    task.add(process.prunedGenParticlesWithStableCharged)
+
+
 
 
