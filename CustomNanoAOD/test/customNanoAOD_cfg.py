@@ -40,16 +40,17 @@ process.load("SoftDisplacedVertices.VtxReco.VertexReco_cff")
 process.load("SoftDisplacedVertices.VtxReco.GenProducer_cfi")
 process.load("SoftDisplacedVertices.VtxReco.GenMatchedTracks_cfi")
 process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
+process.load("SoftDisplacedVertices.CustomNanoAOD.TrackVertexMatchTableProducer_cfi")
 
 # Import Kaan's configurations
-process.load("SoftDisplacedVertices.CustomNanoAODGeneration.PseudoVertexTracks_cfi")
-process.load("SoftDisplacedVertices.CustomNanoAODGeneration.CustomFlatTable_cfi")
-process.load("SoftDisplacedVertices.CustomNanoAODGeneration.CustomVertexTable_cfi")
+process.load("SoftDisplacedVertices.CustomNanoAOD.PseudoVertexTracks_cfi")
+process.load("SoftDisplacedVertices.CustomNanoAOD.CustomFlatTable_cfi")
+process.load("SoftDisplacedVertices.CustomNanoAOD.CustomVertexTable_cfi")
 
 
 
 process.maxEvents = cms.untracked.PSet(
-    # input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(10)
 )
 
 MessageLogger = cms.Service("MessageLogger")
@@ -57,7 +58,7 @@ MessageLogger = cms.Service("MessageLogger")
 
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:/users/alikaan.gueven/AOD_to_nanoAOD/data/SUS-RunIISummer20UL18MiniAODv2-00068.root'),
+    fileNames = cms.untracked.vstring('file:/users/ang.li/public/SoftDV/CMSSW_10_6_30/src/SoftDisplacedVertices/CustomMiniAOD/test/MiniAOD.root'),
     secondaryFileNames = cms.untracked.vstring()
 )
 
@@ -91,7 +92,7 @@ output_mod = cms.OutputModule("NanoAODOutputModule",
         dataTier = cms.untracked.string('NANOAODSIM'),
         filterName = cms.untracked.string('')
     ),
-    fileName = cms.untracked.string('file:/users/alikaan.gueven/AOD_to_nanoAOD/data/SUS-RunIISummer20UL18NanoAODv9-00068.root'),
+    fileName = cms.untracked.string('file:/users/ang.li/public/SoftDV/CMSSW_10_6_30/src/SoftDisplacedVertices/CustomNanoAOD/test/NanoAOD.root'),
     outputCommands = process.NANOAODSIMEventContent.outputCommands
 )
 
@@ -130,22 +131,24 @@ process.NANOAODSIMoutput = output_mod
 # process.MicroEventContentMC.outputCommands.append('keep *_VertexTracksFilter_*_*')
 
 
-
-
 # Additional output definition
 
 # Defining globally acessible service object that does not affect physics results.
-process.TFileService = cms.Service("TFileService", fileName = cms.string("/users/alikaan.gueven/AOD_to_nanoAOD/data/vtxreco_histos.root") )
+process.TFileService = cms.Service("TFileService", fileName = cms.string("/users/ang.li/public/SoftDV/CMSSW_10_6_30/src/SoftDisplacedVertices/CustomNanoAOD/test/vtxreco_histos.root") )
 VertexRecoSeq(process, useMINIAOD=False, useIVF=True)
 
 # EventContentAnalyzer
 process.myEventContent = cms.EDAnalyzer("EventContentAnalyzer")
+process.evtContent = cms.Sequence(process.myEventContent)
+process.evtCont = cms.Path(process.evtContent)
 
 
 # Path and EndPath definitions
 process.reco_step = cms.Path(process.trig_filter + process.vtxreco)
-process.CustomFlatTables = cms.Sequence(process.CustomFlatTable)
+process.CustomFlatTables = cms.Sequence(process.CustomFlatTable + process.TrackVertexMatchTable)
 process.custom_flattable_step = cms.Path(process.CustomFlatTables)
+#process.TrackVertexMatchTable = cms.Sequence(process.TrackMatchTable)
+#process.track_vertex_match_step = cms.Path(process.TrackVertexMatchTable)
 
 # process.CustomFlatTables = cms.Sequence( process.CustomFlatTable + process.CustomVertexTable)
 # process.custom_flattable_step = cms.Path(process.myEventContent + process.CustomFlatTables)
@@ -161,6 +164,7 @@ process.NANOAODSIMoutput_step = cms.EndPath(process.NANOAODSIMoutput)
 # Schedule definition
 process.schedule = cms.Schedule(process.reco_step,
                                 process.custom_flattable_step,
+                                #process.track_vertex_match_step,
                                 process.nanoAOD_step,
                                 process.endjob_step,
                                 process.NANOAODSIMoutput_step)
