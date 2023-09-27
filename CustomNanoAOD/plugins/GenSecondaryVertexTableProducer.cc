@@ -160,6 +160,7 @@ void GenSecondaryVertexTableProducer::produce(edm::Event &iEvent, const edm::Eve
 
    auto partTable = std::make_unique<nanoaod::FlatTable>(genParticles->size(), genPartName_, false, true);
    partTable->addColumn<int>("svxIdx", gp_vtx_idx, "secondary vertex index", nanoaod::FlatTable::IntColumn);
+
    iEvent.put(std::move(vtxTable), "GenVtx");
    iEvent.put(std::move(partTable), "GenPart");
 }

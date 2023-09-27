@@ -62,12 +62,12 @@ process.NANOAODSIMoutput = cms.OutputModule("NanoAODOutputModule",
 
 # Additional output definition
 
-process.Tracer = cms.Service( "Tracer",
-    dumpNonModuleContext = cms.untracked.bool(False),
-    dumpPathsAndConsumes = cms.untracked.bool(True),
-    printTimestamps = cms.untracked.bool(True),
-    dumpEventSetupInfo = cms.untracked.bool(True),
-)
+#process.Tracer = cms.Service( "Tracer",
+#     dumpNonModuleContext = cms.untracked.bool(False),
+#     dumpPathsAndConsumes = cms.untracked.bool(True),
+#     printTimestamps = cms.untracked.bool(True),
+#     dumpEventSetupInfo = cms.untracked.bool(True),
+#)
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
