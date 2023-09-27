@@ -101,10 +101,10 @@ void RecoTrackTableProducer::produce(edm::Event &iEvent, const edm::EventSetup &
         etaError.push_back(track->etaError());
         phiError.push_back(track->phiError());
         ptError.push_back(track->ptError());
-        dxyError.push_back(track->dxyError(pvx->position(), pvx->covariance()));
-        dzError.push_back(track->dzError(pvx->position(), pvx->covariance()));
         // dxyError.push_back(track->dxyError());
-        // dzError.push_back(track->dzError());
+        dxyError.push_back(track->dxyError(pvx->position(), pvx->covariance()));
+//        dzError.push_back(track->dzError(pvx->position(), pvx->covariance()));
+        dzError.push_back(track->dzError());
         charge.push_back(track->charge());
         isHighPurity.push_back(track->quality(reco::TrackBase::TrackQuality::highPurity));
     }
