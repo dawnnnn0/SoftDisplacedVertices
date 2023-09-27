@@ -3,7 +3,6 @@ Writes reco::Track collections to nanoAOD as flat n-tuples.
 """
 
 
-
 import FWCore.ParameterSet.Config as cms
 
 
@@ -83,5 +82,105 @@ CustomFlatTable = cms.EDProducer("SimpleTrackFlatTableProducer",
         precision = cms.int32(-1),
         compression = cms.string('none'),
         ),
-    )
+    isHighPurityTrack = cms.PSet(
+        expr = cms.string('quality(\'highPurity\')'),
+        doc = cms.string('Check if the track is high purity'),
+        mcOnly = cms.bool(False),
+        type = cms.string('int'),
+        precision = cms.int32(-1),
+        compression = cms.string('none'),
+        ),
+    chi2 = cms.PSet(
+        expr = cms.string('chi2'),
+        doc = cms.string('chi-squared of the fit'),
+        mcOnly = cms.bool(False),
+        type = cms.string('float'),
+        precision = cms.int32(-1),
+        compression = cms.string('none'),
+        ),
+    ndof = cms.PSet(
+        expr = cms.string('ndof'),
+        doc = cms.string('number of degrees of freedom of the fit'),
+        mcOnly = cms.bool(False),
+        type = cms.string('int'),
+        precision = cms.int32(-1),
+        compression = cms.string('none'),
+        ),
+    normalizedChi2 = cms.PSet(
+        expr = cms.string('normalizedChi2'),
+        doc = cms.string('chi-squared divided by n.d.o.f. (or chi-squared * 1e6 if n.d.o.f. is zero)'),
+        mcOnly = cms.bool(False),
+        type = cms.string('float'),
+        precision = cms.int32(-1),
+        compression = cms.string('none'),
+        ),
+    ptError = cms.PSet(
+        expr = cms.string('ptError'),
+        doc = cms.string('error on Pt (set to 1000 TeV if charge==0 for safety)'),
+        mcOnly = cms.bool(False),
+        type = cms.string('float'),
+        precision = cms.int32(-1),
+        compression = cms.string('none'),
+        ),
+    numberOfValidHits = cms.PSet(
+        expr = cms.string('numberOfValidHits'),
+        doc = cms.string('number of valid hits found'),
+        mcOnly = cms.bool(False),
+        type = cms.string('int'),
+        precision = cms.int32(-1),
+        compression = cms.string('none'),
+        ),
+    numberOfLostHits = cms.PSet(
+        expr = cms.string('numberOfLostHits'),
+        doc = cms.string('number of cases where track crossed a layer without getting a hit.'),
+        mcOnly = cms.bool(False),
+        type = cms.string('int'),
+        precision = cms.int32(-1),
+        compression = cms.string('none'),
+        ),
+    validFraction = cms.PSet(
+        expr = cms.string('validFraction'),
+        doc = cms.string('fraction of valid hits on the track'),
+        mcOnly = cms.bool(False),
+        type = cms.string('float'),
+        precision = cms.int32(-1),
+        compression = cms.string('none'),
+        ),
+    
+    dxyError = cms.PSet(
+        expr = cms.string('dxyError(offlineSlimmedPrimaryVertices[0].position(), offlineSlimmedPrimaryVertices[0].error())'),
+        doc = cms.string('Check if the track is high purity'),
+        mcOnly = cms.bool(False),
+        type = cms.string('float'),
+        precision = cms.int32(-1),
+        compression = cms.string('none'),
+        ),
+    # qualityMask = cms.PSet(
+    #     expr = cms.string('qualityMask'),
+    #     doc = cms.string(''),
+    #     mcOnly = cms.bool(False),
+    #     type = cms.string('int'),
+    #     precision = cms.int32(-1),
+    #     compression = cms.string('none'),
+    #     ),
+    # tmp_highPurity = cms.PSet(
+    #     expr = cms.string('?((qualityMask()&4)>0))? 1:0)'),
+    #     doc = cms.string(''),
+    #     mcOnly = cms.bool(False),
+    #     type = cms.string('int'),
+    #     precision = cms.int32(-1),
+    #     compression = cms.string('none'),
+    #     ),
+    ),
+    # externalVariables = cms.PSet(
+    #     dxyError = cms.PSet(
+    #         # expr = cms.string('dxyError(\'highPurity\')'),
+    #         src = cms.InputTag("isoForIsoTk","miniIsoAll"),
+    #         doc = cms.string('Check if the track is high purity'),
+    #         mcOnly = cms.bool(False),
+    #         type = cms.string('float'),
+    #         precision = cms.int32(-1),
+    #         compression = cms.string('none'),
+    #         ),
+    # )
 )

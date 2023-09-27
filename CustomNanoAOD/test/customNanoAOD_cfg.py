@@ -16,12 +16,15 @@ from Configuration.Eras.Modifier_run2_nanoAOD_106Xv2_cff import run2_nanoAOD_106
 import HLTrigger.HLTfilters.hltHighLevel_cfi as hlt
 # import Ang's custom CMSSW modules
 from SoftDisplacedVertices.VtxReco.VertexReco_cff import VertexRecoSeq
-# from FWCore.MessageService.MessageLogger_cfi import *
-
-
 
 
 process = cms.Process('customNanoAOD',Run2_2018,run2_nanoAOD_106Xv2)
+
+
+# from FWCore.MessageService.MessageLogger_cfi import *
+# MessageLogger = cms.Service("MessageLogger")
+process.load('FWCore.MessageLogger.MessageLogger_cfi')
+
 
 # import of standard configurations
 process.load('FWCore.MessageService.MessageLogger_cfi')
@@ -42,9 +45,9 @@ process.load("SoftDisplacedVertices.VtxReco.GenMatchedTracks_cfi")
 process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
 
 # Import Kaan's configurations
-process.load("SoftDisplacedVertices.CustomNanoAODGeneration.PseudoVertexTracks_cfi")
-process.load("SoftDisplacedVertices.CustomNanoAODGeneration.CustomFlatTable_cfi")
-process.load("SoftDisplacedVertices.CustomNanoAODGeneration.CustomVertexTable_cfi")
+process.load("SoftDisplacedVertices.CustomNanoAOD.PseudoVertexTracks_cfi")
+process.load("SoftDisplacedVertices.CustomNanoAOD.CustomFlatTable_cfi")
+process.load("SoftDisplacedVertices.CustomNanoAOD.CustomVertexTable_cfi")
 
 
 

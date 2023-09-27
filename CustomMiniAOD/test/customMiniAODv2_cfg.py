@@ -38,6 +38,9 @@ process.load("SoftDisplacedVertices.VtxReco.GenProducer_cfi")
 process.load("SoftDisplacedVertices.VtxReco.GenMatchedTracks_cfi")
 process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
 
+# Import IsolatedTrack equivalent collections
+process.load("SoftDisplacedVertices.CustomMiniAOD.VertexTracks_cfi")
+
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100)
 )
@@ -203,6 +206,7 @@ output_mod = cms.OutputModule("PoolOutputModule",
 # Preparing Ang's output definitions in the MiniAOD output
 # output_mod.outputCommands.append('drop *') # already included in MINIAODSIMEventContent.outputCommands
 output_mod.outputCommands.append('keep *_VertexTracksFilter_*_*')
+output_mod.outputCommands.append('keep *_VertexTracks_*_*')
 process.MINIAODSIMoutput = output_mod
 
 # process.MINIAODSIMEventContent.outputCommands.append('keep *_VertexTracksFilter_*_*')
@@ -225,7 +229,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, '106X_upgrade2018_realistic_v16
 process.TFileService = cms.Service("TFileService", fileName = cms.string("/users/alikaan.gueven/AOD_to_nanoAOD/data/vtxreco_histos.root") )
 
 VertexFilterSeq(process, useMINIAOD=False, useIVF=True)
-process.p = cms.Path(process.trig_filter + process.vtxfilter)
+process.p = cms.Path(process.VertexTracks + process.trig_filter + process.vtxfilter)
 
 
 # Path and EndPath definitions
