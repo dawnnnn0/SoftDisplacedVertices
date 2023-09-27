@@ -3,8 +3,8 @@ from PhysicsTools.NanoAOD.common_cff import *
 
 def nanoAOD_customise_SoftDisplacedVertices(process):
 
-    process.load('SoftDisplacedVertices.CustomNanoAOD.sdvtracks_cff')
-    process.nanoSequenceMC = cms.Sequence(process.nanoSequenceMC + process.SDVTrackTable)
+    process.load('SoftDisplacedVertices.CustomNanoAOD.RecoTrackTableProducer_cfi')
+    process.nanoSequenceMC = cms.Sequence(process.nanoSequenceMC + process.recoTrackTable)
     
     return process
 
@@ -13,7 +13,7 @@ def nanoAOD_customise_SoftDisplacedVerticesMC(process):
     process = nanoAOD_customise_SoftDisplacedVertices(process)
     
     process.finalGenParticlesWithStableCharged = process.finalGenParticles.clone(
-        src = cms.InputTag("prunedGenParticlesWithStableCharged")
+        src = cms.InputTag("prunedGenParticles")
     )
     process.finalGenParticlesWithStableCharged.select.append('keep status==1 && abs(charge) == 1')
 
@@ -31,6 +31,6 @@ def nanoAOD_customise_SoftDisplacedVerticesMC(process):
     )
     process.nanoSequenceMC = cms.Sequence(process.nanoSequenceMC + process.sdvSequence)  
     
-    return  process
+    return process
 
 

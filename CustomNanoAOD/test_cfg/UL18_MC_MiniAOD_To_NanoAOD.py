@@ -79,7 +79,7 @@ associatePatAlgosToolsTask(process)
 
 # customisation of the process.
 
-from SoftDisplacedVertices.CustomNanoAOD.nanoAOD_cff import nanoAOD_customize_SoftVertexMC
+from SoftDisplacedVertices.CustomNanoAOD.nanoAOD_cff import nanoAOD_customise_SoftDisplacedVerticesMC
 nanoAOD_customise_SoftDisplacedVerticesMC(process)
 
 # Automatic addition of the customisation function from PhysicsTools.NanoAOD.nano_cff

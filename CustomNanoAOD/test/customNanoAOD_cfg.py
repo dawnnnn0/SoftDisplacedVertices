@@ -38,16 +38,14 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load('PhysicsTools.NanoAOD.nano_cff')
 
-# Import Ang's configurations
+# Import vertex reconstruction configurations
 process.load("SoftDisplacedVertices.VtxReco.VertexReco_cff")
 process.load("SoftDisplacedVertices.VtxReco.GenProducer_cfi")
 process.load("SoftDisplacedVertices.VtxReco.GenMatchedTracks_cfi")
 process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
 
-# Import Kaan's configurations
-process.load("SoftDisplacedVertices.CustomNanoAOD.PseudoVertexTracks_cfi")
-process.load("SoftDisplacedVertices.CustomNanoAOD.CustomFlatTable_cfi")
-process.load("SoftDisplacedVertices.CustomNanoAOD.CustomVertexTable_cfi")
+# Import custom table configurations
+
 
 
 
@@ -65,7 +63,7 @@ process.source = cms.Source("PoolSource",
 )
 
 process.options = cms.untracked.PSet(
-    # SkipEvent= cms.untracked.vstring("ProductNotFound"),
+    SkipEvent= cms.untracked.vstring("ProductNotFound"),
 )
 
 # Production Info
@@ -146,12 +144,21 @@ process.myEventContent = cms.EDAnalyzer("EventContentAnalyzer")
 
 
 # Path and EndPath definitions
+# process.reco_step = cms.Path(process.trig_filter + process.vtxreco + process.myEventContent)
 process.reco_step = cms.Path(process.trig_filter + process.vtxreco)
-process.CustomFlatTables = cms.Sequence(process.CustomFlatTable)
-process.custom_flattable_step = cms.Path(process.CustomFlatTables)
+
+
+
+
+# process.CustomFlatTables = cms.Sequence(process.CustomFlatTable)
+# process.custom_flattable_step = cms.Path(process.CustomFlatTables)
 
 # process.CustomFlatTables = cms.Sequence( process.CustomFlatTable + process.CustomVertexTable)
 # process.custom_flattable_step = cms.Path(process.myEventContent + process.CustomFlatTables)
+
+
+from SoftDisplacedVertices.CustomNanoAOD.nanoAOD_cff import nanoAOD_customise_SoftDisplacedVerticesMC
+nanoAOD_customise_SoftDisplacedVerticesMC(process)
 
 
 process.nanoAOD_step = cms.Path(process.nanoSequenceMC)
@@ -163,7 +170,7 @@ process.NANOAODSIMoutput_step = cms.EndPath(process.NANOAODSIMoutput)
 
 # Schedule definition
 process.schedule = cms.Schedule(process.reco_step,
-                                process.custom_flattable_step,
+                                # process.custom_flattable_step,
                                 process.nanoAOD_step,
                                 process.endjob_step,
                                 process.NANOAODSIMoutput_step)

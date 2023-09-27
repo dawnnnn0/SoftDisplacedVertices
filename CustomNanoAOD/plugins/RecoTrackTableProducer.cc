@@ -85,10 +85,11 @@ void RecoTrackTableProducer::produce(edm::Event &iEvent, const edm::EventSetup &
     iEvent.getByToken(srcToken_, recoTracks);
     edm::Handle<reco::VertexCollection> recoVertices;
     iEvent.getByToken(vtxToken_, recoVertices);
+    
 
     std::vector<float> eta, phi, dxy, dz, pt, dxyError, dzError, ptError, phiError, etaError;
     std::vector<int> charge;
-    std::vector<bool> isHighPurity;
+    std::vector<int> isHighPurity;
 
     auto pvx = recoVertices->begin();
     for (auto track = recoTracks->begin(); track != recoTracks->end(); ++track)
@@ -122,7 +123,7 @@ void RecoTrackTableProducer::produce(edm::Event &iEvent, const edm::EventSetup &
     recoTrackTable->addColumn<float>("dxyError", dxyError, "dxyError", nanoaod::FlatTable::FloatColumn, 10);
     recoTrackTable->addColumn<float>("dzError", dzError, "dzError", nanoaod::FlatTable::FloatColumn, 10);
     recoTrackTable->addColumn<int>("charge", charge, "Charge", nanoaod::FlatTable::IntColumn);
-    recoTrackTable->addColumn<bool>("isHighPurity", isHighPurity, "Is High Purity", nanoaod::FlatTable::BoolColumn);
+    recoTrackTable->addColumn<int>("isHighPurity", isHighPurity, "Is High Purity", nanoaod::FlatTable::IntColumn);
     iEvent.put(std::move(recoTrackTable), "");
 }
 
@@ -139,6 +140,8 @@ void RecoTrackTableProducer::fillDescriptions(edm::ConfigurationDescriptions &de
 
     desc.add<edm::InputTag>("src")->setComment("track collection");
     desc.add<edm::InputTag>("vtx")->setComment("vertex collection");
+    desc.add<std::string>("recoTrackName")->setComment("name of the flat table to be produced");
+    desc.add<std::string>("recoTrackDoc")->setComment("a few words about the documentation");
 
     descriptions.addWithDefaultLabel(desc);
 }
