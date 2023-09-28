@@ -41,6 +41,7 @@ process.load("SoftDisplacedVertices.VtxReco.GenProducer_cfi")
 process.load("SoftDisplacedVertices.VtxReco.GenMatchedTracks_cfi")
 process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
 process.load("SoftDisplacedVertices.CustomNanoAOD.TrackVertexMatchTableProducer_cfi")
+process.load("SoftDisplacedVertices.CustomNanoAOD.SVTrackTable_cfi")
 
 # Import Kaan's configurations
 process.load("SoftDisplacedVertices.CustomNanoAOD.PseudoVertexTracks_cfi")
@@ -81,7 +82,7 @@ process.trig_filter = hlt.hltHighLevel.clone(
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '106X_upgrade2018_realistic_v16_L1v1', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '106X_mc2017_realistic_v9', '')
 
 
 # Output definition
@@ -145,7 +146,8 @@ process.evtCont = cms.Path(process.evtContent)
 
 # Path and EndPath definitions
 process.reco_step = cms.Path(process.trig_filter + process.vtxreco)
-process.CustomFlatTables = cms.Sequence(process.CustomFlatTable + process.TrackVertexMatchTable + process.CustomVertexTable)
+#process.CustomFlatTables = cms.Sequence(process.CustomFlatTable + process.TrackVertexMatchTable + process.CustomVertexTable)
+process.CustomFlatTables = cms.Sequence(process.CustomFlatTable + process.SVTrackTable)
 process.custom_flattable_step = cms.Path(process.CustomFlatTables)
 #process.TrackVertexMatchTable = cms.Sequence(process.TrackMatchTable)
 #process.track_vertex_match_step = cms.Path(process.TrackVertexMatchTable)

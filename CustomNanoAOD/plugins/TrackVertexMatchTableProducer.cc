@@ -59,7 +59,7 @@ class TrackVertexMatchTableProducer : public edm::global::EDProducer<> {
         int matched_vtx_idx = -1;
         for (size_t ivtx=0; ivtx<vertices.size(); ++ivtx) {
           const reco::Vertex& vtx = vertices.at(ivtx);
-          double match_threshold = 1.3;
+          double match_threshold = 1.1;
           // for each LLP, compare the matched tracks with tracks in the reco vertex 
           
           if (debug){
