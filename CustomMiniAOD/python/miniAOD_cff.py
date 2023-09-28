@@ -6,15 +6,18 @@ def miniAOD_customise_SoftDisplacedVertices(process):
 
     task = getPatAlgosToolsTask(process)
     process.load('SoftDisplacedVertices.VtxReco.VertexTracks_cfi')
-    
+    process.VertexTracksFilter.histos = cms.bool(False)
+ 
     task.add(process.VertexTracksFilter)
 
     process.MINIAODEventContent.outputCommands.append('keep *_VertexTracks*_*_*')
     process.MINIAODSIMEventContent.outputCommands.append('keep *_VertexTracks*_*_*')
 
+    return process
+
 def miniAOD_customise_SoftDisplacedVerticesMC(process):
 
-    miniAOD_customise_SoftDisplacedVertices(process)
+    process = miniAOD_customise_SoftDisplacedVertices(process)
 
     process.prunedGenParticlesWithStableCharged = process.prunedGenParticles.clone()
     process.prunedGenParticlesWithStableCharged.select.append("keep status == 1 && abs(charge) == 1 && pt > 0.5 && abs(eta) < 2.5")
@@ -22,6 +25,8 @@ def miniAOD_customise_SoftDisplacedVerticesMC(process):
 
     task = getPatAlgosToolsTask(process)
     task.add(process.prunedGenParticlesWithStableCharged)
+
+    return process
 
 
 

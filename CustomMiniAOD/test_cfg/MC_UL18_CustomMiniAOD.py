@@ -2,13 +2,12 @@
 # using: 
 # Revision: 1.19 
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
-# with command line options: PAT --step PAT --mc --eventcontent MINIAODSIM --datatier MINIAODSIM --conditions 106X_upgrade2018_realistic_v16_L1v1 --era Run2_2018 --procModifiers run2_miniAOD_UL --number -1 --no_exec --runUnscheduled --python_filename MC_Run2018_AOD_To_MiniAOD.py
+# with command line options: --python_filename MC_UL18_CustomMiniAOD.py --filein file:AOD.root --fileout MiniAOD.root --step PAT --eventcontent MINIAODSIM --datatier MINIAODSIM --customise Configuration/DataProcessing/Utils.addMonitoring --customise SoftDisplacedVertices/CustomMiniAOD/miniAOD_cff.miniAOD_customise_SoftDisplacedVerticesMC --conditions 106X_upgrade2018_realistic_v16_L1v1 --procModifiers run2_miniAOD_UL --geometry DB:Extended --era Run2_2018 --runUnscheduled --no_exec --mc
 import FWCore.ParameterSet.Config as cms
+from FWCore.ParameterSet.VarParsing import VarParsing
 
 from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
 from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
-
-from FWCore.ParameterSet.VarParsing import VarParsing
 
 options = VarParsing ('analysis')
 options.parseArguments()
@@ -44,7 +43,7 @@ process.options = cms.untracked.PSet(
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    annotation = cms.untracked.string('PAT nevts:-1'),
+    annotation = cms.untracked.string('--python_filename nevts:1'),
     name = cms.untracked.string('Applications'),
     version = cms.untracked.string('$Revision: 1.19 $')
 )
@@ -61,7 +60,7 @@ process.MINIAODSIMoutput = cms.OutputModule("PoolOutputModule",
     dropMetaData = cms.untracked.string('ALL'),
     eventAutoFlushCompressedSize = cms.untracked.int32(-900),
     fastCloning = cms.untracked.bool(False),
-    fileName = cms.untracked.string(options.outputFiles),
+    fileName = cms.untracked.string(options.outputFile),
     outputCommands = process.MINIAODSIMEventContent.outputCommands,
     overrideBranchesSplitLevel = cms.untracked.VPSet(
         cms.untracked.PSet(
@@ -162,14 +161,26 @@ process.schedule.associate(process.patTask)
 from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
 associatePatAlgosToolsTask(process)
 
+# customisation of the process.
+
+# Automatic addition of the customisation function from Configuration.DataProcessing.Utils
+from Configuration.DataProcessing.Utils import addMonitoring 
+
+#call to customisation function addMonitoring imported from Configuration.DataProcessing.Utils
+process = addMonitoring(process)
+
+# Automatic addition of the customisation function from SoftDisplacedVertices.CustomMiniAOD.miniAOD_cff
+from SoftDisplacedVertices.CustomMiniAOD.miniAOD_cff import miniAOD_customise_SoftDisplacedVerticesMC 
+
+#call to customisation function miniAOD_customise_SoftDisplacedVerticesMC imported from SoftDisplacedVertices.CustomMiniAOD.miniAOD_cff
+process = miniAOD_customise_SoftDisplacedVerticesMC(process)
+
+# End of customisation functions
 #do not add changes to your config after this point (unless you know what you are doing)
 from FWCore.ParameterSet.Utilities import convertToUnscheduled
 process=convertToUnscheduled(process)
 
 # customisation of the process.
-
-from SoftDisplacedVertices.CustomMiniAOD.miniAOD_cff import miniAOD_customise_SoftDisplacedVerticesMC
-miniAOD_customise_SoftDisplacedVerticesMC(process)
 
 # Automatic addition of the customisation function from PhysicsTools.PatAlgos.slimming.miniAOD_tools
 from PhysicsTools.PatAlgos.slimming.miniAOD_tools import miniAOD_customizeAllMC 
