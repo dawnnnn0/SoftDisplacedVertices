@@ -6,5 +6,5 @@ TrackVertexMatchTable = cms.EDProducer("TrackVertexMatchTableProducer",
       objName = cms.string('customTracks'),
       src = cms.InputTag("VertexTracksFilter","seed"),
       vtx = cms.InputTag("IVFSecondaryVerticesSoftDV"),
-      debug = cms.bool(True),
+      debug = cms.bool(False),
     )

@@ -45,7 +45,8 @@ process.maxEvents = cms.untracked.PSet(
 # Input source
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-      '/store/mc/RunIISummer20UL18RECO/SMS-T2tt-4bd_genMET-100_genHT200_mStop-300_mLSP-290_TuneCP5_LLStop_13TeV-madgraphMLM-pythia8/AODSIM/106X_upgrade2018_realistic_v11_L1v1-v1/2500000/2ECB421C-8065-CE4A-9BB5-C40997036E7E.root',
+      #'/store/mc/RunIISummer20UL18RECO/SMS-T2tt-4bd_genMET-100_genHT200_mStop-300_mLSP-290_TuneCP5_LLStop_13TeV-madgraphMLM-pythia8/AODSIM/106X_upgrade2018_realistic_v11_L1v1-v1/2500000/2ECB421C-8065-CE4A-9BB5-C40997036E7E.root',
+      'file:/users/ang.li/public/SoftDV/CMSSW_10_6_30/src/SoftDisplacedVertices/VtxReco/test/splitSUSY_M2000_1950_ctau1p0_AOD_2017.root',
     ),
     secondaryFileNames = cms.untracked.vstring()
 )
@@ -146,7 +147,8 @@ process.trig_filter = hlt.hltHighLevel.clone(
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '106X_upgrade2018_realistic_v16_L1v1', '')
+#process.GlobalTag = GlobalTag(process.GlobalTag, '106X_upgrade2018_realistic_v16_L1v1', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '106X_mc2017_realistic_v9', '')
 
 
 

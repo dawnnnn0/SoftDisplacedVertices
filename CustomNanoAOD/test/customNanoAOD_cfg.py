@@ -50,7 +50,7 @@ process.load("SoftDisplacedVertices.CustomNanoAOD.CustomVertexTable_cfi")
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(50)
 )
 
 MessageLogger = cms.Service("MessageLogger")
@@ -63,7 +63,7 @@ process.source = cms.Source("PoolSource",
 )
 
 process.options = cms.untracked.PSet(
-    # SkipEvent= cms.untracked.vstring("ProductNotFound"),
+     SkipEvent= cms.untracked.vstring("ProductNotFound"),
 )
 
 # Production Info
@@ -145,7 +145,7 @@ process.evtCont = cms.Path(process.evtContent)
 
 # Path and EndPath definitions
 process.reco_step = cms.Path(process.trig_filter + process.vtxreco)
-process.CustomFlatTables = cms.Sequence(process.CustomFlatTable + process.TrackVertexMatchTable)
+process.CustomFlatTables = cms.Sequence(process.CustomFlatTable + process.TrackVertexMatchTable + process.CustomVertexTable)
 process.custom_flattable_step = cms.Path(process.CustomFlatTables)
 #process.TrackVertexMatchTable = cms.Sequence(process.TrackMatchTable)
 #process.track_vertex_match_step = cms.Path(process.TrackVertexMatchTable)

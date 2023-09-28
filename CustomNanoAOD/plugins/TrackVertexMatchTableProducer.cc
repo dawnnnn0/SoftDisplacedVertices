@@ -37,6 +37,18 @@ class TrackVertexMatchTableProducer : public edm::global::EDProducer<> {
 
       std::vector<int> key(ntrack, -1);
 
+      if (debug) {
+        std::cout << "SVs " << vertices.size() << std::endl;
+        for (size_t ivtx=0; ivtx<vertices.size(); ++ivtx) {
+            const reco::Vertex& vtx = vertices.at(ivtx);
+            std::cout << "reco vertex " << ivtx << " x: " << vtx.x() << " y: " << vtx.y() << " z: " << vtx.z()  << " tracks " << std::endl;
+            for (auto v_tk = vtx.tracks_begin(), vtke = vtx.tracks_end(); v_tk != vtke; ++v_tk){
+              std::cout << "  pt: " << (*v_tk)->pt() << " eta: " << (*v_tk)->eta() << " phi: " << (*v_tk)->phi() << std::endl;
+            }
+        }
+
+      }
+
       for (size_t i = 0; i < ntrack; ++i) {
         const auto& tk = tracks.at(i);
         if (debug){
@@ -51,7 +63,7 @@ class TrackVertexMatchTableProducer : public edm::global::EDProducer<> {
           // for each LLP, compare the matched tracks with tracks in the reco vertex 
           
           if (debug){
-            std::cout << "reco vertex " << ivtx << " matched tracks " << std::endl;
+            std::cout << "reco vertex " << ivtx << " x: " << vtx.x() << " y: " << vtx.y() << " z: " << vtx.z()  << " tracks " << std::endl;
             for (auto v_tk = vtx.tracks_begin(), vtke = vtx.tracks_end(); v_tk != vtke; ++v_tk){
               std::cout << "  pt: " << (*v_tk)->pt() << " eta: " << (*v_tk)->eta() << " phi: " << (*v_tk)->phi() << std::endl;
             }
@@ -71,14 +83,14 @@ class TrackVertexMatchTableProducer : public edm::global::EDProducer<> {
               break;
             }
           }
-          break;
+          if (matched_vtx_idx!=-1)
+            break;
         }
         if (debug)
           std::cout << "track matched with vertex " << matched_vtx_idx << std::endl;
         key[i] = matched_vtx_idx;
       }
       tab->addColumn<int>(branchName_ + "Idx", key, "Index into secondary vertices list for " + doc_, nanoaod::FlatTable::IntColumn);
-      std::cout << "table: " << tab->size() << " " << tab->nColumns() << " " << tab->nRows() << std::endl;
       iEvent.put(std::move(tab));
     }
 
