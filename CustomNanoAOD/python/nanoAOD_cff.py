@@ -12,8 +12,11 @@ def nanoAOD_customise_SoftDisplacedVertices(process):
         process.IVFSecondaryVerticesSoftDV
     )
 
-    process.load('SoftDisplacedVertices.CustomNanoAOD.RecoTrackTableProducer_cfi')
-    process.nanoSequenceMC = cms.Sequence(process.nanoSequenceMC + process.recoTrackTable + process.vtxReco)
+    process.load("SoftDisplacedVertices.CustomNanoAOD.SVTrackTable_cfi")
+    process.load("SoftDisplacedVertices.CustomNanoAOD.RecoTrackTableProducer_cfi")
+    
+#   have care when running on data
+    process.nanoSequenceMC = cms.Sequence(process.nanoSequenceMC + process.recoTrackTable + process.vtxReco + process.SVTrackTable)
     
     return process
 
