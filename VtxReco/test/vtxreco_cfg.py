@@ -1,26 +1,24 @@
+# import standard CMSSW modules
 import FWCore.ParameterSet.Config as cms
+import FWCore.Utilities.FileUtils as FileUtils
+import HLTrigger.HLTfilters.hltHighLevel_cfi as hlt
+
+# import Ang's custom CMSSW modules
 from SoftDisplacedVertices.VtxReco.VertexReco_cff import VertexRecoSeq
 
+# Set some Flags.
 useMINIAOD = False
 useIVF = True
 
+#set up a process named VtxReco
 process = cms.Process("VtxReco")
 
-if useMINIAOD:
-  process.load("SoftDisplacedVertices.VtxReco.TracksMiniAOD_cfi")
-process.load("SoftDisplacedVertices.VtxReco.VertexReco_cff")
-process.load("SoftDisplacedVertices.VtxReco.GenProducer_cfi")
-#process.load("SoftDisplacedVertices.VtxReco.Vertexer_cfi")
-process.load("SoftDisplacedVertices.VtxReco.GenMatchedTracks_cfi")
-process.load("SoftDisplacedVertices.VtxReco.TrackTree_cfi")
 
-process.load("FWCore.MessageService.MessageLogger_cfi")
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(3) )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
-
-import FWCore.Utilities.FileUtils as FileUtils
 inputDatafileList = FileUtils.loadListFromFile('/users/ang.li/public/SoftDV/CMSSW_10_6_30/src/SoftDisplacedVertices/VtxReco/test/filelist_stop4b_600_588_200.txt')
 
+# configures the source that reads the input files
 process.source = cms.Source("PoolSource",
   fileNames = cms.untracked.vstring(
     'file:/scratch-cbe/users/ang.li/antrag/stop4b_600_588_200/TestAntragIVF1_AODSIM_600_588_200_0.root',
@@ -31,26 +29,23 @@ process.source = cms.Source("PoolSource",
     #cms.untracked.vstring( *inputDatafileList)
   )
 )
-
 #process.source.duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
 
-process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('vtxreco.root'),
-    SelectEvents = cms.untracked.PSet(
-      SelectEvents = cms.vstring('p'),
-      ),
-    outputCommands = cms.untracked.vstring(
-      'drop *',
-      )
-)
 
 # HLT trigger requirement
-import HLTrigger.HLTfilters.hltHighLevel_cfi as hlt
 process.trig_filter = hlt.hltHighLevel.clone(
     HLTPaths = ['HLT_PFMET120_PFMHT120_IDTight_v*'],
     throw = False
     )
 
+
+# load some modules
+if useMINIAOD:
+  process.load("SoftDisplacedVertices.VtxReco.TracksMiniAOD_cfi")
+process.load("SoftDisplacedVertices.VtxReco.VertexReco_cff")
+#process.load("SoftDisplacedVertices.VtxReco.Vertexer_cfi")
+
+process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 #process.load("Configuration.Geometry.GeometryIdeal_cff")
@@ -71,8 +66,7 @@ else:
   process.out.outputCommands.append('keep *_generalTracks_*_*')
 process.out.outputCommands.append('keep *_offlineBeamSpot_*_*')
 process.out.outputCommands.append('keep *_VertexTracks*_*_*')
-process.out.outputCommands.append('keep *_GenInfo_*_*')
-process.out.outputCommands.append('keep *_GenMatchedTracks_*_*')
+
 if useIVF:
   process.out.outputCommands.append('keep *_inclusiveVertexFinderSoftDV_*_*')
   process.out.outputCommands.append('keep *_vertexMergerSoftDV_*_*')
@@ -85,21 +79,24 @@ else:
 
 process.TFileService = cms.Service("TFileService", fileName = cms.string("vtxreco_histos.root") )
 
-#gen info
-#process.GenInfo.llp_id = 1000021
-process.GenInfo.llp_id = 1000006
-process.GenInfo.lsp_id = 1000022
-#process.GenInfo.llp_id = 1000006
-if useMINIAOD:
-  process.GenInfo.gen_particles_token = cms.InputTag('prunedGenParticles')
-  process.GenMatchedTracks.tracks = cms.InputTag('TracksMiniAOD')
-  process.GenMatchedTracks.primary_vertices = cms.InputTag('offlineSlimmedPrimaryVertices')
-  process.TrackTree.tracks = cms.InputTag('TracksMiniAOD')
-#process.GenInfo.debug=True
-#process.GenMatchedTracks.debug=True
-process.VertexTracksLoose.min_track_nsigmadxy=cms.double(2)
-process.VertexTracks.min_track_nsigmadxy=cms.double(2)
 
 VertexRecoSeq(process, useMINIAOD=useMINIAOD, useIVF=useIVF)
-process.p = cms.Path(process.trig_filter + process.GenInfo + process.vtxreco + process.GenMatchedTracks + process.TrackTree)
+
+
+# talk to output module
+process.out = cms.OutputModule("PoolOutputModule",
+    fileName = cms.untracked.string('vtxreco.root'),
+    SelectEvents = cms.untracked.PSet(
+      SelectEvents = cms.vstring('p'),
+      ),
+    outputCommands = cms.untracked.vstring(
+      'drop *',
+      )
+)
+
+
+# Defines which modules and sequences to run
+process.p = cms.Path(process.trig_filter + process.vtxreco)
+
+# A list of analyzers or output modules to be run after all paths have been run.
 process.outp = cms.EndPath(process.out)

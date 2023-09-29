@@ -9,9 +9,9 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 
-class VertexTracks : public edm::EDFilter {
+class VertexTracksFilter : public edm::EDFilter {
 public:
-  VertexTracks(const edm::ParameterSet&);
+  VertexTracksFilter(const edm::ParameterSet&);
   virtual bool filter(edm::Event&, const edm::EventSetup&);
 private:
   const edm::EDGetTokenT<reco::TrackCollection> tracks_token;
@@ -40,7 +40,7 @@ private:
   TH1D* h_track_sigmapt_ratio[N_TRACK_TYPES];
 };
 
-VertexTracks::VertexTracks(const edm::ParameterSet& cfg)
+VertexTracksFilter::VertexTracksFilter(const edm::ParameterSet& cfg)
   : tracks_token(consumes<reco::TrackCollection>(cfg.getParameter<edm::InputTag>("tracks"))),
     beamspot_token(consumes<reco::BeamSpot>(cfg.getParameter<edm::InputTag>("beamspot"))),
     min_n_seed_tracks(cfg.getParameter<int>("min_n_seed_tracks")),
@@ -73,7 +73,7 @@ VertexTracks::VertexTracks(const edm::ParameterSet& cfg)
   }
 }
 
-bool VertexTracks::filter(edm::Event& event, const edm::EventSetup& setup) {
+bool VertexTracksFilter::filter(edm::Event& event, const edm::EventSetup& setup) {
 
   std::unique_ptr<std::vector<reco::TrackRef>> all_tracks (new std::vector<reco::TrackRef>);
   std::unique_ptr<std::vector<reco::TrackRef>> seed_tracks(new std::vector<reco::TrackRef>);
@@ -135,4 +135,4 @@ bool VertexTracks::filter(edm::Event& event, const edm::EventSetup& setup) {
   return pass_min_n_seed_tracks;
 }
 
-DEFINE_FWK_MODULE(VertexTracks);
+DEFINE_FWK_MODULE(VertexTracksFilter);
