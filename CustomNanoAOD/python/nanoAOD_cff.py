@@ -3,8 +3,17 @@ from PhysicsTools.NanoAOD.common_cff import *
 
 def nanoAOD_customise_SoftDisplacedVertices(process):
 
+    process.load("SoftDisplacedVertices.VtxReco.VertexReco_cff")
+  
+    process.vtxReco = cms.Sequence(
+        process.inclusiveVertexFinderSoftDV *
+        process.vertexMergerSoftDV *
+        process.trackVertexArbitratorSoftDV *
+        process.IVFSecondaryVerticesSoftDV
+    )
+
     process.load('SoftDisplacedVertices.CustomNanoAOD.RecoTrackTableProducer_cfi')
-    process.nanoSequenceMC = cms.Sequence(process.nanoSequenceMC + process.recoTrackTable)
+    process.nanoSequenceMC = cms.Sequence(process.nanoSequenceMC + process.recoTrackTable + process.vtxReco)
     
     return process
 

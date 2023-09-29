@@ -36,6 +36,9 @@
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 #include "DataFormats/NanoAOD/interface/FlatTable.h"
 
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/EDMException.h"
+
 class RecoTrackTableProducer : public edm::stream::EDProducer<>
 {
 public:
@@ -57,6 +60,7 @@ private:
     edm::EDGetTokenT<std::vector<reco::Vertex>> vtxToken_;
     const std::string recoTrackName_;
     const std::string recoTrackDoc_;
+    const bool skipNonExistingSrc_;
 };
 
 //
@@ -68,7 +72,8 @@ RecoTrackTableProducer::RecoTrackTableProducer(const edm::ParameterSet &pset)
       vtx_(pset.getParameter<edm::InputTag>("vtx")),
       vtxToken_(consumes<reco::VertexCollection>(vtx_)),
       recoTrackName_(pset.getParameter<std::string>("recoTrackName")),
-      recoTrackDoc_(pset.getParameter<std::string>("recoTrackDoc"))
+      recoTrackDoc_(pset.getParameter<std::string>("recoTrackDoc")),
+      skipNonExistingSrc_(pset.getParameter<bool>("skipNonExistingSrc"))
 {
     produces<nanoaod::FlatTable>("");
 }
@@ -80,37 +85,50 @@ RecoTrackTableProducer::~RecoTrackTableProducer()
 // ------------ method called for each event  ------------
 void RecoTrackTableProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup)
 {
-    std::cout << "RecoTrackTableProducer" << std::endl;
     edm::Handle<reco::TrackCollection> recoTracks;
-    iEvent.getByToken(srcToken_, recoTracks);
     edm::Handle<reco::VertexCollection> recoVertices;
-    iEvent.getByToken(vtxToken_, recoVertices);
-    
 
     std::vector<float> eta, phi, dxy, dz, pt, dxyError, dzError, ptError, phiError, etaError;
     std::vector<int> charge;
     std::vector<int> isHighPurity;
+    int nEntries = 0;
+    try{
+        iEvent.getByToken(srcToken_, recoTracks);
+        iEvent.getByToken(vtxToken_, recoVertices);
 
-    auto pvx = recoVertices->begin();
-    for (auto track = recoTracks->begin(); track != recoTracks->end(); ++track)
-    {
-        eta.push_back(track->eta());
-        phi.push_back(track->phi());
-        pt.push_back(track->pt());
-        dxy.push_back(track->dxy(pvx->position()));
-        dz.push_back(track->dz(pvx->position()));
-        etaError.push_back(track->etaError());
-        phiError.push_back(track->phiError());
-        ptError.push_back(track->ptError());
-        // dxyError.push_back(track->dxyError());
-        dxyError.push_back(track->dxyError(pvx->position(), pvx->covariance()));
-//        dzError.push_back(track->dzError(pvx->position(), pvx->covariance()));
-        dzError.push_back(track->dzError());
-        charge.push_back(track->charge());
-        isHighPurity.push_back(track->quality(reco::TrackBase::TrackQuality::highPurity));
+        auto pvx = recoVertices->begin();
+        for (auto track = recoTracks->begin(); track != recoTracks->end(); ++track){
+            eta.push_back(track->eta());
+            phi.push_back(track->phi());
+            pt.push_back(track->pt());
+            dxy.push_back(track->dxy(pvx->position()));
+            dz.push_back(track->dz(pvx->position()));
+            etaError.push_back(track->etaError());
+            phiError.push_back(track->phiError());
+            ptError.push_back(track->ptError());
+            // dxyError.push_back(track->dxyError());
+            dxyError.push_back(track->dxyError(pvx->position(), pvx->covariance()));
+            // dzError.push_back(track->dzError(pvx->position(), pvx->covariance()));
+            dzError.push_back(track->dzError());
+            charge.push_back(track->charge());
+            isHighPurity.push_back(track->quality(reco::TrackBase::TrackQuality::highPurity));
+        }
+        nEntries = recoTracks->size();
+    }
+    catch(const cms::Exception & e){
+        if (skipNonExistingSrc_){
+            if (e.category() != "ProductNotFound"){
+                throw e;
+            }
+        }
+        else{
+            throw e;
+        }
+
+        // if (!(skipNonExistingSrc_ && e.category() != "ProductNotFound")){throw e;}
     }
 
-    auto recoTrackTable = std::make_unique<nanoaod::FlatTable>(recoTracks->size(), recoTrackName_, false);
+    auto recoTrackTable = std::make_unique<nanoaod::FlatTable>(nEntries, recoTrackName_, false);
     recoTrackTable->setDoc(recoTrackDoc_);
     recoTrackTable->addColumn<float>("eta", eta, "eta", nanoaod::FlatTable::FloatColumn, 10);
     recoTrackTable->addColumn<float>("phi", phi, "phi", nanoaod::FlatTable::FloatColumn, 10);
@@ -124,7 +142,7 @@ void RecoTrackTableProducer::produce(edm::Event &iEvent, const edm::EventSetup &
     recoTrackTable->addColumn<float>("dzError", dzError, "dzError", nanoaod::FlatTable::FloatColumn, 10);
     recoTrackTable->addColumn<int>("charge", charge, "Charge", nanoaod::FlatTable::IntColumn);
     recoTrackTable->addColumn<int>("isHighPurity", isHighPurity, "Is High Purity", nanoaod::FlatTable::IntColumn);
-    iEvent.put(std::move(recoTrackTable), "");
+    iEvent.put(std::move(recoTrackTable), "");    
 }
 
 // ------------ method called once each stream before processing any runs, lumis or events  ------------
@@ -142,6 +160,8 @@ void RecoTrackTableProducer::fillDescriptions(edm::ConfigurationDescriptions &de
     desc.add<edm::InputTag>("vtx")->setComment("vertex collection");
     desc.add<std::string>("recoTrackName")->setComment("name of the flat table to be produced");
     desc.add<std::string>("recoTrackDoc")->setComment("a few words about the documentation");
+    desc.add<bool>("skipNonExistingSrc", false)
+        ->setComment("whether or not to skip producing the table on absent input product");
 
     descriptions.addWithDefaultLabel(desc);
 }
