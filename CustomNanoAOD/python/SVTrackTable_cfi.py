@@ -16,7 +16,7 @@ SVTrackTable = cms.EDProducer("SVTrackTableProducer",
     storeCharge = cms.bool(True),
     tkSrc = cms.InputTag("VertexTracksFilter","seed"),
     tkName = cms.string('SDVTrack'),
-    tkbranchName = cms.string('SDVSecVtx'),
+    tkbranchName = cms.string('SecVtx'),
     tkdocString = cms.string('Vertex matching to tracks'),
     debug = cms.bool(True),
 

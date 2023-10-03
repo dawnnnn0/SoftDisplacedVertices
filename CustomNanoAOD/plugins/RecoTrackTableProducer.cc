@@ -88,16 +88,18 @@ void RecoTrackTableProducer::produce(edm::Event &iEvent, const edm::EventSetup &
     edm::Handle<reco::TrackCollection> recoTracks;
     edm::Handle<reco::VertexCollection> recoVertices;
 
-    std::vector<float> eta, phi, dxy, dz, pt, dxyError, dzError, ptError, phiError, etaError;
-    std::vector<int> charge;
-    std::vector<int> isHighPurity;
+    std::vector<float> eta, phi, dxy, dz, pt, dxyError, dzError, ptError, phiError, etaError, validFraction;
+    std::vector<int> charge, numberOfValidHits, numberOfLostHits;
+    std::vector<bool> isHighPurity;
     int nEntries = 0;
-    try{
+    try
+    {
         iEvent.getByToken(srcToken_, recoTracks);
         iEvent.getByToken(vtxToken_, recoVertices);
 
         auto pvx = recoVertices->begin();
-        for (auto track = recoTracks->begin(); track != recoTracks->end(); ++track){
+        for (auto track = recoTracks->begin(); track != recoTracks->end(); ++track)
+        {
             eta.push_back(track->eta());
             phi.push_back(track->phi());
             pt.push_back(track->pt());
@@ -112,16 +114,23 @@ void RecoTrackTableProducer::produce(edm::Event &iEvent, const edm::EventSetup &
             dzError.push_back(track->dzError());
             charge.push_back(track->charge());
             isHighPurity.push_back(track->quality(reco::TrackBase::TrackQuality::highPurity));
+            numberOfValidHits.push_back(track->numberOfValidHits());
+            numberOfLostHits.push_back(track->numberOfLostHits());
+            validFraction.push_back(track->validFraction());
         }
         nEntries = recoTracks->size();
     }
-    catch(const cms::Exception & e){
-        if (skipNonExistingSrc_){
-            if (e.category() != "ProductNotFound"){
+    catch (const cms::Exception &e)
+    {
+        if (skipNonExistingSrc_)
+        {
+            if (e.category() != "ProductNotFound")
+            {
                 throw e;
             }
         }
-        else{
+        else
+        {
             throw e;
         }
 
@@ -140,9 +149,12 @@ void RecoTrackTableProducer::produce(edm::Event &iEvent, const edm::EventSetup &
     recoTrackTable->addColumn<float>("ptError", ptError, "ptError", nanoaod::FlatTable::FloatColumn, 10);
     recoTrackTable->addColumn<float>("dxyError", dxyError, "dxyError", nanoaod::FlatTable::FloatColumn, 10);
     recoTrackTable->addColumn<float>("dzError", dzError, "dzError", nanoaod::FlatTable::FloatColumn, 10);
-    recoTrackTable->addColumn<int>("charge", charge, "Charge", nanoaod::FlatTable::IntColumn);
-    recoTrackTable->addColumn<int>("isHighPurity", isHighPurity, "Is High Purity", nanoaod::FlatTable::IntColumn);
-    iEvent.put(std::move(recoTrackTable), "");    
+    recoTrackTable->addColumn<int>("charge", charge, "Charge", nanoaod::FlatTable::IntColumn, 10);
+    recoTrackTable->addColumn<int>("isHighPurity", isHighPurity, "Is High Purity", nanoaod::FlatTable::BoolColumn);
+    recoTrackTable->addColumn<int>("numberOfValidHits", numberOfValidHits, "Number of valid hits", nanoaod::FlatTable::IntColumn);
+    recoTrackTable->addColumn<int>("numberOfLostHits", numberOfLostHits, "Number of cases with layers without hits", nanoaod::FlatTable::IntColumn);
+    recoTrackTable->addColumn<float>("validFraction", validFraction, "Fraction of valid hits on track", nanoaod::FlatTable::FloatColumn, 10);
+    iEvent.put(std::move(recoTrackTable), "");
 }
 
 // ------------ method called once each stream before processing any runs, lumis or events  ------------

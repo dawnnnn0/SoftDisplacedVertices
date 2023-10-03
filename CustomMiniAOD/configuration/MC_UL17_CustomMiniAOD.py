@@ -2,7 +2,7 @@
 # using: 
 # Revision: 1.19 
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
-# with command line options: --python_filename MC_UL17_CustomMiniAOD.py --filein file:AOD.root --fileout MiniAOD.root --step PAT --eventcontent MINIAODSIM --datatier MINIAODSIM --customise Configuration/DataProcessing/Utils.addMonitoring --customise SoftDisplacedVertices/CustomMiniAOD/miniAOD_cff.miniAOD_customise_SoftDisplacedVerticesMC --conditions 106X_mc2017_realistic_v9 --procModifiers run2_miniAOD_UL --geometry DB:Extended --era Run2_2017 --runUnscheduled --no_exec --mc
+# with command line options: CustomMiniAOD --python_filename MC_UL17_CustomMiniAOD.py --filein file:AOD.root --fileout MiniAOD.root --step PAT --eventcontent MINIAODSIM --datatier MINIAODSIM --customise Configuration/DataProcessing/Utils.addMonitoring --customise SoftDisplacedVertices/CustomMiniAOD/miniAOD_cff.miniAOD_customise_SoftDisplacedVerticesMC --conditions 106X_mc2017_realistic_v9 --procModifiers run2_miniAOD_UL --geometry DB:Extended --era Run2_2017 --runUnscheduled --no_exec --mc
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.Eras.Era_Run2_2017_cff import Run2_2017
@@ -39,7 +39,7 @@ process.options = cms.untracked.PSet(
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    annotation = cms.untracked.string('--python_filename nevts:1'),
+    annotation = cms.untracked.string('CustomMiniAOD nevts:1'),
     name = cms.untracked.string('Applications'),
     version = cms.untracked.string('$Revision: 1.19 $')
 )

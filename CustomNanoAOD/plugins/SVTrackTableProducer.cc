@@ -93,8 +93,8 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
   edm::Handle<std::vector<reco::Vertex>> svsIn;
   iEvent.getByToken(svs_, svsIn);
   auto vertices = std::make_unique<std::vector<reco::Vertex>>();
-  std::vector<float> x,y,z,dlen, dlenSig, pAngle, dxy, dxySig;
-  std::vector<int> charge, nTrack;
+  std::vector<float> x,y,z,dlen, dlenSig, pAngle, dxy, dxySig, chi2;
+  std::vector<int> charge, nTrack, ndof;
   VertexDistance3D vdist;
   VertexDistanceXY vdistXY;
 
@@ -120,6 +120,8 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
         dxy.push_back(d2d.value());
         dxySig.push_back(d2d.significance());
         nTrack.push_back(sv.tracksSize());
+        chi2.push_back(sv.chi2());
+        ndof.push_back(sv.ndof());
 
         if (storeCharge_) {
           int sum_charge = 0;
@@ -148,6 +150,11 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
   if (storeCharge_) {
     svsTable->addColumn<int>("charge", charge, "sum of the charge of the SV tracks", nanoaod::FlatTable::IntColumn, 10);
   }
+  svsTable->addColumn<float>("chi2", chi2, "chi2 of vertex fit", nanoaod::FlatTable::FloatColumn, 10);
+  svsTable->addColumn<float>("ndof", ndof, "ndof of vertex fit", nanoaod::FlatTable::IntColumn, 10);
+   
+  
+
 
   // Now vertex table is produced, let's make track tables
   const auto& tracks = iEvent.get(tksrc_);

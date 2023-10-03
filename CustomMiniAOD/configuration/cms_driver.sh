@@ -14,7 +14,7 @@ MC_ERA["UL18"]="Run2_2018"
 
 for era in "UL16preVFP" "UL16" "UL17" "UL18"
 do
-    cmsDriver.py --python_filename "MC_${era}_CustomMiniAOD.py" \
+    cmsDriver.py CustomMiniAOD --python_filename "MC_${era}_CustomMiniAOD.py" \
         --filein "file:AOD.root" \
         --fileout "MiniAOD.root" \
         --step PAT \
