@@ -96,42 +96,8 @@ output_mod = cms.OutputModule("NanoAODOutputModule",
     outputCommands = process.NANOAODSIMEventContent.outputCommands
 )
 
-# # Preparing Ang's output definitions in the MiniAOD output
-# # output_mod.outputCommands.append('drop *') # already included in NanoAODEventContent.outputCommands
-
-# # Keep some RECO objects
-# output_mod.outputCommands.append('keep *_pfMet_*_*')
-# output_mod.outputCommands.append('keep *_ak4PFJets_*_*')
-# output_mod.outputCommands.append('keep *_offlinePrimaryVertices_*_*')
-# output_mod.outputCommands.append('keep *_generalTracks_*_*')
-# output_mod.outputCommands.append('keep *_offlineBeamSpot_*_*')
-
-
-# # Keep Ang's objects
-# output_mod.outputCommands.append('keep *Table*_*Table*_*_customNanoAOD')
-# output_mod.outputCommands.append('keep *_inclusiveVertexFinderSoftDV_*_*')    # DON'T USE THEM!!
-# output_mod.outputCommands.append('keep *_vertexMergerSoftDV_*_*')             # DON'T USE THEM!!
-# output_mod.outputCommands.append('keep *_trackVertexArbitratorSoftDV_*_*')    # DON'T USE THEM!!
-# output_mod.outputCommands.append('keep *_IVFSecondaryVerticesSoftDV_*_*')
-# output_mod.outputCommands.append('keep ')
 
 process.NANOAODSIMoutput = output_mod
-
-# process.AODEventContent.outputCommands.append('keep *_VertexTracksFilter_*_*')
-# process.AODSIMEventContent.outputCommands.append('keep *_VertexTracksFilter_*_*')
-# process.CommonEventContent.outputCommands.append('keep *_VertexTracksFilter_*_*')
-# process.NANOAODEventContent.outputCommands.append('keep *_VertexTracksFilter_*_*')
-# process.NANOAODSIMEventContent.outputCommands.append('keep *_VertexTracksFilter_*_*')
-# process.NanoAODEDMEventContent.outputCommands.append('keep *_VertexTracksFilter_*_*')
-# process.MINIAODEventContent.outputCommands.append('keep *_VertexTracksFilter_*_*')
-# process.MINIAODSIMEventContent.outputCommands.append('keep *_VertexTracksFilter_*_*')
-# process.RAWMINIAODEventContent.outputCommands.append('keep *_VertexTracksFilter_*_*')
-# process.RAWMINIAODSIMEventContent.outputCommands.append('keep *_VertexTracksFilter_*_*')
-# process.MicroEventContent.outputCommands.append('keep *_VertexTracksFilter_*_*')
-# process.MicroEventContentMC.outputCommands.append('keep *_VertexTracksFilter_*_*')
-
-
-
 
 # Additional output definition
 
@@ -140,21 +106,11 @@ process.TFileService = cms.Service("TFileService", fileName = cms.string("/users
 VertexRecoSeq(process, useMINIAOD=False, useIVF=True)
 
 # EventContentAnalyzer
-process.myEventContent = cms.EDAnalyzer("EventContentAnalyzer")
+# process.myEventContent = cms.EDAnalyzer("EventContentAnalyzer")
 
 
 # Path and EndPath definitions
 # process.reco_step = cms.Path(process.trig_filter + process.vtxreco + process.myEventContent)
-process.reco_step = cms.Path(process.trig_filter + process.vtxreco)
-
-
-
-
-# process.CustomFlatTables = cms.Sequence(process.CustomFlatTable)
-# process.custom_flattable_step = cms.Path(process.CustomFlatTables)
-
-# process.CustomFlatTables = cms.Sequence( process.CustomFlatTable + process.CustomVertexTable)
-# process.custom_flattable_step = cms.Path(process.myEventContent + process.CustomFlatTables)
 
 
 from SoftDisplacedVertices.CustomNanoAOD.nanoAOD_cff import nanoAOD_customise_SoftDisplacedVerticesMC
@@ -169,9 +125,7 @@ process.NANOAODSIMoutput_step = cms.EndPath(process.NANOAODSIMoutput)
 
 
 # Schedule definition
-process.schedule = cms.Schedule(process.reco_step,
-                                # process.custom_flattable_step,
-                                process.nanoAOD_step,
+process.schedule = cms.Schedule(process.nanoAOD_step,
                                 process.endjob_step,
                                 process.NANOAODSIMoutput_step)
 

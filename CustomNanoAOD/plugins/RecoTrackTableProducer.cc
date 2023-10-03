@@ -90,7 +90,7 @@ void RecoTrackTableProducer::produce(edm::Event &iEvent, const edm::EventSetup &
 
     std::vector<float> eta, phi, dxy, dz, pt, dxyError, dzError, ptError, phiError, etaError, validFraction;
     std::vector<int> charge, numberOfValidHits, numberOfLostHits;
-    std::vector<bool> isHighPurity;
+    std::vector<int> isHighPurity;
     int nEntries = 0;
     try
     {
@@ -150,7 +150,7 @@ void RecoTrackTableProducer::produce(edm::Event &iEvent, const edm::EventSetup &
     recoTrackTable->addColumn<float>("dxyError", dxyError, "dxyError", nanoaod::FlatTable::FloatColumn, 10);
     recoTrackTable->addColumn<float>("dzError", dzError, "dzError", nanoaod::FlatTable::FloatColumn, 10);
     recoTrackTable->addColumn<int>("charge", charge, "Charge", nanoaod::FlatTable::IntColumn, 10);
-    recoTrackTable->addColumn<int>("isHighPurity", isHighPurity, "Is High Purity", nanoaod::FlatTable::BoolColumn);
+    recoTrackTable->addColumn<int>("isHighPurity", isHighPurity, "Is High Purity", nanoaod::FlatTable::IntColumn);
     recoTrackTable->addColumn<int>("numberOfValidHits", numberOfValidHits, "Number of valid hits", nanoaod::FlatTable::IntColumn);
     recoTrackTable->addColumn<int>("numberOfLostHits", numberOfLostHits, "Number of cases with layers without hits", nanoaod::FlatTable::IntColumn);
     recoTrackTable->addColumn<float>("validFraction", validFraction, "Fraction of valid hits on track", nanoaod::FlatTable::FloatColumn, 10);

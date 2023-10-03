@@ -18,31 +18,33 @@ In this repository there are two configuration files (*_cfg.py) that can be run 
 
  - customMiniAODv2_cfg.py: Produces miniAODv2 and appends a custom collection of filtered reco::Tracks.
 
- - customNanoAOD_cfg.py: Produces nanaAOD and reconstructs secondary vertices. The newly generated temporary collection includes objects of type reco::Vertex. These are later planned to be appended as flat tables. The output (nanoAOD) contains only flat n-tuples.
+ - customNanoAOD_cfg.py: Reconstructs secondary vertices, and produces NanoAOD. The output (nanoAOD) contains only flat n-tuples.
 
 To set up the environment:
 ```
-cmsrel CMSSW_10_6_30
-cd CMSSW_10_6_30/src
+cmsrel CMSSW_10_6_27
+cd CMSSW_10_6_27/src
 git clone git@github.com:HephyAnalysisSW/SoftDisplacedVertices.git
-git checkout temp_main
+git checkout main
 scram b -j8
 ```
 
+
+
 To produce miniAOD:
 ```
-cd CMSSW_10_6_30/src/CustomMiniAODGeneration/test
+cd CMSSW_10_6_27/src/CustomMiniAOD/test_cfg
 cmsenv
-bash cmsRun_customMiniAODv2.sh >std_out.log 2>std_err.log
+bash MC_UL18_CustomMiniAOD.sh
 ```
 
 To produce nanoAOD:
 ```
-cd CMSSW_10_6_30/src/CustomNanoAODGeneration/test
+cd CMSSW_10_6_27/src/CustomNanoAOD/test_cfg
 cmsenv
-bash cmsRun_customNanoAOD.sh >std_out.log 2>std_err.log
+bash MC_UL18_CustomNanoAOD.sh
 ```
 
 N.B. Please modify the paths to the input and output files in:
- - SoftDisplacedVertices/CustomMiniAODGeneration/test/customMiniAODv2_cfg.py
- - SoftDisplacedVertices/CustomNanoAODGeneration/test/customNanoAOD_cfg.py
+ - SoftDisplacedVertices/CustomMiniAOD/test_cfg/MC_UL18_CustomMiniAOD.sh
+ - SoftDisplacedVertices/CustomNanoAOD/test_cfg/MC_UL18_CustomNanoAOD.sh

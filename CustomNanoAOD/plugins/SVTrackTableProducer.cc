@@ -146,12 +146,12 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
   svsTable->addColumn<float>("dxySig", dxySig, "2D decay length significance", nanoaod::FlatTable::FloatColumn, 10);
   svsTable->addColumn<float>(
       "pAngle", pAngle, "pointing angle, i.e. acos(p_SV * (SV - PV)) ", nanoaod::FlatTable::FloatColumn, 10);
-  svsTable->addColumn<int>("nTrack", nTrack, "number of tracks in the SV", nanoaod::FlatTable::IntColumn, 10);
+  svsTable->addColumn<int>("nTrack", nTrack, "number of tracks in the SV", nanoaod::FlatTable::IntColumn);
   if (storeCharge_) {
-    svsTable->addColumn<int>("charge", charge, "sum of the charge of the SV tracks", nanoaod::FlatTable::IntColumn, 10);
+    svsTable->addColumn<int>("charge", charge, "sum of the charge of the SV tracks", nanoaod::FlatTable::IntColumn);
   }
   svsTable->addColumn<float>("chi2", chi2, "chi2 of vertex fit", nanoaod::FlatTable::FloatColumn, 10);
-  svsTable->addColumn<float>("ndof", ndof, "ndof of vertex fit", nanoaod::FlatTable::IntColumn, 10);
+  svsTable->addColumn<int>("ndof", ndof, "ndof of vertex fit", nanoaod::FlatTable::IntColumn);
    
   
 
