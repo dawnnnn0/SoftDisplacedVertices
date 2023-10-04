@@ -7,17 +7,23 @@ import FWCore.ParameterSet.Config as cms
 
 SVTrackTable = cms.EDProducer("SVTrackTableProducer",
     pvSrc = cms.InputTag("offlineSlimmedPrimaryVertices"),
+
     svSrc = cms.InputTag("IVFSecondaryVerticesSoftDV"),
-    svCut = cms.string(""), 
-    dlenMin = cms.double(0),
-    dlenSigMin = cms.double(0),
     svName = cms.string("SDVSecVtx"),
     svDoc = cms.string("Table of displaced vertices"),
-    storeCharge = cms.bool(True),
+    svCut = cms.string(""),
+
     tkSrc = cms.InputTag("VertexTracksFilter","seed"),
     tkName = cms.string('SDVTrack'),
+    tkDoc = cms.string('Vertex matching to tracks'),
     tkbranchName = cms.string('SecVtx'),
-    tkdocString = cms.string('Vertex matching to tracks'),
-    debug = cms.bool(True),
 
+    lookupName = cms.string("SDVIdxLUT"),
+    lookupDoc = cms.string("Lookup table for secondary vertex and associated track indices"),
+
+    dlenMin = cms.double(0),
+    dlenSigMin = cms.double(0),
+    storeCharge = cms.bool(True),
+
+    debug = cms.bool(True),
 )

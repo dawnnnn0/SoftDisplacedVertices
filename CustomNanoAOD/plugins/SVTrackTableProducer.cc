@@ -58,6 +58,7 @@ private:
   const double dlenMin_, dlenSigMin_;
   const bool storeCharge_;
   const std::string tkName_, tkbranchName_, tkdoc_;
+  const std::string lookupName_, lookupDoc_;
   bool debug;
 };
 
@@ -73,12 +74,17 @@ SVTrackTableProducer::SVTrackTableProducer(const edm::ParameterSet& params)
       storeCharge_(params.getParameter<bool>("storeCharge")),
       tkName_(params.getParameter<std::string>("tkName")),
       tkbranchName_(params.getParameter<std::string>("tkbranchName")),
-      tkdoc_(params.getParameter<std::string>("tkdocString")),
+      tkdoc_(params.getParameter<std::string>("tkDoc")),
+
+      lookupName_(params.getParameter<std::string>("lookupName")),
+      lookupDoc_(params.getParameter<std::string>("lookupDoc")),
+
       debug(params.getParameter<bool>("debug"))
 
 {
   produces<nanoaod::FlatTable>("svs");
   produces<nanoaod::FlatTable>("tks");
+  produces<nanoaod::FlatTable>("svstksidx");
 }
 
 SVTrackTableProducer::~SVTrackTableProducer() {
@@ -94,7 +100,7 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
   iEvent.getByToken(svs_, svsIn);
   auto vertices = std::make_unique<std::vector<reco::Vertex>>();
   std::vector<float> x,y,z,dlen, dlenSig, pAngle, dxy, dxySig, chi2;
-  std::vector<int> charge, nTrack, ndof;
+  std::vector<int> charge, nTrack, ndof, SecVtxIdx, TrackIdx;
   VertexDistance3D vdist;
   VertexDistanceXY vdistXY;
 
@@ -175,6 +181,8 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
   }
 
+ 
+
   for (size_t i = 0; i < ntrack; ++i) {
     const auto& tk = tracks.at(i);
     if (debug){
@@ -183,6 +191,7 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
     // match vertices by matching tracks
     // FIXME: This algorithm assumes tracks are not reused for different vertices, so it might be a problem when it is not the case
     int matched_vtx_idx = -1;
+
     for (size_t ivtx=0; ivtx<vertices->size(); ++ivtx) {
       const reco::Vertex& vtx = vertices->at(ivtx);
       double match_threshold = 1.1;
@@ -201,6 +210,10 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
         double dphi = fabs(tk.phi() - (*v_tk)->phi()) + 1;
         if (dpt * deta * dphi < match_threshold){
           matched_vtx_idx = (int) ivtx;
+
+          SecVtxIdx.push_back(ivtx);
+          TrackIdx.push_back(i);
+
           if (debug) {
             std::cout << "  track matched: " << std::endl;
             std::cout << "  |->  gen pt " << tk.pt() << " eta " << tk.eta() << " phi " << tk.phi() << std::endl;
@@ -216,10 +229,32 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
       std::cout << "track matched with vertex " << matched_vtx_idx << std::endl;
     key[i] = matched_vtx_idx;
   }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+  // Addition: 
+  // We create here another table which serves as a lookup table for indices.
+  // Then, we will be able to access track and vertex indices in both directions.
+  // 
+  // LUT: lookup table
+  auto LUT = std::make_unique<nanoaod::FlatTable>(SecVtxIdx.size(), lookupName_, false);
+
+
+  LUT->addColumn<int>("SecVtxIdx", SecVtxIdx, "Secondary vertex index", nanoaod::FlatTable::IntColumn);
+  LUT->addColumn<int>("TrackIdx", TrackIdx, "Secondary vertex index", nanoaod::FlatTable::IntColumn);
+
   tktab->addColumn<int>(tkbranchName_ + "Idx", key, "Index into secondary vertices list for " + tkdoc_, nanoaod::FlatTable::IntColumn);
 
   iEvent.put(std::move(svsTable), "svs");
   iEvent.put(std::move(tktab), "tks");
+  iEvent.put(std::move(LUT), "svstksidx");
 }
 
 // ------------ method called once each stream before processing any runs, lumis or events  ------------
