@@ -101,12 +101,8 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
   edm::Handle<std::vector<reco::Vertex>> svsIn;
   iEvent.getByToken(svs_, svsIn);
 
-  // temporary code
   edm::Handle<reco::TrackCollection> trIn;
   iEvent.getByToken(tksrc_, trIn);
-  /////////////////////
-
-
 
 
   auto vertices = std::make_unique<std::vector<reco::Vertex>>();
@@ -144,7 +140,7 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
         ndof.push_back(sv.ndof());
 
         // GOOD TRACK CRITERIA
-        /////////////////////////////////////
+        // -------------------
         int j = 0;
         for (auto v_tk = sv.tracks_begin(), vtke = sv.tracks_end(); v_tk != vtke; ++v_tk){
           if(
@@ -156,7 +152,7 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
              ){j++;}
         }
         ngoodTrack.push_back(j);
-        /////////////////////////////////////
+        // ------------------------------------------------------
 
         if (storeCharge_) {
           int sum_charge = 0;
@@ -166,8 +162,11 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
           charge.push_back(sum_charge);
         }
         
-
-        ///////////////Temporary code ////////////////////////////////////////////////////////////
+        // Match the tracks with the vertices.
+        // -----------------------------------
+        // Checks the addresses to directly associate the reco::Tracks of VertexTracksFilter
+        // and the reco::Tracks objects accessed by IVFSecondaryVerticesSoftDV's tracks_begin() iterator.
+        // If the two addresses are the same the objects are the same.
         for (auto v_tk = sv.tracks_begin(), vtke = sv.tracks_end(); v_tk != vtke; ++v_tk){
           for (const auto& tr : *trIn) {
             if (&tr == &(**v_tk)){
@@ -181,10 +180,7 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
             }
           }
         }
-        
-
-
-        ////////////////////////////////////////////////////////////////////////////////
+        // ----------------------------------------------------------------------
 
 
       }
@@ -260,11 +256,11 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
         if (dpt * deta * dphi < match_threshold){
           matched_vtx_idx = (int) ivtx;
 
-
-          ///////// OLD LUT /////////////
+          // First IdxLUT implementation (OLD)
+          // -------------------------------------
           // SecVtxIdx.push_back(ivtx);
           // TrackIdx.push_back(i);
-          ///////////////////////////////
+          // -------------------------------------
 
           if (debug) {
             std::cout << "  track matched: " << std::endl;
@@ -282,31 +278,10 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
     key[i] = matched_vtx_idx;
   }
 
-// Temporary algorithm to get the vertex indices 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-// edm::Handle<reco::TrackCollection> recoTracks;
-// edm::EDGetTokenT<std::vector<reco::Track>> trToken_;
-// edm::InputTag track_input = "VertexTracksFilter:seed";
-// trToken_ = consumes<reco::TrackCollection>(track_input);
-// iEvent.getByToken(trToken_, recoTracks);
-// svsIn
-
-// for (size_t ivtx=0; ivtx<vertices->size(); ++ivtx) {
-//   const reco::Vertex& vtx = vertices->at(ivtx);
-//   for (auto v_tk = vtx.tracks_begin(), vtke = vtx.tracks_end(); v_tk != vtke; ++v_tk){
-//     std::cout << &(*v_tk) << "\t" <<  << std::endl;
-//   }
-// }
-
-
-
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-  // Addition: 
+  // LUT: lookup table
+  // ------------------------------------------------------------------------------
   // We create here another table which serves as a lookup table for indices.
-  // Then, we will be able to access track and vertex indices in both directions.
+  // Access track and vertex indices in both directions with LUT.
   // 
   // LUT: lookup table
   auto LUT = std::make_unique<nanoaod::FlatTable>(SecVtxIdx.size(), lookupName_, false);
@@ -314,6 +289,8 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
   LUT->addColumn<int>("SecVtxIdx", SecVtxIdx, "Secondary vertex index", nanoaod::FlatTable::IntColumn);
   LUT->addColumn<int>("TrackIdx", TrackIdx, "Secondary vertex index", nanoaod::FlatTable::IntColumn);
+  // ----------------------------------------------------------------------------------------------------
+
 
   tktab->addColumn<int>(tkbranchName_, key, tkbranchDoc_, nanoaod::FlatTable::IntColumn);
 
