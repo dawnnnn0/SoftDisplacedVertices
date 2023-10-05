@@ -57,9 +57,10 @@ private:
   const std::string svDoc_;
   const double dlenMin_, dlenSigMin_;
   const bool storeCharge_;
-  const std::string tkName_, tkbranchName_, tkdoc_;
+  const std::string tkName_, tkbranchName_, tkbranchDoc_;
   const std::string lookupName_, lookupDoc_;
   bool debug;
+
 };
 
 SVTrackTableProducer::SVTrackTableProducer(const edm::ParameterSet& params)
@@ -74,17 +75,18 @@ SVTrackTableProducer::SVTrackTableProducer(const edm::ParameterSet& params)
       storeCharge_(params.getParameter<bool>("storeCharge")),
       tkName_(params.getParameter<std::string>("tkName")),
       tkbranchName_(params.getParameter<std::string>("tkbranchName")),
-      tkdoc_(params.getParameter<std::string>("tkDoc")),
+      tkbranchDoc_(params.getParameter<std::string>("tkbranchDoc")),
 
       lookupName_(params.getParameter<std::string>("lookupName")),
       lookupDoc_(params.getParameter<std::string>("lookupDoc")),
 
-      debug(params.getParameter<bool>("debug"))
+      debug(params.getParameter<bool>("debug")
+      )
 
 {
   produces<nanoaod::FlatTable>("svs");
   produces<nanoaod::FlatTable>("tks");
-  produces<nanoaod::FlatTable>("svstksidx");
+  produces<nanoaod::FlatTable>("svstksidx"); // secondary vertex track index
 }
 
 SVTrackTableProducer::~SVTrackTableProducer() {
@@ -98,11 +100,22 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
   edm::Handle<std::vector<reco::Vertex>> svsIn;
   iEvent.getByToken(svs_, svsIn);
+
+  // temporary code
+  edm::Handle<reco::TrackCollection> trIn;
+  iEvent.getByToken(tksrc_, trIn);
+  /////////////////////
+
+
+
+
   auto vertices = std::make_unique<std::vector<reco::Vertex>>();
   std::vector<float> x,y,z,dlen, dlenSig, pAngle, dxy, dxySig, chi2;
   std::vector<int> charge, nTrack, ndof, SecVtxIdx, TrackIdx;
+  std::vector<int> ngoodTrack;
   VertexDistance3D vdist;
   VertexDistanceXY vdistXY;
+
 
   size_t i = 0;
   const auto& PV0 = pvsIn->front();
@@ -116,9 +129,10 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
         z.push_back(sv.z());
         dlen.push_back(dl.value());
         dlenSig.push_back(dl.significance());
-        reco::Vertex c = svsIn->at(i);
-        vertices->push_back(c);
-        double dx = (PV0.x() - sv.x()), dy = (PV0.y() - sv.y()), dz = (PV0.z() - sv.z());
+        vertices->push_back(sv);
+        double dx = (PV0.x() - sv.x());
+        double dy = (PV0.y() - sv.y());
+        double dz = (PV0.z() - sv.z());
         double pdotv = (dx * sv.p4().Px() + dy * sv.p4().Py() + dz * sv.p4().Pz()) / sqrt(sv.p4().P2()) / sqrt(dx * dx + dy * dy + dz * dz);
         pAngle.push_back(std::acos(pdotv));
         Measurement1D d2d = vdistXY.distance(
@@ -129,6 +143,21 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
         chi2.push_back(sv.chi2());
         ndof.push_back(sv.ndof());
 
+        // GOOD TRACK CRITERIA
+        /////////////////////////////////////
+        int j = 0;
+        for (auto v_tk = sv.tracks_begin(), vtke = sv.tracks_end(); v_tk != vtke; ++v_tk){
+          if(
+             ((*v_tk)->dxy(PV0.position()) / (*v_tk)->dxyError(PV0.position(), PV0.covariance()) > 4) &&
+             ((*v_tk)->normalizedChi2() < 5) &&
+             ((*v_tk)->numberOfValidHits() > 13) &&
+             ((*v_tk)->ptError() / (*v_tk)->pt() < 0.015) &&
+             ((*v_tk)->dz() < 4)
+             ){j++;}
+        }
+        ngoodTrack.push_back(j);
+        /////////////////////////////////////
+
         if (storeCharge_) {
           int sum_charge = 0;
           for (auto v_tk = sv.tracks_begin(), vtke = sv.tracks_end(); v_tk != vtke; ++v_tk){
@@ -136,13 +165,35 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
           }
           charge.push_back(sum_charge);
         }
+        
+
+        ///////////////Temporary code ////////////////////////////////////////////////////////////
+        for (auto v_tk = sv.tracks_begin(), vtke = sv.tracks_end(); v_tk != vtke; ++v_tk){
+          for (const auto& tr : *trIn) {
+            if (&tr == &(**v_tk)){
+              SecVtxIdx.push_back(&sv - &((*svsIn)[0]));
+              TrackIdx.push_back(&tr - &((*trIn)[0]));
+
+              if(debug){
+                std::cout << "Track Id " <<  &tr - &((*trIn)[0]) << std::endl;
+                std::cout << "Vertex Id "  << &sv - &((*svsIn)[0]) << std::endl;
+              }
+            }
+          }
+        }
+        
+
+
+        ////////////////////////////////////////////////////////////////////////////////
+
+
       }
     }
     i++;
   }
 
+  // Flat table for the secondary vertices
   auto svsTable = std::make_unique<nanoaod::FlatTable>(vertices->size(), svName_, false);
-  // For SV we fill from here only stuff that cannot be created with the SimpleFlatTableProducer
   svsTable->addColumn<float>("x", x, "x position in cm", nanoaod::FlatTable::FloatColumn, 10);
   svsTable->addColumn<float>("y", y, "y position in cm", nanoaod::FlatTable::FloatColumn, 10);
   svsTable->addColumn<float>("z", z, "z position in cm", nanoaod::FlatTable::FloatColumn, 10);
@@ -158,17 +209,9 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
   }
   svsTable->addColumn<float>("chi2", chi2, "chi2 of vertex fit", nanoaod::FlatTable::FloatColumn, 10);
   svsTable->addColumn<int>("ndof", ndof, "ndof of vertex fit", nanoaod::FlatTable::IntColumn);
+  svsTable->addColumn<int>("ngoodTrack", ngoodTrack, "number of good tracks associated with the vertex according to Ivan's criteria", nanoaod::FlatTable::IntColumn);
    
   
-
-
-  // Now vertex table is produced, let's make track tables
-  const auto& tracks = iEvent.get(tksrc_);
-  auto ntrack = tracks.size();
-  auto tktab = std::make_unique<nanoaod::FlatTable>(ntrack, tkName_, false, true);
-
-  std::vector<int> key(ntrack, -1);
-
   if (debug) {
     std::cout << "SVs " << vertices->size() << std::endl;
     for (size_t ivtx=0; ivtx<vertices->size(); ++ivtx) {
@@ -178,9 +221,15 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
           std::cout << "  pt: " << (*v_tk)->pt() << " eta: " << (*v_tk)->eta() << " phi: " << (*v_tk)->phi() << std::endl;
         }
     }
-
   }
 
+
+  // Now vertex table is produced, let's make track tables
+  const auto& tracks = iEvent.get(tksrc_);
+  auto ntrack = tracks.size();
+  auto tktab = std::make_unique<nanoaod::FlatTable>(ntrack, tkName_, false, true);
+
+  std::vector<int> key(ntrack, -1);
  
 
   for (size_t i = 0; i < ntrack; ++i) {
@@ -211,8 +260,11 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
         if (dpt * deta * dphi < match_threshold){
           matched_vtx_idx = (int) ivtx;
 
-          SecVtxIdx.push_back(ivtx);
-          TrackIdx.push_back(i);
+
+          ///////// OLD LUT /////////////
+          // SecVtxIdx.push_back(ivtx);
+          // TrackIdx.push_back(i);
+          ///////////////////////////////
 
           if (debug) {
             std::cout << "  track matched: " << std::endl;
@@ -230,8 +282,21 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
     key[i] = matched_vtx_idx;
   }
 
+// Temporary algorithm to get the vertex indices 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
+// edm::Handle<reco::TrackCollection> recoTracks;
+// edm::EDGetTokenT<std::vector<reco::Track>> trToken_;
+// edm::InputTag track_input = "VertexTracksFilter:seed";
+// trToken_ = consumes<reco::TrackCollection>(track_input);
+// iEvent.getByToken(trToken_, recoTracks);
+// svsIn
 
+// for (size_t ivtx=0; ivtx<vertices->size(); ++ivtx) {
+//   const reco::Vertex& vtx = vertices->at(ivtx);
+//   for (auto v_tk = vtx.tracks_begin(), vtke = vtx.tracks_end(); v_tk != vtke; ++v_tk){
+//     std::cout << &(*v_tk) << "\t" <<  << std::endl;
+//   }
+// }
 
 
 
@@ -250,7 +315,7 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
   LUT->addColumn<int>("SecVtxIdx", SecVtxIdx, "Secondary vertex index", nanoaod::FlatTable::IntColumn);
   LUT->addColumn<int>("TrackIdx", TrackIdx, "Secondary vertex index", nanoaod::FlatTable::IntColumn);
 
-  tktab->addColumn<int>(tkbranchName_ + "Idx", key, "Index into secondary vertices list for " + tkdoc_, nanoaod::FlatTable::IntColumn);
+  tktab->addColumn<int>(tkbranchName_, key, tkbranchDoc_, nanoaod::FlatTable::IntColumn);
 
   iEvent.put(std::move(svsTable), "svs");
   iEvent.put(std::move(tktab), "tks");

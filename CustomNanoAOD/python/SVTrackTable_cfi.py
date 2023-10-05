@@ -15,8 +15,8 @@ SVTrackTable = cms.EDProducer("SVTrackTableProducer",
 
     tkSrc = cms.InputTag("VertexTracksFilter","seed"),
     tkName = cms.string('SDVTrack'),
-    tkDoc = cms.string('Vertex matching to tracks'),
-    tkbranchName = cms.string('SecVtx'),
+    tkbranchDoc = cms.string('Indices of secondary vertices associated with the tracks.'),
+    tkbranchName = cms.string('SecVtxIdx'),
 
     lookupName = cms.string("SDVIdxLUT"),
     lookupDoc = cms.string("Lookup table for secondary vertex and associated track indices"),
