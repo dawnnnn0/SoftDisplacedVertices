@@ -108,7 +108,10 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
   auto vertices = std::make_unique<std::vector<reco::Vertex>>();
   std::vector<float> x,y,z,dlen, dlenSig, pAngle, dxy, dxySig, chi2;
   std::vector<int> charge, nTrack, ndof, SecVtxIdx, TrackIdx;
-  std::vector<int> ngoodTrack;
+  std::vector<int> ngoodTrackVec;
+  ////// temporary
+  std::vector<float> tk_W; // track weight
+  /////////////////
   VertexDistance3D vdist;
   VertexDistanceXY vdistXY;
 
@@ -140,8 +143,8 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
         ndof.push_back(sv.ndof());
 
         // GOOD TRACK CRITERIA
-        // -------------------
-        int j = 0;
+        // ---------------------------
+        int ngoodTrack = 0;
         for (auto v_tk = sv.tracks_begin(), vtke = sv.tracks_end(); v_tk != vtke; ++v_tk){
           if(
              ((*v_tk)->dxy(PV0.position()) / (*v_tk)->dxyError(PV0.position(), PV0.covariance()) > 4) &&
@@ -149,9 +152,10 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
              ((*v_tk)->numberOfValidHits() > 13) &&
              ((*v_tk)->ptError() / (*v_tk)->pt() < 0.015) &&
              ((*v_tk)->dz() < 4)
-             ){j++;}
+             ){ngoodTrack++;}
+          
         }
-        ngoodTrack.push_back(j);
+        ngoodTrackVec.push_back(ngoodTrack);
         // ------------------------------------------------------
 
         if (storeCharge_) {
@@ -162,20 +166,24 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
           charge.push_back(sum_charge);
         }
         
-        // Match the tracks with the vertices.
-        // -----------------------------------
-        // Checks the addresses to directly associate the reco::Tracks of VertexTracksFilter
-        // and the reco::Tracks objects accessed by IVFSecondaryVerticesSoftDV's tracks_begin() iterator.
-        // If the two addresses are the same the objects are the same.
+
+        // Matches the track idx with the vertex idx.
+        // ---------------------------------------------
+        // Compares the indices of recoTracks_VertexTracksFilter_seed and 
+        // recoVertexs_IVFSecondaryVerticesSoftDV objects and pushes them in two different vectors in the correct order.
         for (const auto& tr : *trIn) {
           for (auto v_tk = sv.tracks_begin(), vtke = sv.tracks_end(); v_tk != vtke; ++v_tk){
+            // type(v_tk): iterator(edm::RefToBase(reco::Track))
             if (&tr == &(**v_tk)){
               SecVtxIdx.push_back(&sv - &((*svsIn)[0]));
               TrackIdx.push_back(&tr - &((*trIn)[0]));
 
+              tk_W.push_back(sv.trackWeight(*v_tk));
+
               if(debug){
-                std::cout << "Track Id " <<  &tr - &((*trIn)[0]) << std::endl;
                 std::cout << "Vertex Id "  << &sv - &((*svsIn)[0]) << std::endl;
+                std::cout << "Track Id " <<  &tr - &((*trIn)[0]) << std::endl;
+                std::cout << "Track Weight: " << sv.trackWeight(*v_tk) << std::endl;
               }
             }
           }
@@ -205,7 +213,7 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
   }
   svsTable->addColumn<float>("chi2", chi2, "chi2 of vertex fit", nanoaod::FlatTable::FloatColumn, 10);
   svsTable->addColumn<int>("ndof", ndof, "ndof of vertex fit", nanoaod::FlatTable::IntColumn);
-  svsTable->addColumn<int>("ngoodTrack", ngoodTrack, "number of good tracks associated with the vertex according to Ivan's criteria", nanoaod::FlatTable::IntColumn);
+  svsTable->addColumn<int>("ngoodTrack", ngoodTrackVec, "number of good tracks associated with the vertex according to Ivan's criteria", nanoaod::FlatTable::IntColumn);
    
   
   if (debug) {
@@ -289,6 +297,7 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
   LUT->addColumn<int>("SecVtxIdx", SecVtxIdx, "Secondary vertex index", nanoaod::FlatTable::IntColumn);
   LUT->addColumn<int>("TrackIdx", TrackIdx, "Secondary vertex index", nanoaod::FlatTable::IntColumn);
+  LUT->addColumn<float>("TrackWeight", tk_W, "Secondary vertex index", nanoaod::FlatTable::FloatColumn, -1);
   // ----------------------------------------------------------------------------------------------------
 
 
