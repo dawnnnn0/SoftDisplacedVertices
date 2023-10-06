@@ -167,8 +167,8 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
         // Checks the addresses to directly associate the reco::Tracks of VertexTracksFilter
         // and the reco::Tracks objects accessed by IVFSecondaryVerticesSoftDV's tracks_begin() iterator.
         // If the two addresses are the same the objects are the same.
-        for (auto v_tk = sv.tracks_begin(), vtke = sv.tracks_end(); v_tk != vtke; ++v_tk){
-          for (const auto& tr : *trIn) {
+        for (const auto& tr : *trIn) {
+          for (auto v_tk = sv.tracks_begin(), vtke = sv.tracks_end(); v_tk != vtke; ++v_tk){
             if (&tr == &(**v_tk)){
               SecVtxIdx.push_back(&sv - &((*svsIn)[0]));
               TrackIdx.push_back(&tr - &((*trIn)[0]));
