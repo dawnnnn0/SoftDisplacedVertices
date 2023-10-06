@@ -107,7 +107,8 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
   auto vertices = std::make_unique<std::vector<reco::Vertex>>();
   std::vector<float> x,y,z,dlen, dlenSig, pAngle, dxy, dxySig, chi2;
-  std::vector<int> charge, nTrack, ndof, SecVtxIdx, TrackIdx;
+  std::vector<int> charge, nTrack, SecVtxIdx, TrackIdx;
+  std::vector<float> ndof; 
   std::vector<int> ngoodTrackVec;
   ////// temporary
   std::vector<float> tk_W; // track weight
@@ -212,7 +213,7 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
     svsTable->addColumn<int>("charge", charge, "sum of the charge of the SV tracks", nanoaod::FlatTable::IntColumn);
   }
   svsTable->addColumn<float>("chi2", chi2, "chi2 of vertex fit", nanoaod::FlatTable::FloatColumn, 10);
-  svsTable->addColumn<int>("ndof", ndof, "ndof of vertex fit", nanoaod::FlatTable::IntColumn);
+  svsTable->addColumn<float>("ndof", ndof, "ndof of vertex fit", nanoaod::FlatTable::FloatColumn, 10);
   svsTable->addColumn<int>("ngoodTrack", ngoodTrackVec, "number of good tracks associated with the vertex according to Ivan's criteria", nanoaod::FlatTable::IntColumn);
    
   
