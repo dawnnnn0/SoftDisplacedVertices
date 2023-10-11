@@ -87,7 +87,7 @@ GenSecondaryVertexTableProducer::~GenSecondaryVertexTableProducer()
 // ------------ method called for each event  ------------
 void GenSecondaryVertexTableProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup)
 {
-   std::cout << "GenSecondaryVertexTableProducer" << std::endl;
+   // qstd::cout << "GenSecondaryVertexTableProducer" << std::endl;
    edm::Handle<reco::GenParticleCollection> genParticles;
    iEvent.getByToken(srcToken_, genParticles);
 

@@ -112,6 +112,7 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
   std::vector<int> ngoodTrackVec;
   ////// temporary
   std::vector<float> tk_W; // track weight
+  // std::vector<float> tk_pt_vec; // track weight
   /////////////////
   VertexDistance3D vdist;
   VertexDistanceXY vdistXY;
@@ -150,7 +151,7 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
           if(
              ((*v_tk)->dxy(PV0.position()) / (*v_tk)->dxyError(PV0.position(), PV0.covariance()) > 4) &&
              ((*v_tk)->normalizedChi2() < 5) &&
-             ((*v_tk)->numberOfValidHits() > 13) &&
+            //  ((*v_tk)->numberOfValidHits() > 13) &&
              ((*v_tk)->ptError() / (*v_tk)->pt() < 0.015) &&
              ((*v_tk)->dz() < 4)
              ){ngoodTrack++;}
@@ -178,8 +179,11 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
             if (&tr == &(**v_tk)){
               SecVtxIdx.push_back(&sv - &((*svsIn)[0]));
               TrackIdx.push_back(&tr - &((*trIn)[0]));
-
               tk_W.push_back(sv.trackWeight(*v_tk));
+
+              // Sanity check --- temporary code
+              // tk_pt_vec.push_back(tr.pt());
+              ////////////////////////////////////
 
               if(debug){
                 std::cout << "Vertex Id "  << &sv - &((*svsIn)[0]) << std::endl;
@@ -297,8 +301,9 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
 
   LUT->addColumn<int>("SecVtxIdx", SecVtxIdx, "Secondary vertex index", nanoaod::FlatTable::IntColumn);
-  LUT->addColumn<int>("TrackIdx", TrackIdx, "Secondary vertex index", nanoaod::FlatTable::IntColumn);
-  LUT->addColumn<float>("TrackWeight", tk_W, "Secondary vertex index", nanoaod::FlatTable::FloatColumn, -1);
+  LUT->addColumn<int>("TrackIdx", TrackIdx, "Track index", nanoaod::FlatTable::IntColumn);
+  LUT->addColumn<float>("TrackWeight", tk_W, "Trck weight", nanoaod::FlatTable::FloatColumn, -1);
+  // LUT->addColumn<float>("Trackpt", tk_pt_vec, "Secondary vertex index", nanoaod::FlatTable::FloatColumn, -1);
   // ----------------------------------------------------------------------------------------------------
 
 
