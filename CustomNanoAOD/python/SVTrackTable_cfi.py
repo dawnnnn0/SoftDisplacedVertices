@@ -25,5 +25,5 @@ SVTrackTable = cms.EDProducer("SVTrackTableProducer",
     dlenSigMin = cms.double(0),
     storeCharge = cms.bool(True),
 
-    debug = cms.bool(True),
+    debug = cms.bool(False),
 )
