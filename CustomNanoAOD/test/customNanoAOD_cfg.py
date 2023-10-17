@@ -58,7 +58,8 @@ MessageLogger = cms.Service("MessageLogger")
 
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:/users/alikaan.gueven/AOD_to_nanoAOD/data/SUS-RunIISummer20UL18MiniAODv2-00068.root'),
+    # fileNames = cms.untracked.vstring('file:/users/alikaan.gueven/AOD_to_nanoAOD/data/SUS-RunIISummer20UL18MiniAODv2-00068.root'),
+    fileNames = cms.untracked.vstring('file:/users/alikaan.gueven/AOD_to_nanoAOD/data/dataFromFelix-MiniAODv2.root'),
     secondaryFileNames = cms.untracked.vstring()
 )
 
@@ -92,7 +93,8 @@ output_mod = cms.OutputModule("NanoAODOutputModule",
         dataTier = cms.untracked.string('NANOAODSIM'),
         filterName = cms.untracked.string('')
     ),
-    fileName = cms.untracked.string('file:/users/alikaan.gueven/AOD_to_nanoAOD/data/SUS-RunIISummer20UL18NanoAODv9-00068.root'),
+    # fileName = cms.untracked.string('file:/users/alikaan.gueven/AOD_to_nanoAOD/data/SUS-RunIISummer20UL18NanoAODv9-00068.root'),
+    fileName = cms.untracked.string('file:/users/alikaan.gueven/AOD_to_nanoAOD/data/dataFromFelix-NanoAODv9.root'),
     outputCommands = process.NANOAODSIMEventContent.outputCommands
 )
 

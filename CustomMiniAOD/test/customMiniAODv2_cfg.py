@@ -45,14 +45,22 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 
+# import list_directory_cff.py as fg # file getter
+from SoftDisplacedVertices.HEPHYCommon.list_directory_cff import get_files
+file_list = get_files("/eos/vbc/experiments/cms/store/user/imikulec/dataFromFelix")
+
+# debug
+for file in file_list: print file
+
 # Input source
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        '/store/mc/RunIISummer20UL18RECO/SMS-T2tt-4bd_genMET-100_genHT200_mStop-300_mLSP-290_TuneCP5_LLStop_13TeV-madgraphMLM-pythia8/AODSIM/106X_upgrade2018_realistic_v11_L1v1-v1/2500000/0798C2C1-91C9-AE40-A8AD-9C6298204B60.root', 
-        '/store/mc/RunIISummer20UL18RECO/SMS-T2tt-4bd_genMET-100_genHT200_mStop-300_mLSP-290_TuneCP5_LLStop_13TeV-madgraphMLM-pythia8/AODSIM/106X_upgrade2018_realistic_v11_L1v1-v1/2500000/0828F7CE-98C4-7F4B-8CD1-3D68E33EA7A1.root', 
-        '/store/mc/RunIISummer20UL18RECO/SMS-T2tt-4bd_genMET-100_genHT200_mStop-300_mLSP-290_TuneCP5_LLStop_13TeV-madgraphMLM-pythia8/AODSIM/106X_upgrade2018_realistic_v11_L1v1-v1/2500000/0BBC6E3D-B41A-C242-88C6-E77AC709BF57.root', 
-        '/store/mc/RunIISummer20UL18RECO/SMS-T2tt-4bd_genMET-100_genHT200_mStop-300_mLSP-290_TuneCP5_LLStop_13TeV-madgraphMLM-pythia8/AODSIM/106X_upgrade2018_realistic_v11_L1v1-v1/2500000/0F8A8E4B-43F8-3F4E-83B0-20231F327BCC.root', 
-        '/store/mc/RunIISummer20UL18RECO/SMS-T2tt-4bd_genMET-100_genHT200_mStop-300_mLSP-290_TuneCP5_LLStop_13TeV-madgraphMLM-pythia8/AODSIM/106X_upgrade2018_realistic_v11_L1v1-v1/2500000/12C75DAA-8550-B349-BC68-40483A19CBEB.root', 
+        *file_list
+        # '/store/mc/RunIISummer20UL18RECO/SMS-T2tt-4bd_genMET-100_genHT200_mStop-300_mLSP-290_TuneCP5_LLStop_13TeV-madgraphMLM-pythia8/AODSIM/106X_upgrade2018_realistic_v11_L1v1-v1/2500000/0798C2C1-91C9-AE40-A8AD-9C6298204B60.root', 
+        # '/store/mc/RunIISummer20UL18RECO/SMS-T2tt-4bd_genMET-100_genHT200_mStop-300_mLSP-290_TuneCP5_LLStop_13TeV-madgraphMLM-pythia8/AODSIM/106X_upgrade2018_realistic_v11_L1v1-v1/2500000/0828F7CE-98C4-7F4B-8CD1-3D68E33EA7A1.root', 
+        # '/store/mc/RunIISummer20UL18RECO/SMS-T2tt-4bd_genMET-100_genHT200_mStop-300_mLSP-290_TuneCP5_LLStop_13TeV-madgraphMLM-pythia8/AODSIM/106X_upgrade2018_realistic_v11_L1v1-v1/2500000/0BBC6E3D-B41A-C242-88C6-E77AC709BF57.root', 
+        # '/store/mc/RunIISummer20UL18RECO/SMS-T2tt-4bd_genMET-100_genHT200_mStop-300_mLSP-290_TuneCP5_LLStop_13TeV-madgraphMLM-pythia8/AODSIM/106X_upgrade2018_realistic_v11_L1v1-v1/2500000/0F8A8E4B-43F8-3F4E-83B0-20231F327BCC.root', 
+        # '/store/mc/RunIISummer20UL18RECO/SMS-T2tt-4bd_genMET-100_genHT200_mStop-300_mLSP-290_TuneCP5_LLStop_13TeV-madgraphMLM-pythia8/AODSIM/106X_upgrade2018_realistic_v11_L1v1-v1/2500000/12C75DAA-8550-B349-BC68-40483A19CBEB.root', 
         # '/store/mc/RunIISummer20UL18RECO/SMS-T2tt-4bd_genMET-100_genHT200_mStop-300_mLSP-290_TuneCP5_LLStop_13TeV-madgraphMLM-pythia8/AODSIM/106X_upgrade2018_realistic_v11_L1v1-v1/2500000/1A9C85CD-D8E5-F24C-9824-9B21CD17673C.root', 
         # '/store/mc/RunIISummer20UL18RECO/SMS-T2tt-4bd_genMET-100_genHT200_mStop-300_mLSP-290_TuneCP5_LLStop_13TeV-madgraphMLM-pythia8/AODSIM/106X_upgrade2018_realistic_v11_L1v1-v1/2500000/211AECA1-70FB-4844-8D15-969DA198C319.root', 
         # '/store/mc/RunIISummer20UL18RECO/SMS-T2tt-4bd_genMET-100_genHT200_mStop-300_mLSP-290_TuneCP5_LLStop_13TeV-madgraphMLM-pythia8/AODSIM/106X_upgrade2018_realistic_v11_L1v1-v1/2500000/244BFDDF-478F-AF40-A8AB-861B4CB39508.root', 
@@ -152,7 +160,8 @@ output_mod = cms.OutputModule("PoolOutputModule",
     dropMetaData = cms.untracked.string('ALL'),
     eventAutoFlushCompressedSize = cms.untracked.int32(-900),
     fastCloning = cms.untracked.bool(False),
-    fileName = cms.untracked.string('file:/users/alikaan.gueven/AOD_to_nanoAOD/data/SUS-RunIISummer20UL18MiniAODv2-00068.root'),
+    # fileName = cms.untracked.string('file:/users/alikaan.gueven/AOD_to_nanoAOD/data/SUS-RunIISummer20UL18MiniAODv2-00068.root'),
+    fileName = cms.untracked.string('file:/users/alikaan.gueven/AOD_to_nanoAOD/data/dataFromFelix-MiniAODv2.root'),
     # maxSize = cms.untracked.int32(1), # kB
     outputCommands = process.MINIAODSIMEventContent.outputCommands,
     overrideBranchesSplitLevel = cms.untracked.VPSet(

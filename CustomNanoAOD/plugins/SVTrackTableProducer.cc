@@ -30,6 +30,8 @@
 #include "RecoVertex/VertexPrimitives/interface/VertexState.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
+
 class SVTrackTableProducer : public edm::stream::EDProducer<> {
 public:
   explicit SVTrackTableProducer(const edm::ParameterSet&);
@@ -107,7 +109,8 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
   auto vertices = std::make_unique<std::vector<reco::Vertex>>();
   std::vector<float> x,y,z,dlen, dlenSig, pAngle, dxy, dxySig, chi2;
-  std::vector<int> charge, nTrack, SecVtxIdx, TrackIdx;
+  std::vector<float> L_phi, L_eta;
+  std::vector<int> charge, sv_tracksSize, sv_nTracks, SecVtxIdx, TrackIdx;
   std::vector<float> ndof; 
   std::vector<int> ngoodTrackVec;
   ////// temporary
@@ -131,16 +134,23 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
         dlen.push_back(dl.value());
         dlenSig.push_back(dl.significance());
         vertices->push_back(sv);
-        double dx = (PV0.x() - sv.x());
-        double dy = (PV0.y() - sv.y());
-        double dz = (PV0.z() - sv.z());
+        double dx = (sv.x() - PV0.x());
+        double dy = (sv.y() - PV0.y());
+        double dz = (sv.z() - PV0.z());
         double pdotv = (dx * sv.p4().Px() + dy * sv.p4().Py() + dz * sv.p4().Pz()) / sqrt(sv.p4().P2()) / sqrt(dx * dx + dy * dy + dz * dz);
         pAngle.push_back(std::acos(pdotv));
+        
+        GlobalVector pVec(dx, dy, dz);
+        L_eta.push_back(pVec.phi());
+        L_phi.push_back(pVec.eta());
+        
+        
         Measurement1D d2d = vdistXY.distance(
             PV0, VertexState(RecoVertex::convertPos(sv.position()), RecoVertex::convertError(sv.error())));
         dxy.push_back(d2d.value());
         dxySig.push_back(d2d.significance());
-        nTrack.push_back(sv.tracksSize());
+        sv_tracksSize.push_back(sv.tracksSize());
+        sv_nTracks.push_back(sv.nTracks());
         chi2.push_back(sv.chi2());
         ndof.push_back(sv.ndof());
 
@@ -151,7 +161,7 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
           if(
              ((*v_tk)->dxy(PV0.position()) / (*v_tk)->dxyError(PV0.position(), PV0.covariance()) > 4) &&
              ((*v_tk)->normalizedChi2() < 5) &&
-            //  ((*v_tk)->numberOfValidHits() > 13) &&
+             ((*v_tk)->numberOfValidHits() > 13) &&
              ((*v_tk)->ptError() / (*v_tk)->pt() < 0.015) &&
              ((*v_tk)->dz() < 4)
              ){ngoodTrack++;}
@@ -212,7 +222,12 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
   svsTable->addColumn<float>("dxySig", dxySig, "2D decay length significance", nanoaod::FlatTable::FloatColumn, 10);
   svsTable->addColumn<float>(
       "pAngle", pAngle, "pointing angle, i.e. acos(p_SV * (SV - PV)) ", nanoaod::FlatTable::FloatColumn, 10);
-  svsTable->addColumn<int>("nTrack", nTrack, "number of tracks in the SV", nanoaod::FlatTable::IntColumn);
+  svsTable->addColumn<float>(
+      "L_phi", L_phi, "Azimuthal angle of the vector from PV to SV", nanoaod::FlatTable::FloatColumn, 10);
+  svsTable->addColumn<float>(
+      "L_eta", L_eta, "Pseudorapidity of the vector from PV to SV", nanoaod::FlatTable::FloatColumn, 10);
+  svsTable->addColumn<int>("tracksSize", sv_tracksSize, "number of tracks in the SV", nanoaod::FlatTable::IntColumn);
+  svsTable->addColumn<int>("nTracks", sv_nTracks, "the number of tracks in the vertex with weight above 0.50", nanoaod::FlatTable::IntColumn);
   if (storeCharge_) {
     svsTable->addColumn<int>("charge", charge, "sum of the charge of the SV tracks", nanoaod::FlatTable::IntColumn);
   }
