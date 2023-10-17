@@ -130,9 +130,9 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
         dlen.push_back(dl.value());
         dlenSig.push_back(dl.significance());
         vertices->push_back(sv);
-        double dx = (PV0.x() - sv.x());
-        double dy = (PV0.y() - sv.y());
-        double dz = (PV0.z() - sv.z());
+        double dx = (sv.x() - PV0.x());
+        double dy = (sv.y() - PV0.y());
+        double dz = (sv.z() - PV0.z());
         double pdotv = (dx * sv.p4().Px() + dy * sv.p4().Py() + dz * sv.p4().Pz()) / sqrt(sv.p4().P2()) / sqrt(dx * dx + dy * dy + dz * dz);
         pAngle.push_back(std::acos(pdotv));
         Measurement1D d2d = vdistXY.distance(
