@@ -141,8 +141,8 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
         pAngle.push_back(std::acos(pdotv));
         
         GlobalVector pVec(dx, dy, dz);
-        L_eta.push_back(pVec.phi());
-        L_phi.push_back(pVec.eta());
+        L_eta.push_back(pVec.eta());
+        L_phi.push_back(pVec.phi());
         
         
         Measurement1D d2d = vdistXY.distance(
@@ -159,11 +159,11 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
         int ngoodTrack = 0;
         for (auto v_tk = sv.tracks_begin(), vtke = sv.tracks_end(); v_tk != vtke; ++v_tk){
           if(
-             ((*v_tk)->dxy(PV0.position()) / (*v_tk)->dxyError(PV0.position(), PV0.covariance()) > 4) &&
+             (abs((*v_tk)->dxy(PV0.position()) / (*v_tk)->dxyError(PV0.position(), PV0.covariance())) > 4) &&
              ((*v_tk)->normalizedChi2() < 5) &&
              ((*v_tk)->numberOfValidHits() > 13) &&
              ((*v_tk)->ptError() / (*v_tk)->pt() < 0.015) &&
-             ((*v_tk)->dz() < 4)
+             (abs((*v_tk)->dz() < 4))
              ){ngoodTrack++;}
           
         }

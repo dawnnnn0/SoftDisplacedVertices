@@ -5,3 +5,4 @@ __init__.py
 *.root
 *TestRun*
 *.log
+*Report.xml
