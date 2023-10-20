@@ -89,6 +89,7 @@ void RecoTrackTableProducer::produce(edm::Event &iEvent, const edm::EventSetup &
     edm::Handle<reco::VertexCollection> recoVertices;
 
     std::vector<float> eta, phi, dxy, dz, pt, dxyError, dzError, ptError, phiError, etaError, validFraction;
+    std::vector<float> normalizedChi2;
     std::vector<int> charge, numberOfValidHits, numberOfLostHits;
     std::vector<int> isHighPurity;
     int nEntries = 0;
@@ -100,6 +101,7 @@ void RecoTrackTableProducer::produce(edm::Event &iEvent, const edm::EventSetup &
         auto pvx = recoVertices->begin();
         for (auto track = recoTracks->begin(); track != recoTracks->end(); ++track)
         {
+            normalizedChi2.push_back(track->normalizedChi2());
             eta.push_back(track->eta());
             phi.push_back(track->phi());
             pt.push_back(track->pt());
@@ -139,6 +141,7 @@ void RecoTrackTableProducer::produce(edm::Event &iEvent, const edm::EventSetup &
 
     auto recoTrackTable = std::make_unique<nanoaod::FlatTable>(nEntries, recoTrackName_, false);
     recoTrackTable->setDoc(recoTrackDoc_);
+    recoTrackTable->addColumn<float>("normalizedChi2", normalizedChi2, "normalizedChi2", nanoaod::FlatTable::FloatColumn, 10);
     recoTrackTable->addColumn<float>("eta", eta, "eta", nanoaod::FlatTable::FloatColumn, 10);
     recoTrackTable->addColumn<float>("phi", phi, "phi", nanoaod::FlatTable::FloatColumn, 10);
     recoTrackTable->addColumn<float>("pt", pt, "pt", nanoaod::FlatTable::FloatColumn, 10);

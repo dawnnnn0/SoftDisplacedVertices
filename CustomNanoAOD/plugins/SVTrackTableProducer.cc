@@ -158,12 +158,18 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
         // ---------------------------
         int ngoodTrack = 0;
         for (auto v_tk = sv.tracks_begin(), vtke = sv.tracks_end(); v_tk != vtke; ++v_tk){
+          std::cout << "------------------------------------------------" << std::endl;
+          std::cout << ((*v_tk)->numberOfValidHits()) << std::endl;
+          std::cout << ((*v_tk)->normalizedChi2()) << std::endl;
+          std::cout << ((*v_tk)->ptError() / (*v_tk)->pt()) << std::endl;
+          std::cout << (abs((*v_tk)->dxy(PV0.position()) / (*v_tk)->dxyError(PV0.position(), PV0.covariance()))) << std::endl;
+          std::cout << (abs((*v_tk)->dz(PV0.position()))) << std::endl;
           if(
              (abs((*v_tk)->dxy(PV0.position()) / (*v_tk)->dxyError(PV0.position(), PV0.covariance())) > 4) &&
              ((*v_tk)->normalizedChi2() < 5) &&
              ((*v_tk)->numberOfValidHits() > 13) &&
              ((*v_tk)->ptError() / (*v_tk)->pt() < 0.015) &&
-             (abs((*v_tk)->dz() < 4))
+             (abs((*v_tk)->dz(PV0.position()) < 4))
              ){ngoodTrack++;}
           
         }
