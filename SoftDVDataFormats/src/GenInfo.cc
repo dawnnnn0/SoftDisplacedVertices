@@ -120,8 +120,8 @@ SoftDV::MatchResult SoftDV::matchtracks(const reco::GenParticle& gtk, const edm:
   for (size_t i=0; i<tracks->size(); ++i){
     reco::TrackRef tk(tracks, i);
     SoftDV::Match match = SoftDV::matchchi2(gtk,tk,refpoint);
-    //if (match.first<min_match.first && match.second[0]<0.2 && match.second[1]<3){
-    if (match.first<min_match.first && match.second[0]<0.2){
+    if (match.first<min_match.first && match.second[0]<0.2 && match.second[1]<3){
+    //if (match.first<min_match.first && match.second[0]<0.2){
       min_match = match;
       tk_idx = i;
     }
