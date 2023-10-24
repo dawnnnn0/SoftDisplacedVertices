@@ -15,6 +15,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/NanoAOD/interface/FlatTable.h"
@@ -39,6 +41,7 @@ class LLPTableProducer : public edm::stream::EDProducer<> {
     const int LLPid_;
     const int LSPid_;
     const edm::EDGetTokenT<reco::VertexCollection> pvToken_;
+    const edm::EDGetTokenT<reco::TrackCollection> tkToken_;
     bool debug;
 };
 
@@ -49,10 +52,12 @@ LLPTableProducer::LLPTableProducer(const edm::ParameterSet& params)
     LLPid_(params.getParameter<int>("LLPid_")),
     LSPid_(params.getParameter<int>("LSPid_")),
     pvToken_(consumes<reco::VertexCollection>(params.getParameter<edm::InputTag>("pvToken"))),
+    tkToken_(consumes<reco::TrackCollection>(params.getParameter<edm::InputTag>("tkToken"))),
     debug(params.getParameter<bool>("debug"))
 {
   produces<nanoaod::FlatTable>("LLPs");
   produces<nanoaod::FlatTable>("GenPart");
+  produces<nanoaod::FlatTable>("SDVTrack");
 }
 
 LLPTableProducer::~LLPTableProducer() {}
@@ -68,11 +73,16 @@ void LLPTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   if (primary_vertices->size())
     primary_vertex = &primary_vertices->at(0);
 
+  edm::Handle<reco::TrackCollection> tracks;
+  iEvent.getByToken(tkToken_, tracks);
+
   std::vector<int> llp_idx = SoftDV::FindLLP(genParticles, LLPid_, LSPid_, debug);
   std::vector<float> llp_pt, llp_eta, llp_phi, llp_mass, llp_ctau, llp_decay_x, llp_decay_y, llp_decay_z;
   std::vector<int> llp_pdgId, llp_status, llp_statusFlags;
 
   std::vector<int> genpart_llpidx(genParticles->size(), -1);
+  std::vector<int> tk_genpartidx(tracks->size(), -1);
+  std::vector<int> tk_llpidx(tracks->size(), -1);
 
   if (debug)
     std::cout << "Start the LLP loop." << std::endl;
@@ -120,7 +130,6 @@ void LLPTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       std::cout << "decay variables" << std::endl;
 
     // Get the LLP decay products
-    // FIXME: Why does this results in Seg. Fault?
     std::vector<int> llp_daus = SoftDV::GetDaughters(llp_idx[illp], genParticles, debug);
 
     //if (debug)
@@ -177,12 +186,16 @@ void LLPTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     //}
 
     for (int igen:llp_daus){
+      const reco::GenParticle& idau = genParticles->at(igen);
       genpart_llpidx[igen] = illp;
+      const auto matchres = SoftDV::matchtracks(idau, tracks, primary_vertex->position());
+      if (matchres.first!=-1) {
+        tk_genpartidx[matchres.first] = igen;
+        tk_llpidx[matchres.first] = illp;
+      }
     }
 
   }
-
-  std::cout << "Finish LLP loop." << std::endl;
 
   // Flat table for LLPs
   auto llpTable = std::make_unique<nanoaod::FlatTable>(llp_idx.size(), LLPName_, false);
@@ -201,8 +214,13 @@ void LLPTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   auto genPartTable = std::make_unique<nanoaod::FlatTable>(genParticles->size(), "SDVGenPart", false, true);
   genPartTable->addColumn<int>("LLPIdx",genpart_llpidx, "LLP index", nanoaod::FlatTable::IntColumn);
 
+  auto tkTable = std::make_unique<nanoaod::FlatTable>(tracks->size(), "SDVTrack", false, true);
+  tkTable->addColumn<int>("GenPartIdx", tk_genpartidx, "GenParticle index", nanoaod::FlatTable::IntColumn);
+  tkTable->addColumn<int>("LLPIdx", tk_llpidx, "LLP index", nanoaod::FlatTable::IntColumn);
+
   iEvent.put(std::move(llpTable), "LLPs"); 
   iEvent.put(std::move(genPartTable), "GenPart");
+  iEvent.put(std::move(tkTable), "SDVTrack");
 }
 
 // ------------ method called once each stream before processing any runs, lumis or events  ------------

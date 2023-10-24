@@ -8,5 +8,6 @@ LLPTable = cms.EDProducer("LLPTableProducer",
     LLPid_ = cms.int32(1000006),
     LSPid_ = cms.int32(1000022),
     pvToken = cms.InputTag("offlineSlimmedPrimaryVertices"),
+    tkToken = cms.InputTag("VertexTracksFilter","seed"),
     debug = cms.bool(True),
     )

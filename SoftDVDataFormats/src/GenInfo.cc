@@ -114,6 +114,41 @@ std::vector<int> SoftDV::GetDaughters(const size_t igen, const edm::Handle<reco:
 
 }
 
+SoftDV::MatchResult SoftDV::matchtracks(const reco::GenParticle& gtk, const edm::Handle<reco::TrackCollection>& tracks, const SoftDV::Point& refpoint) {
+  SoftDV::Match min_match(999,std::vector<double>());
+  int tk_idx = -1;
+  for (size_t i=0; i<tracks->size(); ++i){
+    reco::TrackRef tk(tracks, i);
+    SoftDV::Match match = SoftDV::matchchi2(gtk,tk,refpoint);
+    //if (match.first<min_match.first && match.second[0]<0.2 && match.second[1]<3){
+    if (match.first<min_match.first && match.second[0]<0.2){
+      min_match = match;
+      tk_idx = i;
+    }
+  }
+  return SoftDV::MatchResult(tk_idx,min_match);
+
+}
+
+SoftDV::Match SoftDV::matchchi2(const reco::GenParticle& gtk, const reco::TrackRef& rtk, const SoftDV::Point& refpoint) {
+  //double dxy = gen_dxy_reco(gtk,refpoint);
+  double dxy = gen_dxy(gtk,refpoint);
+  double dz = gen_dz(gtk,refpoint);
+
+  std::vector<double> a;
+  a.push_back( ( fabs(rtk->dxy(refpoint)) - fabs(dxy) ) / rtk->dxyError() );
+  a.push_back( ( rtk->dz(refpoint)- dz ) / (4*rtk->dzError()) );
+  a.push_back( ( rtk->charge()/rtk->pt() - gtk.charge()/gtk.pt()) / (1.0/rtk->ptError()) );
+  double dr = reco::deltaR(rtk->eta(), rtk->phi(), gtk.eta(), gtk.phi());
+  a.push_back(dr/0.01);
+  double asum = 0;
+  for (double& xa:a){
+    asum += xa*xa;
+  }
+  std::vector<double> m({dr,fabs( fabs(rtk->dxy(refpoint)) - fabs(dxy) ) / rtk->dxyError()});
+  return std::pair<double,std::vector<double>>(0.25*asum,m);
+}
+
 double gen_dxy(const reco::GenParticle& gtk, const SoftDV::Point& refpoint){
   // calculate dxy for gen track
   double r = 88.*gtk.pt();

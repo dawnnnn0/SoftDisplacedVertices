@@ -7,6 +7,7 @@
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
+#include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
@@ -18,6 +19,8 @@ namespace SoftDV {
   typedef math::XYZPoint Point;
   typedef math::XYZVector Vector;
   typedef math::PtEtaPhiMLorentzVector PolarLorentzVector;
+  typedef std::pair<double,std::vector<double>> Match; //the first element is chi2 and the second element is dr
+  typedef std::pair<int, Match> MatchResult; //the first element is the index of matched track and the second element is Match
 
   struct Particle {
     int pdgid;
@@ -87,6 +90,9 @@ namespace SoftDV {
   //std::vector<int> GetDaughters(const reco::GenParticle& gen, const edm::Handle<reco::GenParticleCollection>& gen_particles, bool debug);
   std::vector<int> GetDaughters(const size_t igen, const edm::Handle<reco::GenParticleCollection>& gen_particles, bool debug);
 
+  SoftDV::MatchResult matchtracks(const reco::GenParticle& gtk, const edm::Handle<reco::TrackCollection>& tracks, const SoftDV::Point& refpoint);
+
+  SoftDV::Match matchchi2(const reco::GenParticle& gtk, const reco::TrackRef& rtk, const SoftDV::Point& refpoint);
 }
 double gen_dxy(const reco::GenParticle& gtk, const SoftDV::Point& refpoint); 
 double gen_dz(const reco::GenParticle& gtk, const SoftDV::Point& refpoint);
