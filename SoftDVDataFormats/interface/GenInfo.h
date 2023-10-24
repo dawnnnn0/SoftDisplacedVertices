@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <cmath>
+#include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
@@ -79,6 +80,12 @@ namespace SoftDV {
       std::vector<LLP> llps_;
   };
 
+  reco::GenParticleRef get_gen(const reco::Candidate* c, const edm::Handle<reco::GenParticleCollection>& gens);
+  //reco::GenParticleCollection FindLLP(const edm::Handle<reco::GenParticleCollection>& gen_particles, int LLP_id, int LSP_id, bool debug);
+  std::vector<int> FindLLP(const edm::Handle<reco::GenParticleCollection>& gen_particles, int LLP_id, int LSP_id, bool debug);
+  //reco::GenParticleCollection GetDaughters(const reco::GenParticle& gen, const edm::Handle<reco::GenParticleCollection>& gen_particles, bool debug);
+  //std::vector<int> GetDaughters(const reco::GenParticle& gen, const edm::Handle<reco::GenParticleCollection>& gen_particles, bool debug);
+  std::vector<int> GetDaughters(const size_t igen, const edm::Handle<reco::GenParticleCollection>& gen_particles, bool debug);
 
 }
 double gen_dxy(const reco::GenParticle& gtk, const SoftDV::Point& refpoint); 

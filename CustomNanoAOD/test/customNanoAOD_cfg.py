@@ -58,8 +58,7 @@ MessageLogger = cms.Service("MessageLogger")
 
 # Input source
 process.source = cms.Source("PoolSource",
-    # fileNames = cms.untracked.vstring('file:/users/alikaan.gueven/AOD_to_nanoAOD/data/SUS-RunIISummer20UL18MiniAODv2-00068.root'),
-    fileNames = cms.untracked.vstring('file:/users/alikaan.gueven/AOD_to_nanoAOD/data/dataFromFelix-MiniAODv2.root'),
+    fileNames = cms.untracked.vstring('file:/users/ang.li/public/SoftDV/CMSSW_10_6_30/src/SoftDisplacedVertices/CustomMiniAOD/test/MiniAOD.root'),
     secondaryFileNames = cms.untracked.vstring()
 )
 
@@ -93,8 +92,7 @@ output_mod = cms.OutputModule("NanoAODOutputModule",
         dataTier = cms.untracked.string('NANOAODSIM'),
         filterName = cms.untracked.string('')
     ),
-    # fileName = cms.untracked.string('file:/users/alikaan.gueven/AOD_to_nanoAOD/data/SUS-RunIISummer20UL18NanoAODv9-00068.root'),
-    fileName = cms.untracked.string('file:/users/alikaan.gueven/AOD_to_nanoAOD/data/dataFromFelix-NanoAODv9.root'),
+    fileName = cms.untracked.string('file:/users/ang.li/public/SoftDV/CMSSW_10_6_30/src/SoftDisplacedVertices/CustomNanoAOD/test/NanoAOD.root'),
     outputCommands = process.NANOAODSIMEventContent.outputCommands
 )
 
@@ -104,7 +102,7 @@ process.NANOAODSIMoutput = output_mod
 # Additional output definition
 
 # Defining globally acessible service object that does not affect physics results.
-process.TFileService = cms.Service("TFileService", fileName = cms.string("/users/alikaan.gueven/AOD_to_nanoAOD/data/vtxreco_histos.root") )
+process.TFileService = cms.Service("TFileService", fileName = cms.string("/users/ang.li/public/SoftDV/CMSSW_10_6_30/src/SoftDisplacedVertices/CustomNanoAOD/test/vtxreco_histos.root") )
 VertexRecoSeq(process, useMINIAOD=False, useIVF=True)
 
 # EventContentAnalyzer
