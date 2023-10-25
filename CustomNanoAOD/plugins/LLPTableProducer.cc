@@ -84,15 +84,8 @@ void LLPTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   std::vector<int> tk_genpartidx(tracks->size(), -1);
   std::vector<int> tk_llpidx(tracks->size(), -1);
 
-  if (debug)
-    std::cout << "Start the LLP loop." << std::endl;
-  //for (const auto& llp : llps){
   for (size_t illp=0; illp<llp_idx.size(); ++illp){
-    if (debug)
-      std::cout << "For LLP " << illp << std::endl;
     const reco::GenParticle& llp = genParticles->at(llp_idx[illp]);
-    if (debug)
-      std::cout << "LLP get." << std::endl; 
     llp_pt.push_back(llp.pt());
     llp_eta.push_back(llp.eta());
     llp_phi.push_back(llp.phi());
@@ -101,13 +94,10 @@ void LLPTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     llp_status.push_back(llp.status());
     llp_statusFlags.push_back( llp.statusFlags().isLastCopyBeforeFSR()             * 16384 +llp.statusFlags().isLastCopy()                           * 8192  +llp.statusFlags().isFirstCopy()                          * 4096  +llp.statusFlags().fromHardProcessBeforeFSR()             * 2048  +llp.statusFlags().isDirectHardProcessTauDecayProduct()   * 1024  +llp.statusFlags().isHardProcessTauDecayProduct()         * 512   +llp.statusFlags().fromHardProcess()                      * 256   +llp.statusFlags().isHardProcess()                        * 128   +llp.statusFlags().isDirectHadronDecayProduct()           * 64    +llp.statusFlags().isDirectPromptTauDecayProduct()        * 32    +llp.statusFlags().isDirectTauDecayProduct()              * 16    +llp.statusFlags().isPromptTauDecayProduct()              * 8     +llp.statusFlags().isTauDecayProduct()                    * 4     +llp.statusFlags().isDecayedLeptonHadron()                * 2     +llp.statusFlags().isPrompt()                             * 1);
 
-    if (debug)
-      std::cout << "basic variables" << std::endl;
     // Now determine the LLP decay point
     if (llp.numberOfDaughters()==0){
       throw cms::Exception("LLPTableProducer") << "LLP has no Daughters!";
     }
-    std::cout << "LLP has " << llp.numberOfDaughters() << " daughters."  << std::endl;
     if (debug)
     {
       for (size_t idau=0; idau<llp.numberOfDaughters(); ++idau){
@@ -116,74 +106,17 @@ void LLPTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       }
     }
     auto decay_point = llp.daughter(0)->vertex();
-    std::cout << "decay point" << std::endl;
     llp_decay_x.push_back(decay_point.x());
     llp_decay_y.push_back(decay_point.y());
     llp_decay_z.push_back(decay_point.z());
-    std::cout << "decay / ctau" << std::endl;
 
     math::XYZVector flight = math::XYZVector(decay_point) - math::XYZVector(primary_vertex->position());
     auto polarp4 = llp.polarP4();
     float ctau = std::sqrt(flight.Mag2())/polarp4.Beta()/polarp4.Gamma();
     llp_ctau.push_back(ctau);
-    if (debug)
-      std::cout << "decay variables" << std::endl;
 
     // Get the LLP decay products
     std::vector<int> llp_daus = SoftDV::GetDaughters(llp_idx[illp], genParticles, debug);
-
-    //if (debug)
-    //  std::cout << "Start looking for daughters." << std::endl;
-    //std::queue<reco::GenParticleRef> gen_daughter_queue;
-    //std::vector<int> processed_gen_key;
-    //std::vector<int> llp_daus;
-    ////reco::GenParticleCollection llp_daus;
-    //std::vector<reco::GenParticle> gtks;
-    ////const auto& llp_ref = SoftDV::get_gen(&llp, genParticles);
-    //const auto& llp_ref = reco::GenParticleRef(genParticles,llp_idx[illp]);
-    //if (debug)
-    //  std::cout << "Get LLP reference." << std::endl;
-    //if (!llp_ref)
-    //  std::cout << "CANNOT FIND LLP REFERENCE!" << std::endl;
-    //gen_daughter_queue.push(llp_ref);
-    //processed_gen_key.push_back(llp_ref.key());
-    //while (!gen_daughter_queue.empty()) {
-    //  reco::GenParticleRef dau = gen_daughter_queue.front();
-    //  if (debug) {
-    //    std::cout << "  Daughter " << dau->pdgId() << " status " << dau->status() << " charge " << dau->charge() << std::endl;
-    //  }
-    //  gen_daughter_queue.pop();
-    //  if ( (dau->status()==1) && (dau->charge()!=0)){
-    //    if (dau.isNonnull()){
-    //      llp_daus.push_back(dau.key());
-    //      //llp_daus.push_back(*(dau.get()));
-    //    }
-    //    if (debug){
-    //      std::cout << "  Final status gen daughter added. ID " << dau->pdgId() << " pt " << dau->pt() << " eta " << dau->eta() << " phi " << dau->phi() << std::endl;
-    //    }
-    //    if (dau->numberOfDaughters()>0){
-    //      std::cout << "GenProducer: Gen daughter with status 1 has daughters!" << std::endl;
-    //    }
-    //    continue;
-    //  }
-    //  for (size_t idau=0; idau<dau->numberOfDaughters(); ++idau){
-    //    const auto& gendau = SoftDV::get_gen(dau->daughter(idau), genParticles);
-    //    if (!gendau)
-    //      continue;
-    //    int gendau_key = gendau.key();
-    //    if (debug){
-    //      std::cout << "    daughter " << gendau->pdgId() << " status " << gendau->status() << " key " << gendau_key << std::endl;
-    //    }
-    //    if(std::find(processed_gen_key.begin(), processed_gen_key.end(), gendau_key) != processed_gen_key.end()) {
-    //      if (debug)
-    //        std::cout << "     Is was processed before so skipping..." << std::endl;
-    //      continue;
-    //    }
-    //    gen_daughter_queue.push(gendau);
-    //    processed_gen_key.push_back(gendau.key());
-    //  }
-    //
-    //}
 
     for (int igen:llp_daus){
       const reco::GenParticle& idau = genParticles->at(igen);
