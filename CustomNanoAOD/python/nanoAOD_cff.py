@@ -30,16 +30,19 @@ def nanoAOD_customise_SoftDisplacedVerticesMC(process):
     process.finalGenParticlesWithStableCharged.select.append('keep status==1 && abs(charge) == 1')
 
     process.genParticleForSDVTable = process.genParticleTable.clone(
-        src = cms.InputTag("finalGenParticlesWithStableCharged"),
+        #src = cms.InputTag("finalGenParticlesWithStableCharged"),
+        src = cms.InputTag("genParticles"),
         name = cms.string("SDVGenPart")
     )
 
     process.load('SoftDisplacedVertices.CustomNanoAOD.GenSecondaryVertexTableProducer_cff')
+    process.load('SoftDisplacedVertices.CustomNanoAOD.LLPTable_cfi')
 
     process.sdvSequence = cms.Sequence(
         process.finalGenParticlesWithStableCharged
         + process.genParticleForSDVTable
         + process.genSecondaryVertexTable
+        + process.LLPTable
     )
     process.nanoSequenceMC = cms.Sequence(process.nanoSequenceMC + process.sdvSequence)  
     

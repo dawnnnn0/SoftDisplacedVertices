@@ -12,6 +12,7 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/MessageLogger"/>
 <use name="CommonTools/Utils"/>
+<use name="SoftDisplacedVertices/SoftDVDataFormats"/>
 
 <flags EDM_PLUGIN="1"/>
 <export>

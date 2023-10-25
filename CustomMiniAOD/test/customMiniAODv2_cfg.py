@@ -42,7 +42,7 @@ process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
 process.load("SoftDisplacedVertices.VtxReco.VertexTracks_cfi")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(100)
 )
 
 # import list_directory_cff.py as fg # file getter
@@ -161,8 +161,7 @@ output_mod = cms.OutputModule("PoolOutputModule",
     dropMetaData = cms.untracked.string('ALL'),
     eventAutoFlushCompressedSize = cms.untracked.int32(-900),
     fastCloning = cms.untracked.bool(False),
-    # fileName = cms.untracked.string('file:/users/alikaan.gueven/AOD_to_nanoAOD/data/SUS-RunIISummer20UL18MiniAODv2-00068.root'),
-    fileName = cms.untracked.string('file:/users/alikaan.gueven/AOD_to_nanoAOD/data/dataFromFelix-MiniAODv2.root'),
+    fileName = cms.untracked.string('file:/users/ang.li/public/SoftDV/CMSSW_10_6_30/src/SoftDisplacedVertices/CustomMiniAOD/test/MiniAOD.root'),
     # maxSize = cms.untracked.int32(1), # kB
     outputCommands = process.MINIAODSIMEventContent.outputCommands,
     overrideBranchesSplitLevel = cms.untracked.VPSet(
@@ -223,6 +222,10 @@ output_mod = cms.OutputModule("PoolOutputModule",
 # output_mod.outputCommands.append('drop *') # already included in MINIAODSIMEventContent.outputCommands
 output_mod.outputCommands.append('keep *_VertexTracksFilter_*_*')
 output_mod.outputCommands.append('keep *_VertexTracks_*_*')
+
+# Keep all the GenParticles for now
+output_mod.outputCommands.append('keep *GenParticle*_genParticles_*_*')
+
 process.MINIAODSIMoutput = output_mod
 
 # process.MINIAODSIMEventContent.outputCommands.append('keep *_VertexTracksFilter_*_*')
@@ -242,7 +245,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, '106X_upgrade2018_realistic_v16
 
 
 # Defining globally acessible service object that does not affect physics results.
-process.TFileService = cms.Service("TFileService", fileName = cms.string("/users/alikaan.gueven/AOD_to_nanoAOD/data/vtxreco_histos.root") )
+process.TFileService = cms.Service("TFileService", fileName = cms.string("/users/ang.li/public/SoftDV/CMSSW_10_6_30/src/SoftDisplacedVertices/CustomMiniAOD/test/vtxreco_histos.root") )
 
 VertexFilterSeq(process, useMINIAOD=False, useIVF=True)
 process.p = cms.Path(process.VertexTracksFilter + process.trig_filter + process.vtxfilter)
