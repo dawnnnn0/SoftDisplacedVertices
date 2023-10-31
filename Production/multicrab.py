@@ -44,7 +44,7 @@ def submit(datasets):
     cfg.Data.splitting = 'Automatic'
     cfg.Data.publication = True
     
-    cfg.Site.blacklist=["T2_US_Florida", "T2_US_Vanderbilt"]
+#    cfg.Site.blacklist=["T2_US_Florida", "T2_US_Vanderbilt"]
 
     cfg.Site.storageSite = 'T2_AT_Vienna'
     
@@ -61,6 +61,10 @@ def submit(datasets):
 
         for key, value in flatten(dset_info['datasets']):
 
+            job_dir = "{}/crab_{}_{}".format(WORK_AREA, key, dset_info['name'])
+            if os.path.exists(job_dir):
+                continue
+            
             cfg.General.requestName = "{}_{}".format(key, dset_info['name'])
             cfg.Data.inputDataset = value
             cfg.Data.outputDatasetTag = "{}_{}".format(key, dset_info['name'])
@@ -70,7 +74,13 @@ def submit(datasets):
 @cli.command()
 @click.pass_obj
 def status(datasets):
-    pass
+    with open('status.log', "w") as status_log:
+        for request in os.listdir(WORK_AREA):
+            job_dir = os.path.join(WORK_AREA, request)
+            sys.stdout = status_log
+            status = crabCommand("status", dir=job_dir)
+            sys.stdout = sys.__stdout__ 
+            print("{}: {}-{}".format(request[5:], status['dbStatus'], status['status']))
     
 
 if __name__ == "__main__":
