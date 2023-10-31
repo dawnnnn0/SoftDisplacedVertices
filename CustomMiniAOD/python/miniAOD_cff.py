@@ -22,10 +22,25 @@ def miniAOD_customise_SoftDisplacedVerticesMC(process):
     process.prunedGenParticlesWithStableCharged = process.prunedGenParticles.clone()
     process.prunedGenParticlesWithStableCharged.select.append("keep status == 1 && abs(charge) == 1 && pt > 0.5 && abs(eta) < 2.5")
     process.MINIAODSIMEventContent.outputCommands.append('keep recoGenParticles_prunedGenParticlesWithStableCharged_*_*')
+    process.MINIAODSIMEventContent.outputCommands.append('keep recoGenParticles_genParticles_*_*')
 
     task = getPatAlgosToolsTask(process)
     task.add(process.prunedGenParticlesWithStableCharged)
 
+    return process
+
+def miniAOD_filter_SoftDisplacedVertices(process):
+    
+    process.pfMETSelectorHighMETSkim = cms.EDFilter(
+        "CandViewSelector",
+        src = cms.InputTag("pfMet"),
+        cut = cms.string( "pt()>200" )
+    )
+ 
+    # not obvious that this is the best place to add the filter
+    task = getPatAlgosToolsTask(process)
+    task.add(process.pfMETSelectorHighMETSkim)
+    
     return process
 
 
