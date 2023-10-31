@@ -108,8 +108,8 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
 
   auto vertices = std::make_unique<std::vector<reco::Vertex>>();
-  std::vector<float> x,y,z,dlen, dlenSig, pAngle, dxy, dxySig, chi2;
-  std::vector<float> L_phi, L_eta;
+  std::vector<float> x,y,z,dlen, dlenSig, pAngle, Lxy, LxySig, chi2, normalizedChi2;
+  std::vector<float> L_phi, L_eta, sum_tkW;
   std::vector<int> charge, sv_tracksSize, sv_nTracks, SecVtxIdx, TrackIdx;
   std::vector<float> ndof; 
   std::vector<int> ngoodTrackVec;
@@ -147,23 +147,30 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
         
         Measurement1D d2d = vdistXY.distance(
             PV0, VertexState(RecoVertex::convertPos(sv.position()), RecoVertex::convertError(sv.error())));
-        dxy.push_back(d2d.value());
-        dxySig.push_back(d2d.significance());
+        Lxy.push_back(d2d.value());
+        LxySig.push_back(d2d.significance());
         sv_tracksSize.push_back(sv.tracksSize());
         sv_nTracks.push_back(sv.nTracks());
         chi2.push_back(sv.chi2());
+        normalizedChi2.push_back(sv.normalizedChi2());
         ndof.push_back(sv.ndof());
 
         // GOOD TRACK CRITERIA
         // ---------------------------
         int ngoodTrack = 0;
+        float sum_tk_weights = 0.;
         for (auto v_tk = sv.tracks_begin(), vtke = sv.tracks_end(); v_tk != vtke; ++v_tk){
-          std::cout << "------------------------------------------------" << std::endl;
-          std::cout << ((*v_tk)->numberOfValidHits()) << std::endl;
-          std::cout << ((*v_tk)->normalizedChi2()) << std::endl;
-          std::cout << ((*v_tk)->ptError() / (*v_tk)->pt()) << std::endl;
-          std::cout << (abs((*v_tk)->dxy(PV0.position()) / (*v_tk)->dxyError(PV0.position(), PV0.covariance()))) << std::endl;
-          std::cout << (abs((*v_tk)->dz(PV0.position()))) << std::endl;
+          sum_tk_weights += sv.trackWeight(*v_tk);
+          if(debug){
+            std::cout << "------------------------------------------------" << std::endl;
+            std::cout << "----------  GOOD TRACK CRITERIA  ---------" << std::endl;
+            std::cout << std::left << std::setw(20) << "numberOfValidHits:" << std::setw(16) << ((*v_tk)->numberOfValidHits()) << std::endl;
+            std::cout << std::left << std::setw(20) << "normalizedChi2:" << std::setw(16) << ((*v_tk)->normalizedChi2()) << std::endl;
+            std::cout << std::left << std::setw(20) << "ptError/pt:" << std::setw(16) << ((*v_tk)->ptError() / (*v_tk)->pt()) << std::endl;
+            std::cout << std::left << std::setw(20) << "dxy/dxyError:" << std::setw(16) << (abs((*v_tk)->dxy(PV0.position()) / (*v_tk)->dxyError(PV0.position(), PV0.covariance()))) << std::endl;
+            std::cout << std::left << std::setw(20) << "dz:" << std::setw(16) << (abs((*v_tk)->dz(PV0.position()))) << std::endl;
+            std::cout << "------------------------------------------------" << std::endl;
+          }
           if(
              (abs((*v_tk)->dxy(PV0.position()) / (*v_tk)->dxyError(PV0.position(), PV0.covariance())) > 4) &&
              ((*v_tk)->normalizedChi2() < 5) &&
@@ -173,6 +180,7 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
              ){ngoodTrack++;}
           
         }
+        sum_tkW.push_back(sum_tk_weights);
         ngoodTrackVec.push_back(ngoodTrack);
         // ------------------------------------------------------
 
@@ -224,8 +232,8 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
   svsTable->addColumn<float>("z", z, "z position in cm", nanoaod::FlatTable::FloatColumn, 10);
   svsTable->addColumn<float>("dlen", dlen, "decay length in cm", nanoaod::FlatTable::FloatColumn, 10);
   svsTable->addColumn<float>("dlenSig", dlenSig, "decay length significance", nanoaod::FlatTable::FloatColumn, 10);
-  svsTable->addColumn<float>("dxy", dxy, "2D decay length in cm", nanoaod::FlatTable::FloatColumn, 10);
-  svsTable->addColumn<float>("dxySig", dxySig, "2D decay length significance", nanoaod::FlatTable::FloatColumn, 10);
+  svsTable->addColumn<float>("Lxy", Lxy, "2D decay length in cm", nanoaod::FlatTable::FloatColumn, 10);
+  svsTable->addColumn<float>("LxySig", LxySig, "2D decay length significance", nanoaod::FlatTable::FloatColumn, 10);
   svsTable->addColumn<float>(
       "pAngle", pAngle, "pointing angle, i.e. acos(p_SV * (SV - PV)) ", nanoaod::FlatTable::FloatColumn, 10);
   svsTable->addColumn<float>(
@@ -238,7 +246,9 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
     svsTable->addColumn<int>("charge", charge, "sum of the charge of the SV tracks", nanoaod::FlatTable::IntColumn);
   }
   svsTable->addColumn<float>("chi2", chi2, "chi2 of vertex fit", nanoaod::FlatTable::FloatColumn, 10);
+  svsTable->addColumn<float>("normalizedChi2", normalizedChi2, "normalizedChi2 of vertex fit", nanoaod::FlatTable::FloatColumn, 10);
   svsTable->addColumn<float>("ndof", ndof, "ndof of vertex fit", nanoaod::FlatTable::FloatColumn, 10);
+  svsTable->addColumn<float>("sum_tkW", sum_tkW, "sum of track weights", nanoaod::FlatTable::FloatColumn, 10);
   svsTable->addColumn<int>("ngoodTrack", ngoodTrackVec, "number of good tracks associated with the vertex according to Ivan's criteria", nanoaod::FlatTable::IntColumn);
    
   

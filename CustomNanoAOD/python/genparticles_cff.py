@@ -1,3 +1,11 @@
+
+# Comment: Ali Kaan Güven
+# This is just kept for historical reasons.
+# Not used in the main code.
+# Could be discarded in the future.
+
+
+
 import FWCore.ParameterSet.Config as cms
 
 genParticleTableForSDV = cms.EDProducer("SimpleCandidateFlatTableProducer",
