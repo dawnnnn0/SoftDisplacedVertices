@@ -149,6 +149,16 @@ SoftDV::Match SoftDV::matchchi2(const reco::GenParticle& gtk, const reco::TrackR
   return std::pair<double,std::vector<double>>(0.25*asum,m);
 }
 
+bool SoftDV::pass_gentk(const reco::GenParticle& gtk, const SoftDV::Point& refpoint){
+  if (gtk.status()!=1) return false;
+  if ( (gtk.charge()==0) || (fabs(gtk.charge())<1) ) return false;
+  if (gtk.pt()<0.5 || fabs(gtk.eta()) > 2.5 ) return false;
+  double dxy_gen = gen_dxy(gtk,refpoint);
+  if (dxy_gen<0.005) return false;
+
+  return true;  
+}
+
 double gen_dxy(const reco::GenParticle& gtk, const SoftDV::Point& refpoint){
   // calculate dxy for gen track
   double r = 88.*gtk.pt();

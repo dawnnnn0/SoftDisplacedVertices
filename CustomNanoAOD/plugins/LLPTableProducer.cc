@@ -42,6 +42,7 @@ class LLPTableProducer : public edm::stream::EDProducer<> {
     const int LSPid_;
     const edm::EDGetTokenT<reco::VertexCollection> pvToken_;
     const edm::EDGetTokenT<reco::TrackCollection> tkToken_;
+    const edm::EDGetTokenT<reco::VertexCollection> svToken_;
     bool debug;
 };
 
@@ -53,11 +54,13 @@ LLPTableProducer::LLPTableProducer(const edm::ParameterSet& params)
     LSPid_(params.getParameter<int>("LSPid_")),
     pvToken_(consumes<reco::VertexCollection>(params.getParameter<edm::InputTag>("pvToken"))),
     tkToken_(consumes<reco::TrackCollection>(params.getParameter<edm::InputTag>("tkToken"))),
+    svToken_(consumes<reco::VertexCollection>(params.getParameter<edm::InputTag>("svToken"))),
     debug(params.getParameter<bool>("debug"))
 {
   produces<nanoaod::FlatTable>("LLPs");
   produces<nanoaod::FlatTable>("GenPart");
   produces<nanoaod::FlatTable>("SDVTrack");
+  produces<nanoaod::FlatTable>("SDVSecVtx");
 }
 
 LLPTableProducer::~LLPTableProducer() {}
@@ -76,9 +79,12 @@ void LLPTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   edm::Handle<reco::TrackCollection> tracks;
   iEvent.getByToken(tkToken_, tracks);
 
+  edm::Handle<reco::VertexCollection> secondary_vertices;
+  iEvent.getByToken(svToken_, secondary_vertices);
+
   std::vector<int> llp_idx = SoftDV::FindLLP(genParticles, LLPid_, LSPid_, debug);
   std::vector<float> llp_pt, llp_eta, llp_phi, llp_mass, llp_ctau, llp_decay_x, llp_decay_y, llp_decay_z;
-  std::vector<int> llp_pdgId, llp_status, llp_statusFlags;
+  std::vector<int> llp_pdgId, llp_status, llp_statusFlags, llp_ngentk, llp_nrecotk;
 
   std::vector<int> genpart_llpidx(genParticles->size(), -1);
   std::vector<int> tk_genpartidx(tracks->size(), -1);
@@ -117,17 +123,78 @@ void LLPTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
     // Get the LLP decay products
     std::vector<int> llp_daus = SoftDV::GetDaughters(llp_idx[illp], genParticles, debug);
+    int ngentk = 0;
+    int nmatchedtk = 0;
 
     for (int igen:llp_daus){
       const reco::GenParticle& idau = genParticles->at(igen);
       genpart_llpidx[igen] = illp;
+      if (SoftDV::pass_gentk(idau, primary_vertex->position())){
+        ngentk += 1;
+      }
       const auto matchres = SoftDV::matchtracks(idau, tracks, primary_vertex->position());
       if (matchres.first!=-1) {
         tk_genpartidx[matchres.first] = igen;
         tk_llpidx[matchres.first] = illp;
+        nmatchedtk += 1;
       }
     }
+    llp_ngentk.push_back(ngentk);
+    llp_nrecotk.push_back(nmatchedtk);
 
+
+  }
+
+  // Match LLP with reco vertices
+  std::vector<int> llp_match_bydau(llp_idx.size(), -1);
+  std::vector<int> llp_match_bydau_ntk(llp_idx.size(), 0);
+  std::vector<int> llp_match_bydist(llp_idx.size(), -1);
+  std::vector<float> llp_match_bydist_dist(llp_idx.size(), -1);
+  std::vector<int> SDV_match_bydau(secondary_vertices->size(), -1);
+  std::vector<int> SDV_match_bydau_ntk(secondary_vertices->size(), 0);
+  std::vector<int> SDV_match_bydist(secondary_vertices->size(), -1);
+  std::vector<float> SDV_match_bydist_dist(secondary_vertices->size(), -1);
+
+  // Match LLP and reco vertices by daughter
+  for (size_t ivtx=0; ivtx<secondary_vertices->size(); ++ivtx) {
+    const reco::Vertex& sv = secondary_vertices->at(ivtx);
+    for (auto v_tk = sv.tracks_begin(), vtke = sv.tracks_end(); v_tk != vtke; ++v_tk){
+      for (size_t itk=0; itk<tracks->size(); ++itk) {
+        const reco::Track& tk = tracks->at(itk);
+        if (&tk == &(**v_tk)) {
+            const int llp_matched_idx = tk_llpidx[itk];
+            if (llp_matched_idx!=-1){
+                llp_match_bydau[llp_matched_idx] = ivtx;
+                llp_match_bydau_ntk[llp_matched_idx] += 1;
+                SDV_match_bydau[ivtx] = llp_matched_idx;
+                SDV_match_bydau_ntk[ivtx] += 1;
+            }
+            break;
+        }
+      }
+    }
+  }
+
+  // Match LLP and reco vertices by distance
+  for (size_t illp=0; illp<llp_idx.size(); ++illp){
+    math::XYZPoint llp_decay = math::XYZPoint(llp_decay_x[illp], llp_decay_y[illp], llp_decay_z[illp]);
+    float d_gen_min = 999;
+    int vtx_idx = -1;
+    for (size_t ivtx=0; ivtx<secondary_vertices->size(); ++ivtx) {
+      const reco::Vertex& vtx = secondary_vertices->at(ivtx);
+      const auto d_gen = gen_dist(vtx,llp_decay,true);
+      float d_gen_sig = fabs(d_gen.significance());
+      if (d_gen_sig<d_gen_min){
+        d_gen_min = d_gen_sig;
+        vtx_idx = ivtx;
+      }
+    }
+    if (vtx_idx!=-1){
+      llp_match_bydist[illp] = vtx_idx;
+      llp_match_bydist_dist[illp] = d_gen_min;
+      SDV_match_bydist[vtx_idx] = illp;
+      SDV_match_bydist_dist[vtx_idx] = d_gen_min;
+    }
   }
 
   // Flat table for LLPs
@@ -143,6 +210,13 @@ void LLPTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   llpTable->addColumn<int>("pdgId", llp_pdgId, "pdgID of LLP", nanoaod::FlatTable::IntColumn);
   llpTable->addColumn<int>("status", llp_status, "status of LLP", nanoaod::FlatTable::IntColumn);
   llpTable->addColumn<int>("statusFlags", llp_statusFlags, "gen status flags stored bitwise, bits are: 0 : isPrompt, 1 : isDecayedLeptonHadron, 2 : isTauDecayProduct, 3 : isPromptTauDecayProduct, 4 : isDirectTauDecayProduct, 5 : isDirectPromptTauDecayProduct, 6 : isDirectHadronDecayProduct, 7 : isHardProcess, 8 : fromHardProcess, 9 : isHardProcessTauDecayProduct, 10 : isDirectHardProcessTauDecayProduct, 11 : fromHardProcessBeforeFSR, 12 : isFirstCopy, 13 : isLastCopy, 14 : isLastCopyBeforeFSR, ", nanoaod::FlatTable::IntColumn);
+  llpTable->addColumn<int>("ngentk", llp_ngentk, "Number of gen tracks", nanoaod::FlatTable::IntColumn);
+  llpTable->addColumn<int>("nrecotk", llp_nrecotk, "Number of gen tracks that match with reco track", nanoaod::FlatTable::IntColumn);
+  llpTable->addColumn<int>("matchedSDVIdx_bydau", llp_match_bydau, "SDV index matched with LLP by daughters", nanoaod::FlatTable::IntColumn);
+  llpTable->addColumn<int>("matchedSDVnDau_bydau", llp_match_bydau_ntk, "The number of matched gen daughters of LLP", nanoaod::FlatTable::IntColumn); 
+  llpTable->addColumn<int>("matchedSDVIdx_bydist", llp_match_bydist, "SDV index matched with LLP by daughters", nanoaod::FlatTable::IntColumn);
+  llpTable->addColumn<float>("matchedSDVDist_bydist", llp_match_bydist_dist, "The distance between matched SDV and LLP", nanoaod::FlatTable::FloatColumn, 10);
+
 
   auto genPartTable = std::make_unique<nanoaod::FlatTable>(genParticles->size(), "SDVGenPart", false, true);
   genPartTable->addColumn<int>("LLPIdx",genpart_llpidx, "LLP index", nanoaod::FlatTable::IntColumn);
@@ -151,9 +225,17 @@ void LLPTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   tkTable->addColumn<int>("GenPartIdx", tk_genpartidx, "GenParticle index", nanoaod::FlatTable::IntColumn);
   tkTable->addColumn<int>("LLPIdx", tk_llpidx, "LLP index", nanoaod::FlatTable::IntColumn);
 
+  auto vtxTable = std::make_unique<nanoaod::FlatTable>(secondary_vertices->size(), "SDVSecVtx", false, true);
+  vtxTable->addColumn<int>("matchedLLPIdx_bydau", SDV_match_bydau, "LLP index matched with SDV by daughters", nanoaod::FlatTable::IntColumn);
+  vtxTable->addColumn<int>("matchedLLPnDau_bydau", SDV_match_bydau_ntk, "The number of matched gen daughters of LLP", nanoaod::FlatTable::IntColumn);
+  vtxTable->addColumn<int>("matchedLLPIdx_bydist", SDV_match_bydist, "LLP index matched with SDV by distance", nanoaod::FlatTable::IntColumn);
+  vtxTable->addColumn<float>("matchedLLPDist_bydist", SDV_match_bydist_dist, "The distance between matched SDV and LLP", nanoaod::FlatTable::FloatColumn, 10);
+
   iEvent.put(std::move(llpTable), "LLPs"); 
   iEvent.put(std::move(genPartTable), "GenPart");
   iEvent.put(std::move(tkTable), "SDVTrack");
+  iEvent.put(std::move(vtxTable), "SDVSecVtx");
+
 }
 
 // ------------ method called once each stream before processing any runs, lumis or events  ------------
