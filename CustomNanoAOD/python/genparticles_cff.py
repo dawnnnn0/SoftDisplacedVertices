@@ -1,5 +1,5 @@
 
-# Comment: Ali Kaan Güven
+# Comment:
 # This is just kept for historical reasons.
 # Not used in the main code.
 # Could be discarded in the future.

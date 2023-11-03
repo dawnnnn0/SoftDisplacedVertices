@@ -176,7 +176,7 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
              ((*v_tk)->normalizedChi2() < 5) &&
              ((*v_tk)->numberOfValidHits() > 13) &&
              ((*v_tk)->ptError() / (*v_tk)->pt() < 0.015) &&
-             (abs((*v_tk)->dz(PV0.position()) < 4))
+             (abs((*v_tk)->dz(PV0.position())) < 4)
              ){ngoodTrack++;}
           
         }
