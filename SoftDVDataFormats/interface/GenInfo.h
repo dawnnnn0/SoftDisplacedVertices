@@ -93,6 +93,8 @@ namespace SoftDV {
   SoftDV::MatchResult matchtracks(const reco::GenParticle& gtk, const edm::Handle<reco::TrackCollection>& tracks, const SoftDV::Point& refpoint);
 
   SoftDV::Match matchchi2(const reco::GenParticle& gtk, const reco::TrackRef& rtk, const SoftDV::Point& refpoint);
+
+  bool pass_gentk(const reco::GenParticle& gtk, const SoftDV::Point& refpoint);
 }
 double gen_dxy(const reco::GenParticle& gtk, const SoftDV::Point& refpoint); 
 double gen_dz(const reco::GenParticle& gtk, const SoftDV::Point& refpoint);
