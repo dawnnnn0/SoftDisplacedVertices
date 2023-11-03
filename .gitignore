@@ -6,3 +6,5 @@ __init__.py
 *TestRun*
 *.log
 *Report.xml
+*.xml
+*.html
