@@ -1,0 +1,25 @@
+- name: Data_UL18_CustomNanoAODv1
+  CMSSW: CMSSW_10_6_27
+  config: SoftDisplacedVertices/CustomNanoAOD/configuration/Data_UL18_CustomNanoAOD.py
+  datasets:
+    MET:
+      MET_2018A: /MET/liko-MET_2018A_Data_UL18_CustomMiniAODv1-eaccc44f27cb7cdfc89b3e79dd6a8741/USER
+#      MET_2018B: 
+      MET_2018C: /MET/liko-MET_2018C_Data_UL18_CustomMiniAODv1-eaccc44f27cb7cdfc89b3e79dd6a8741/USER
+#      MET_2018D:
+- name: MC_UL18_CustomNanoAODv1
+  CMSSW: CMSSW_10_6_27
+  config: SoftDisplacedVertices/CustomNanoAOD/configuration/MC_UL18_CustomNanoAOD.py
+  datasets:
+    ZJetsToNuNu:
+      ZJetsToNuNu_HT-100To200: /ZJetsToNuNu_HT-100To200_TuneCP5_13TeV-madgraphMLM-pythia8/liko-ZJetToNuNu_HT-100To200_MC_UL18_CustomMiniAODv1-3d8e4420a4318e7ca9b6e59cdce6d779/USER
+      ZJetsToNuNu_HT-200To400: /ZJetsToNuNu_HT-200To400_TuneCP5_13TeV-madgraphMLM-pythia8/liko-ZJetsToNuNu_HT-200To400_MC_UL18_CustomMiniAODv1-3d8e4420a4318e7ca9b6e59cdce6d779/USER
+      ZJetsToNuNu_HT-400To600: /ZJetsToNuNu_HT-400To600_TuneCP5_13TeV-madgraphMLM-pythia8/liko-ZJetsToNuNu_HT-400To600_MC_UL18_CustomMiniAODv1-3d8e4420a4318e7ca9b6e59cdce6d779/USER
+      ZJetsToNuNu_HT-600To800: /ZJetsToNuNu_HT-600To800_TuneCP5_13TeV-madgraphMLM-pythia8/liko-ZJetsToNuNu_HT-600To800_MC_UL18_CustomMiniAODv1-3d8e4420a4318e7ca9b6e59cdce6d779/USER
+      ZJetsToNuNu_HT-800To1200: /ZJetsToNuNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8/liko-ZJetsToNuNu_HT-800To1200_MC_UL18_CustomMiniAODv1-3d8e4420a4318e7ca9b6e59cdce6d779/USER
+      ZJetsToNuNu_HT-1200To2500: /ZJetsToNuNu_HT-1200To2500_TuneCP5_13TeV-madgraphMLM-pythia8/liko-ZJetsToNuNu_HT-1200To2500_MC_UL18_CustomMiniAODv1-3d8e4420a4318e7ca9b6e59cdce6d779/USER
+      ZJetsToNuNu_HT-2500ToInf: /ZJetsToNuNu_HT-2500ToInf_TuneCP5_13TeV-madgraphMLM-pythia8/liko-ZJetsToNuNu_HT-2500ToInf_MC_UL18_CustomMiniAODv1-3d8e4420a4318e7ca9b6e59cdce6d779/USER
+    StopsCompressed:
+      SMS-T2tt-4bd_genMET-100_genHT200_mStop-300_mLSP-290: /SMS-T2tt-4bd_genMET-100_genHT200_mStop-300_mLSP-290_TuneCP5_LLStop_13TeV-madgraphMLM-pythia8/liko-SMS-T2tt-4bd_genMET-100_genHT200_mStop-300_mLSP-290_MC_UL18_CustomMiniAODv1-3d8e4420a4318e7ca9b6e59cdce6d779/USER
+      SMS-T2tt-4bd_genMET-100_genHT200_mStop-350_mLSP-335: /SMS-T2tt-4bd_genMET-100_genHT200_mStop-350_mLSP-335_TuneCP5_LLStop_13TeV-madgraphMLM-pythia8/liko-SMS-T2tt-4bd_genMET-100_genHT200_mStop-350_mLSP-335_MC_UL18_CustomMiniAODv1-3d8e4420a4318e7ca9b6e59cdce6d779/USER
+      SMS-T2tt-4bd_genMET-100_genHT200_mStop-400_mLSP-380: /SMS-T2tt-4bd_genMET-100_genHT200_mStop-400_mLSP-380_TuneCP5_LLStop_13TeV-madgraphMLM-pythia8/liko-SMS-T2tt-4bd_genMET-100_genHT200_mStop-400_mLSP-380_MC_UL18_CustomMiniAODv1-3d8e4420a4318e7ca9b6e59cdce6d779/USER

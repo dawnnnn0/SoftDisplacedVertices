@@ -30,16 +30,27 @@ def miniAOD_customise_SoftDisplacedVerticesMC(process):
     return process
 
 def miniAOD_filter_SoftDisplacedVertices(process):
-    
-    process.pfMETSelectorHighMETSkim = cms.EDFilter(
-        "CandViewSelector",
+
+    process.pfMETSkim = cms.EDFilter(
+        "METFilter",
         src = cms.InputTag("pfMet"),
-        cut = cms.string( "pt()>200" )
     )
- 
-    # not obvious that this is the best place to add the filter
-    task = getPatAlgosToolsTask(process)
-    task.add(process.pfMETSelectorHighMETSkim)
+    process.Flag_pfMETSkim = cms.Path(process.pfMETSkim)
+    process.schedule.append(process.Flag_pfMETSkim)
+
+    # at this point one does not understand why that did not work ...
+    
+    # process.pfMETSelectorHighMETSkim = cms.EDFilter(
+    #     "CandViewSelector",
+    #     src = cms.InputTag("pfMet"),
+    #     cut = cms.string( "pt()>200" ),
+    #     filter = cms.untracked.bool(True)
+    # )
+    # process.Flag_pfMETSelectorHighMETSkim = cms.Path(process.pfMETSelectorHighMETSkim)
+    # process.schedule.append(process.Flag_pfMETSelectorHighMETSkim)
+
+    # process.MINIAODSIMoutput.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('Flag_pfMETSelectorHighMETSkim'))
+    process.MINIAODSIMoutput.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('Flag_pfMETSkim'))
     
     return process
 
