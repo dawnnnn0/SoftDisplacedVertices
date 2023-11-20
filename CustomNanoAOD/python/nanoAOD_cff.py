@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import *
 
-isN2N3 = True
-useIVF = False
+isN2N3 = False
+useIVF = True
 
 def nanoAOD_customise_SoftDisplacedVertices(process):
 
