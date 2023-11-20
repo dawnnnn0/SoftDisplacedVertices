@@ -1,2 +1,3 @@
 # SoftDisplacedVertices
-Framework for Soft Displaced Vertices analysis.
+
+Details will be added soon.
