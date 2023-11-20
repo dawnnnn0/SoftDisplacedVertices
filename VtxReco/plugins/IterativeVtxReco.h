@@ -158,7 +158,7 @@ class MFVVertexer : public edm::EDProducer {
     const bool resolve_shared_jets;
     const edm::EDGetTokenT<std::vector<Jet>> shared_jet_token;
     const edm::EDGetTokenT<reco::BeamSpot> beamspot_token;
-    const edm::EDGetTokenT<std::vector<reco::TrackRef>> seed_tracks_token;
+    const edm::EDGetTokenT<std::vector<reco::Track>> seed_tracks_token;
     const int n_tracks_per_seed_vertex;
     const double max_seed_vertex_chi2;
     const bool use_2d_vertex_dist;
@@ -279,7 +279,7 @@ MFVVertexer<Jet>::MFVVertexer(const edm::ParameterSet& cfg)
     resolve_shared_jets(cfg.getParameter<bool>("resolve_shared_jets")),
     shared_jet_token(resolve_shared_jets ? consumes<std::vector<Jet>>(cfg.getParameter<edm::InputTag>("resolve_shared_jets_src")) : edm::EDGetTokenT<std::vector<Jet>>()),
     beamspot_token(consumes<reco::BeamSpot>(cfg.getParameter<edm::InputTag>("beamspot_src"))),
-    seed_tracks_token(consumes<std::vector<reco::TrackRef>>(cfg.getParameter<edm::InputTag>("seed_tracks_src"))),
+    seed_tracks_token(consumes<std::vector<reco::Track>>(cfg.getParameter<edm::InputTag>("seed_tracks_src"))),
     n_tracks_per_seed_vertex(cfg.getParameter<int>("n_tracks_per_seed_vertex")),
     max_seed_vertex_chi2(cfg.getParameter<double>("max_seed_vertex_chi2")),
     use_2d_vertex_dist(cfg.getParameter<bool>("use_2d_vertex_dist")),
@@ -480,13 +480,16 @@ void MFVVertexer<Jet>::produce(edm::Event& event, const edm::EventSetup& setup) 
   edm::ESHandle<TransientTrackBuilder> tt_builder;
   setup.get<TransientTrackRecord>().get("TransientTrackBuilder", tt_builder);
 
-  edm::Handle<std::vector<reco::TrackRef>> seed_track_refs;
+  edm::Handle<std::vector<reco::Track>> seed_track_refs;
   event.getByToken(seed_tracks_token, seed_track_refs);
 
   std::vector<reco::TransientTrack> seed_tracks;
   std::map<reco::TrackRef, size_t> seed_track_ref_map;
 
-  for (const reco::TrackRef& tk : *seed_track_refs) {
+  for (size_t itrk=0; itrk<seed_track_refs->size(); ++itrk){
+  //for (const reco::TrackRef& tk : *seed_track_refs) {
+    reco::TrackRef tk = reco::TrackRef(seed_track_refs, itrk);
+
     seed_tracks.push_back(tt_builder->build(tk));
     seed_track_ref_map[tk] = seed_tracks.size() - 1;
   }

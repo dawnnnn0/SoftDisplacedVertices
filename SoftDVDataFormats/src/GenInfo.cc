@@ -1,4 +1,5 @@
 #include <queue>
+#include <algorithm>
 #include "SoftDisplacedVertices/SoftDVDataFormats/interface/GenInfo.h"
 
 reco::GenParticleRef SoftDV::get_gen(const reco::Candidate* c, const edm::Handle<reco::GenParticleCollection>& gens) {
@@ -13,7 +14,7 @@ reco::GenParticleRef SoftDV::get_gen(const reco::Candidate* c, const edm::Handle
 }
 
 
-std::vector<int> SoftDV::FindLLP(const edm::Handle<reco::GenParticleCollection>& gen_particles, int LLP_id, int LSP_id, bool debug){
+std::vector<int> SoftDV::FindLLP(const edm::Handle<reco::GenParticleCollection>& gen_particles, std::vector<int> LLP_id, int LSP_id, bool debug){
   if (debug)
     std::cout << "Start looking for LLP." << std::endl;
 
@@ -21,7 +22,7 @@ std::vector<int> SoftDV::FindLLP(const edm::Handle<reco::GenParticleCollection>&
   std::vector<int> llps;
   for (size_t i=0; i<gen_particles->size(); ++i) {
     const reco::GenParticle& gen = gen_particles->at(i);
-    if (abs(gen.pdgId()) == LLP_id) {
+    if ( std::find(LLP_id.begin(), LLP_id.end(), abs(gen.pdgId())) != LLP_id.end() ) {
       if (!gen.isLastCopy()) continue;
       if (debug)
         std::cout << "llp id: " << gen.pdgId() << " vertex " << gen.vertex().x() << " " << gen.vertex().y() << " " << gen.vertex().z() << std::endl;
@@ -29,7 +30,7 @@ std::vector<int> SoftDV::FindLLP(const edm::Handle<reco::GenParticleCollection>&
         if (abs(gen.daughter(j)->pdgId())==LSP_id){
           found = true;
         }
-        if (gen.daughter(j)->pdgId()==LLP_id){
+        if (std::find(LLP_id.begin(), LLP_id.end(), abs(gen.daughter(j)->pdgId())) != LLP_id.end()){
           if (debug){
             std::cout << "!!! Found LLP daughter still the LLP, so discard the previous LLP." << std::endl;
           }
@@ -115,13 +116,14 @@ std::vector<int> SoftDV::GetDaughters(const size_t igen, const edm::Handle<reco:
 }
 
 SoftDV::MatchResult SoftDV::matchtracks(const reco::GenParticle& gtk, const edm::Handle<reco::TrackCollection>& tracks, const SoftDV::Point& refpoint) {
-  SoftDV::Match min_match(999,std::vector<double>());
+  SoftDV::Match min_match(-1,std::vector<double>());
   int tk_idx = -1;
   for (size_t i=0; i<tracks->size(); ++i){
     reco::TrackRef tk(tracks, i);
     SoftDV::Match match = SoftDV::matchchi2(gtk,tk,refpoint);
-    if (match.first<min_match.first && match.second[0]<0.2 && match.second[1]<3){
+    if ( ( (min_match.first==-1 || match.first<min_match.first) && match.second[0]<0.2 && match.second[1]<3) ){
     //if (match.first<min_match.first && match.second[0]<0.2){
+    //if ( (min_match.first==-1) || (match.first<min_match.first) ) {
       min_match = match;
       tk_idx = i;
     }
