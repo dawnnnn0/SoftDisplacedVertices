@@ -85,7 +85,7 @@ namespace SoftDV {
 
   reco::GenParticleRef get_gen(const reco::Candidate* c, const edm::Handle<reco::GenParticleCollection>& gens);
   //reco::GenParticleCollection FindLLP(const edm::Handle<reco::GenParticleCollection>& gen_particles, int LLP_id, int LSP_id, bool debug);
-  std::vector<int> FindLLP(const edm::Handle<reco::GenParticleCollection>& gen_particles, int LLP_id, int LSP_id, bool debug);
+  std::vector<int> FindLLP(const edm::Handle<reco::GenParticleCollection>& gen_particles, std::vector<int> LLP_id, int LSP_id, bool debug);
   //reco::GenParticleCollection GetDaughters(const reco::GenParticle& gen, const edm::Handle<reco::GenParticleCollection>& gen_particles, bool debug);
   //std::vector<int> GetDaughters(const reco::GenParticle& gen, const edm::Handle<reco::GenParticleCollection>& gen_particles, bool debug);
   std::vector<int> GetDaughters(const size_t igen, const edm::Handle<reco::GenParticleCollection>& gen_particles, bool debug);
