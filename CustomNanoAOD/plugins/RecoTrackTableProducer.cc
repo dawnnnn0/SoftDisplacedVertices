@@ -91,6 +91,7 @@ void RecoTrackTableProducer::produce(edm::Event &iEvent, const edm::EventSetup &
     std::vector<float> eta, phi, dxy, dz, pt, dxyError, dzError, ptError, phiError, etaError, validFraction;
     std::vector<int> charge, numberOfValidHits, numberOfLostHits;
     std::vector<int> isHighPurity;
+    std::vector<int> algo; 
     int nEntries = 0;
     try
     {
@@ -117,6 +118,7 @@ void RecoTrackTableProducer::produce(edm::Event &iEvent, const edm::EventSetup &
             numberOfValidHits.push_back(track->numberOfValidHits());
             numberOfLostHits.push_back(track->numberOfLostHits());
             validFraction.push_back(track->validFraction());
+            algo.push_back(track->algo());
         }
         nEntries = recoTracks->size();
     }
@@ -154,6 +156,7 @@ void RecoTrackTableProducer::produce(edm::Event &iEvent, const edm::EventSetup &
     recoTrackTable->addColumn<int>("numberOfValidHits", numberOfValidHits, "Number of valid hits", nanoaod::FlatTable::IntColumn);
     recoTrackTable->addColumn<int>("numberOfLostHits", numberOfLostHits, "Number of cases with layers without hits", nanoaod::FlatTable::IntColumn);
     recoTrackTable->addColumn<float>("validFraction", validFraction, "Fraction of valid hits on track", nanoaod::FlatTable::FloatColumn, 10);
+    recoTrackTable->addColumn<int>("algo", algo, "Algorithm of track reconstruction", nanoaod::FlatTable::IntColumn);
     iEvent.put(std::move(recoTrackTable), "");
 }
 
