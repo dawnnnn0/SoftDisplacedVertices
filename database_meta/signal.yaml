@@ -1,0 +1,538 @@
+/users/alikaan.gueven/samplesNewSeedNoDuplicates/customMINIAODSIM/N2N3/600_588_200:
+  files:
+  - filename: run703-testIVF1_customMINIAODSIM_N2N3_600_588_200_Standard_2000.root
+    sumPassWeights: 132.0
+    sumWeights: 885.0
+  - filename: run704-testIVF1_customMINIAODSIM_N2N3_600_588_200_Standard_2000.root
+    sumPassWeights: 130.0
+    sumWeights: 913.0
+  - filename: run696-testIVF1_customMINIAODSIM_N2N3_600_588_200_Standard_2000.root
+    sumPassWeights: 115.0
+    sumWeights: 897.0
+  - filename: run698-testIVF1_customMINIAODSIM_N2N3_600_588_200_Standard_2000.root
+    sumPassWeights: 105.0
+    sumWeights: 898.0
+  - filename: run699-testIVF1_customMINIAODSIM_N2N3_600_588_200_Standard_2000.root
+    sumPassWeights: 125.0
+    sumWeights: 914.0
+  - filename: run697-testIVF1_customMINIAODSIM_N2N3_600_588_200_Standard_2000.root
+    sumPassWeights: 117.0
+    sumWeights: 926.0
+  - filename: run702-testIVF1_customMINIAODSIM_N2N3_600_588_200_Standard_2000.root
+    sumPassWeights: 137.0
+    sumWeights: 888.0
+  - filename: run705-testIVF1_customMINIAODSIM_N2N3_600_588_200_Standard_2000.root
+    sumPassWeights: 105.0
+    sumWeights: 883.0
+  - filename: run700-testIVF1_customMINIAODSIM_N2N3_600_588_200_Standard_2000.root
+    sumPassWeights: 127.0
+    sumWeights: 862.0
+  - filename: run701-testIVF1_customMINIAODSIM_N2N3_600_588_200_Standard_2000.root
+    sumPassWeights: 107.0
+    sumWeights: 874.0
+  - filename: run712-testIVF1_customMINIAODSIM_N2N3_600_588_200_Standard_2000.root
+    sumPassWeights: 140.0
+    sumWeights: 934.0
+  - filename: run711-testIVF1_customMINIAODSIM_N2N3_600_588_200_Standard_2000.root
+    sumPassWeights: 122.0
+    sumWeights: 905.0
+  - filename: run715-testIVF1_customMINIAODSIM_N2N3_600_588_200_Standard_2000.root
+    sumPassWeights: 115.0
+    sumWeights: 887.0
+  - filename: run709-testIVF1_customMINIAODSIM_N2N3_600_588_200_Standard_2000.root
+    sumPassWeights: 131.0
+    sumWeights: 923.0
+  - filename: run710-testIVF1_customMINIAODSIM_N2N3_600_588_200_Standard_2000.root
+    sumPassWeights: 113.0
+    sumWeights: 890.0
+  - filename: run713-testIVF1_customMINIAODSIM_N2N3_600_588_200_Standard_2000.root
+    sumPassWeights: 105.0
+    sumWeights: 901.0
+  - filename: run714-testIVF1_customMINIAODSIM_N2N3_600_588_200_Standard_2000.root
+    sumPassWeights: 108.0
+    sumWeights: 844.0
+  - filename: run708-testIVF1_customMINIAODSIM_N2N3_600_588_200_Standard_2000.root
+    sumPassWeights: 103.0
+    sumWeights: 926.0
+  - filename: run707-testIVF1_customMINIAODSIM_N2N3_600_588_200_Standard_2000.root
+    sumPassWeights: 139.0
+    sumWeights: 921.0
+  - filename: run706-testIVF1_customMINIAODSIM_N2N3_600_588_200_Standard_2000.root
+    sumPassWeights: 155.0
+    sumWeights: 948.0
+  - filename: run718-testIVF1_customMINIAODSIM_N2N3_600_588_200_Standard_2000.root
+    sumPassWeights: 114.0
+    sumWeights: 929.0
+  - filename: run722-testIVF1_customMINIAODSIM_N2N3_600_588_200_Standard_2000.root
+    sumPassWeights: 131.0
+    sumWeights: 868.0
+  - filename: run725-testIVF1_customMINIAODSIM_N2N3_600_588_200_Standard_2000.root
+    sumPassWeights: 118.0
+    sumWeights: 908.0
+  - filename: run719-testIVF1_customMINIAODSIM_N2N3_600_588_200_Standard_2000.root
+    sumPassWeights: 120.0
+    sumWeights: 891.0
+  - filename: run717-testIVF1_customMINIAODSIM_N2N3_600_588_200_Standard_2000.root
+    sumPassWeights: 127.0
+    sumWeights: 920.0
+  - filename: run723-testIVF1_customMINIAODSIM_N2N3_600_588_200_Standard_2000.root
+    sumPassWeights: 125.0
+    sumWeights: 912.0
+  - filename: run721-testIVF1_customMINIAODSIM_N2N3_600_588_200_Standard_2000.root
+    sumPassWeights: 130.0
+    sumWeights: 903.0
+  - filename: run720-testIVF1_customMINIAODSIM_N2N3_600_588_200_Standard_2000.root
+    sumPassWeights: 107.0
+    sumWeights: 858.0
+  - filename: run724-testIVF1_customMINIAODSIM_N2N3_600_588_200_Standard_2000.root
+    sumPassWeights: 114.0
+    sumWeights: 907.0
+  - filename: run716-testIVF1_customMINIAODSIM_N2N3_600_588_200_Standard_2000.root
+    sumPassWeights: 125.0
+    sumWeights: 917.0
+  - filename: run735-testIVF1_customMINIAODSIM_N2N3_600_588_200_Standard_2000.root
+    sumPassWeights: 110.0
+    sumWeights: 906.0
+  - filename: run733-testIVF1_customMINIAODSIM_N2N3_600_588_200_Standard_2000.root
+    sumPassWeights: 131.0
+    sumWeights: 930.0
+  - filename: run727-testIVF1_customMINIAODSIM_N2N3_600_588_200_Standard_2000.root
+    sumPassWeights: 107.0
+    sumWeights: 864.0
+  - filename: run731-testIVF1_customMINIAODSIM_N2N3_600_588_200_Standard_2000.root
+    sumPassWeights: 124.0
+    sumWeights: 878.0
+  - filename: run729-testIVF1_customMINIAODSIM_N2N3_600_588_200_Standard_2000.root
+    sumPassWeights: 115.0
+    sumWeights: 901.0
+  - filename: run730-testIVF1_customMINIAODSIM_N2N3_600_588_200_Standard_2000.root
+    sumPassWeights: 140.0
+    sumWeights: 864.0
+  - filename: run726-testIVF1_customMINIAODSIM_N2N3_600_588_200_Standard_2000.root
+    sumPassWeights: 128.0
+    sumWeights: 950.0
+  - filename: run728-testIVF1_customMINIAODSIM_N2N3_600_588_200_Standard_2000.root
+    sumPassWeights: 124.0
+    sumWeights: 912.0
+  - filename: run732-testIVF1_customMINIAODSIM_N2N3_600_588_200_Standard_2000.root
+    sumPassWeights: 131.0
+    sumWeights: 910.0
+  - filename: run734-testIVF1_customMINIAODSIM_N2N3_600_588_200_Standard_2000.root
+    sumPassWeights: 134.0
+    sumWeights: 914.0
+  - filename: run740-testIVF1_customMINIAODSIM_N2N3_600_588_200_Standard_2000.root
+    sumPassWeights: 110.0
+    sumWeights: 893.0
+  - filename: run739-testIVF1_customMINIAODSIM_N2N3_600_588_200_Standard_2000.root
+    sumPassWeights: 117.0
+    sumWeights: 882.0
+  - filename: run738-testIVF1_customMINIAODSIM_N2N3_600_588_200_Standard_2000.root
+    sumPassWeights: 127.0
+    sumWeights: 875.0
+  - filename: run743-testIVF1_customMINIAODSIM_N2N3_600_588_200_Standard_2000.root
+    sumPassWeights: 120.0
+    sumWeights: 911.0
+  - filename: run742-testIVF1_customMINIAODSIM_N2N3_600_588_200_Standard_2000.root
+    sumPassWeights: 132.0
+    sumWeights: 922.0
+  - filename: run745-testIVF1_customMINIAODSIM_N2N3_600_588_200_Standard_2000.root
+    sumPassWeights: 152.0
+    sumWeights: 911.0
+  - filename: run744-testIVF1_customMINIAODSIM_N2N3_600_588_200_Standard_2000.root
+    sumPassWeights: 114.0
+    sumWeights: 901.0
+  - filename: run736-testIVF1_customMINIAODSIM_N2N3_600_588_200_Standard_2000.root
+    sumPassWeights: 134.0
+    sumWeights: 915.0
+  - filename: run741-testIVF1_customMINIAODSIM_N2N3_600_588_200_Standard_2000.root
+    sumPassWeights: 104.0
+    sumWeights: 880.0
+  - filename: run737-testIVF1_customMINIAODSIM_N2N3_600_588_200_Standard_2000.root
+    sumPassWeights: 131.0
+    sumWeights: 928.0
+  totalsumPassWeights: 6127.0
+  totalsumWeights: 45079.0
+/users/alikaan.gueven/samplesNewSeedNoDuplicates/customMINIAODSIM/STOP/1000_980_2:
+  files:
+  - filename: run863-testIVF1_customMINIAODSIM_STOP_1000_980_2_Standard_5000.root
+    sumPassWeights: 419.0
+    sumWeights: 1211.0
+  - filename: run864-testIVF1_customMINIAODSIM_STOP_1000_980_2_Standard_5000.root
+    sumPassWeights: 404.0
+    sumWeights: 1167.0
+  - filename: run862-testIVF1_customMINIAODSIM_STOP_1000_980_2_Standard_5000.root
+    sumPassWeights: 449.0
+    sumWeights: 1204.0
+  - filename: run858-testIVF1_customMINIAODSIM_STOP_1000_980_2_Standard_5000.root
+    sumPassWeights: 382.0
+    sumWeights: 1193.0
+  - filename: run861-testIVF1_customMINIAODSIM_STOP_1000_980_2_Standard_5000.root
+    sumPassWeights: 460.0
+    sumWeights: 1243.0
+  - filename: run860-testIVF1_customMINIAODSIM_STOP_1000_980_2_Standard_5000.root
+    sumPassWeights: 426.0
+    sumWeights: 1208.0
+  - filename: run866-testIVF1_customMINIAODSIM_STOP_1000_980_2_Standard_5000.root
+    sumPassWeights: 457.0
+    sumWeights: 1217.0
+  - filename: run849-testIVF1_customMINIAODSIM_STOP_1000_980_2_Standard_5000.root
+    sumPassWeights: 404.0
+    sumWeights: 1235.0
+  - filename: run852-testIVF1_customMINIAODSIM_STOP_1000_980_2_Standard_5000.root
+    sumPassWeights: 415.0
+    sumWeights: 1192.0
+  - filename: run865-testIVF1_customMINIAODSIM_STOP_1000_980_2_Standard_5000.root
+    sumPassWeights: 409.0
+    sumWeights: 1137.0
+  - filename: run847-testIVF1_customMINIAODSIM_STOP_1000_980_2_Standard_5000.root
+    sumPassWeights: 419.0
+    sumWeights: 1267.0
+  - filename: run859-testIVF1_customMINIAODSIM_STOP_1000_980_2_Standard_5000.root
+    sumPassWeights: 403.0
+    sumWeights: 1218.0
+  - filename: run851-testIVF1_customMINIAODSIM_STOP_1000_980_2_Standard_5000.root
+    sumPassWeights: 428.0
+    sumWeights: 1223.0
+  - filename: run854-testIVF1_customMINIAODSIM_STOP_1000_980_2_Standard_5000.root
+    sumPassWeights: 414.0
+    sumWeights: 1181.0
+  - filename: run850-testIVF1_customMINIAODSIM_STOP_1000_980_2_Standard_5000.root
+    sumPassWeights: 440.0
+    sumWeights: 1276.0
+  - filename: run853-testIVF1_customMINIAODSIM_STOP_1000_980_2_Standard_5000.root
+    sumPassWeights: 393.0
+    sumWeights: 1222.0
+  - filename: run856-testIVF1_customMINIAODSIM_STOP_1000_980_2_Standard_5000.root
+    sumPassWeights: 439.0
+    sumWeights: 1217.0
+  - filename: run855-testIVF1_customMINIAODSIM_STOP_1000_980_2_Standard_5000.root
+    sumPassWeights: 421.0
+    sumWeights: 1201.0
+  - filename: run857-testIVF1_customMINIAODSIM_STOP_1000_980_2_Standard_5000.root
+    sumPassWeights: 399.0
+    sumWeights: 1143.0
+  - filename: run848-testIVF1_customMINIAODSIM_STOP_1000_980_2_Standard_5000.root
+    sumPassWeights: 435.0
+    sumWeights: 1225.0
+  totalsumPassWeights: 8416.0
+  totalsumWeights: 24180.0
+/users/alikaan.gueven/samplesNewSeedNoDuplicates/customMINIAODSIM/STOP/1000_985_20:
+  files:
+  - filename: run842-testIVF1_customMINIAODSIM_STOP_1000_985_20_Standard_5000.root
+    sumPassWeights: 400.0
+    sumWeights: 1171.0
+  - filename: run831-testIVF1_customMINIAODSIM_STOP_1000_985_20_Standard_5000.root
+    sumPassWeights: 387.0
+    sumWeights: 1181.0
+  - filename: run827-testIVF1_customMINIAODSIM_STOP_1000_985_20_Standard_5000.root
+    sumPassWeights: 384.0
+    sumWeights: 1198.0
+  - filename: run844-testIVF1_customMINIAODSIM_STOP_1000_985_20_Standard_5000.root
+    sumPassWeights: 429.0
+    sumWeights: 1227.0
+  - filename: run837-testIVF1_customMINIAODSIM_STOP_1000_985_20_Standard_5000.root
+    sumPassWeights: 403.0
+    sumWeights: 1236.0
+  - filename: run845-testIVF1_customMINIAODSIM_STOP_1000_985_20_Standard_5000.root
+    sumPassWeights: 397.0
+    sumWeights: 1176.0
+  - filename: run846-testIVF1_customMINIAODSIM_STOP_1000_985_20_Standard_5000.root
+    sumPassWeights: 411.0
+    sumWeights: 1207.0
+  - filename: run839-testIVF1_customMINIAODSIM_STOP_1000_985_20_Standard_5000.root
+    sumPassWeights: 406.0
+    sumWeights: 1154.0
+  - filename: run841-testIVF1_customMINIAODSIM_STOP_1000_985_20_Standard_5000.root
+    sumPassWeights: 407.0
+    sumWeights: 1198.0
+  - filename: run843-testIVF1_customMINIAODSIM_STOP_1000_985_20_Standard_5000.root
+    sumPassWeights: 440.0
+    sumWeights: 1209.0
+  - filename: run840-testIVF1_customMINIAODSIM_STOP_1000_985_20_Standard_5000.root
+    sumPassWeights: 439.0
+    sumWeights: 1258.0
+  - filename: run836-testIVF1_customMINIAODSIM_STOP_1000_985_20_Standard_5000.root
+    sumPassWeights: 405.0
+    sumWeights: 1178.0
+  - filename: run832-testIVF1_customMINIAODSIM_STOP_1000_985_20_Standard_5000.root
+    sumPassWeights: 448.0
+    sumWeights: 1217.0
+  - filename: run830-testIVF1_customMINIAODSIM_STOP_1000_985_20_Standard_5000.root
+    sumPassWeights: 438.0
+    sumWeights: 1243.0
+  - filename: run834-testIVF1_customMINIAODSIM_STOP_1000_985_20_Standard_5000.root
+    sumPassWeights: 431.0
+    sumWeights: 1179.0
+  - filename: run835-testIVF1_customMINIAODSIM_STOP_1000_985_20_Standard_5000.root
+    sumPassWeights: 446.0
+    sumWeights: 1242.0
+  - filename: run828-testIVF1_customMINIAODSIM_STOP_1000_985_20_Standard_5000.root
+    sumPassWeights: 431.0
+    sumWeights: 1239.0
+  - filename: run833-testIVF1_customMINIAODSIM_STOP_1000_985_20_Standard_5000.root
+    sumPassWeights: 431.0
+    sumWeights: 1216.0
+  - filename: run829-testIVF1_customMINIAODSIM_STOP_1000_985_20_Standard_5000.root
+    sumPassWeights: 421.0
+    sumWeights: 1204.0
+  - filename: run838-testIVF1_customMINIAODSIM_STOP_1000_985_20_Standard_5000.root
+    sumPassWeights: 421.0
+    sumWeights: 1202.0
+  totalsumPassWeights: 8375.0
+  totalsumWeights: 24135.0
+/users/alikaan.gueven/samplesNewSeedNoDuplicates/customMINIAODSIM/STOP/1000_988_200:
+  files:
+  - filename: run821-testIVF1_customMINIAODSIM_STOP_1000_988_200_Standard_5000.root
+    sumPassWeights: 387.0
+    sumWeights: 1205.0
+  - filename: run809-testIVF1_customMINIAODSIM_STOP_1000_988_200_Standard_5000.root
+    sumPassWeights: 420.0
+    sumWeights: 1150.0
+  - filename: run808-testIVF1_customMINIAODSIM_STOP_1000_988_200_Standard_5000.root
+    sumPassWeights: 402.0
+    sumWeights: 1220.0
+  - filename: run811-testIVF1_customMINIAODSIM_STOP_1000_988_200_Standard_5000.root
+    sumPassWeights: 418.0
+    sumWeights: 1211.0
+  - filename: run807-testIVF1_customMINIAODSIM_STOP_1000_988_200_Standard_5000.root
+    sumPassWeights: 415.0
+    sumWeights: 1218.0
+  - filename: run813-testIVF1_customMINIAODSIM_STOP_1000_988_200_Standard_5000.root
+    sumPassWeights: 395.0
+    sumWeights: 1140.0
+  - filename: run814-testIVF1_customMINIAODSIM_STOP_1000_988_200_Standard_5000.root
+    sumPassWeights: 418.0
+    sumWeights: 1181.0
+  - filename: run815-testIVF1_customMINIAODSIM_STOP_1000_988_200_Standard_5000.root
+    sumPassWeights: 400.0
+    sumWeights: 1193.0
+  - filename: run823-testIVF1_customMINIAODSIM_STOP_1000_988_200_Standard_5000.root
+    sumPassWeights: 384.0
+    sumWeights: 1164.0
+  - filename: run818-testIVF1_customMINIAODSIM_STOP_1000_988_200_Standard_5000.root
+    sumPassWeights: 396.0
+    sumWeights: 1160.0
+  - filename: run812-testIVF1_customMINIAODSIM_STOP_1000_988_200_Standard_5000.root
+    sumPassWeights: 423.0
+    sumWeights: 1219.0
+  - filename: run817-testIVF1_customMINIAODSIM_STOP_1000_988_200_Standard_5000.root
+    sumPassWeights: 425.0
+    sumWeights: 1213.0
+  - filename: run825-testIVF1_customMINIAODSIM_STOP_1000_988_200_Standard_5000.root
+    sumPassWeights: 400.0
+    sumWeights: 1186.0
+  - filename: run826-testIVF1_customMINIAODSIM_STOP_1000_988_200_Standard_5000.root
+    sumPassWeights: 415.0
+    sumWeights: 1199.0
+  - filename: run824-testIVF1_customMINIAODSIM_STOP_1000_988_200_Standard_5000.root
+    sumPassWeights: 431.0
+    sumWeights: 1246.0
+  - filename: run822-testIVF1_customMINIAODSIM_STOP_1000_988_200_Standard_5000.root
+    sumPassWeights: 409.0
+    sumWeights: 1162.0
+  - filename: run810-testIVF1_customMINIAODSIM_STOP_1000_988_200_Standard_5000.root
+    sumPassWeights: 420.0
+    sumWeights: 1153.0
+  - filename: run816-testIVF1_customMINIAODSIM_STOP_1000_988_200_Standard_5000.root
+    sumPassWeights: 406.0
+    sumWeights: 1196.0
+  - filename: run820-testIVF1_customMINIAODSIM_STOP_1000_988_200_Standard_5000.root
+    sumPassWeights: 429.0
+    sumWeights: 1235.0
+  - filename: run819-testIVF1_customMINIAODSIM_STOP_1000_988_200_Standard_5000.root
+    sumPassWeights: 393.0
+    sumWeights: 1172.0
+  totalsumPassWeights: 8186.0
+  totalsumWeights: 23823.0
+/users/alikaan.gueven/samplesNewSeedNoDuplicates/customMINIAODSIM/STOP/600_580_2:
+  files:
+  - filename: run794-testIVF1_customMINIAODSIM_STOP_600_580_2_Standard_5000.root
+    sumPassWeights: 367.0
+    sumWeights: 1287.0
+  - filename: run792-testIVF1_customMINIAODSIM_STOP_600_580_2_Standard_5000.root
+    sumPassWeights: 387.0
+    sumWeights: 1325.0
+  - filename: run788-testIVF1_customMINIAODSIM_STOP_600_580_2_Standard_5000.root
+    sumPassWeights: 385.0
+    sumWeights: 1308.0
+  - filename: run801-testIVF1_customMINIAODSIM_STOP_600_580_2_Standard_5000.root
+    sumPassWeights: 335.0
+    sumWeights: 1289.0
+  - filename: run787-testIVF1_customMINIAODSIM_STOP_600_580_2_Standard_5000.root
+    sumPassWeights: 400.0
+    sumWeights: 1322.0
+  - filename: run789-testIVF1_customMINIAODSIM_STOP_600_580_2_Standard_5000.root
+    sumPassWeights: 362.0
+    sumWeights: 1330.0
+  - filename: run805-testIVF1_customMINIAODSIM_STOP_600_580_2_Standard_5000.root
+    sumPassWeights: 375.0
+    sumWeights: 1243.0
+  - filename: run798-testIVF1_customMINIAODSIM_STOP_600_580_2_Standard_5000.root
+    sumPassWeights: 378.0
+    sumWeights: 1299.0
+  - filename: run790-testIVF1_customMINIAODSIM_STOP_600_580_2_Standard_5000.root
+    sumPassWeights: 338.0
+    sumWeights: 1252.0
+  - filename: run791-testIVF1_customMINIAODSIM_STOP_600_580_2_Standard_5000.root
+    sumPassWeights: 395.0
+    sumWeights: 1369.0
+  - filename: run799-testIVF1_customMINIAODSIM_STOP_600_580_2_Standard_5000.root
+    sumPassWeights: 370.0
+    sumWeights: 1249.0
+  - filename: run804-testIVF1_customMINIAODSIM_STOP_600_580_2_Standard_5000.root
+    sumPassWeights: 385.0
+    sumWeights: 1265.0
+  - filename: run796-testIVF1_customMINIAODSIM_STOP_600_580_2_Standard_5000.root
+    sumPassWeights: 382.0
+    sumWeights: 1271.0
+  - filename: run795-testIVF1_customMINIAODSIM_STOP_600_580_2_Standard_5000.root
+    sumPassWeights: 401.0
+    sumWeights: 1284.0
+  - filename: run800-testIVF1_customMINIAODSIM_STOP_600_580_2_Standard_5000.root
+    sumPassWeights: 396.0
+    sumWeights: 1328.0
+  - filename: run803-testIVF1_customMINIAODSIM_STOP_600_580_2_Standard_5000.root
+    sumPassWeights: 405.0
+    sumWeights: 1297.0
+  - filename: run797-testIVF1_customMINIAODSIM_STOP_600_580_2_Standard_5000.root
+    sumPassWeights: 394.0
+    sumWeights: 1304.0
+  - filename: run802-testIVF1_customMINIAODSIM_STOP_600_580_2_Standard_5000.root
+    sumPassWeights: 386.0
+    sumWeights: 1334.0
+  - filename: run806-testIVF1_customMINIAODSIM_STOP_600_580_2_Standard_5000.root
+    sumPassWeights: 362.0
+    sumWeights: 1305.0
+  - filename: run793-testIVF1_customMINIAODSIM_STOP_600_580_2_Standard_5000.root
+    sumPassWeights: 366.0
+    sumWeights: 1251.0
+  totalsumPassWeights: 7569.0
+  totalsumWeights: 25912.0
+/users/alikaan.gueven/samplesNewSeedNoDuplicates/customMINIAODSIM/STOP/600_585_20:
+  files:
+  - filename: run781-testIVF1_customMINIAODSIM_STOP_600_585_20_Standard_5000.root
+    sumPassWeights: 333.0
+    sumWeights: 1227.0
+  - filename: run770-testIVF1_customMINIAODSIM_STOP_600_585_20_Standard_5000.root
+    sumPassWeights: 346.0
+    sumWeights: 1235.0
+  - filename: run771-testIVF1_customMINIAODSIM_STOP_600_585_20_Standard_5000.root
+    sumPassWeights: 363.0
+    sumWeights: 1277.0
+  - filename: run775-testIVF1_customMINIAODSIM_STOP_600_585_20_Standard_5000.root
+    sumPassWeights: 362.0
+    sumWeights: 1281.0
+  - filename: run778-testIVF1_customMINIAODSIM_STOP_600_585_20_Standard_5000.root
+    sumPassWeights: 368.0
+    sumWeights: 1299.0
+  - filename: run779-testIVF1_customMINIAODSIM_STOP_600_585_20_Standard_5000.root
+    sumPassWeights: 372.0
+    sumWeights: 1253.0
+  - filename: run773-testIVF1_customMINIAODSIM_STOP_600_585_20_Standard_5000.root
+    sumPassWeights: 392.0
+    sumWeights: 1320.0
+  - filename: run769-testIVF1_customMINIAODSIM_STOP_600_585_20_Standard_5000.root
+    sumPassWeights: 351.0
+    sumWeights: 1269.0
+  - filename: run767-testIVF1_customMINIAODSIM_STOP_600_585_20_Standard_5000.root
+    sumPassWeights: 367.0
+    sumWeights: 1273.0
+  - filename: run786-testIVF1_customMINIAODSIM_STOP_600_585_20_Standard_5000.root
+    sumPassWeights: 374.0
+    sumWeights: 1280.0
+  - filename: run772-testIVF1_customMINIAODSIM_STOP_600_585_20_Standard_5000.root
+    sumPassWeights: 406.0
+    sumWeights: 1323.0
+  - filename: run785-testIVF1_customMINIAODSIM_STOP_600_585_20_Standard_5000.root
+    sumPassWeights: 386.0
+    sumWeights: 1278.0
+  - filename: run768-testIVF1_customMINIAODSIM_STOP_600_585_20_Standard_5000.root
+    sumPassWeights: 399.0
+    sumWeights: 1260.0
+  - filename: run776-testIVF1_customMINIAODSIM_STOP_600_585_20_Standard_5000.root
+    sumPassWeights: 379.0
+    sumWeights: 1279.0
+  - filename: run782-testIVF1_customMINIAODSIM_STOP_600_585_20_Standard_5000.root
+    sumPassWeights: 388.0
+    sumWeights: 1305.0
+  - filename: run784-testIVF1_customMINIAODSIM_STOP_600_585_20_Standard_5000.root
+    sumPassWeights: 394.0
+    sumWeights: 1292.0
+  - filename: run780-testIVF1_customMINIAODSIM_STOP_600_585_20_Standard_5000.root
+    sumPassWeights: 376.0
+    sumWeights: 1267.0
+  - filename: run777-testIVF1_customMINIAODSIM_STOP_600_585_20_Standard_5000.root
+    sumPassWeights: 386.0
+    sumWeights: 1265.0
+  - filename: run783-testIVF1_customMINIAODSIM_STOP_600_585_20_Standard_5000.root
+    sumPassWeights: 377.0
+    sumWeights: 1353.0
+  - filename: run774-testIVF1_customMINIAODSIM_STOP_600_585_20_Standard_5000.root
+    sumPassWeights: 362.0
+    sumWeights: 1280.0
+  totalsumPassWeights: 7481.0
+  totalsumWeights: 25616.0
+/users/alikaan.gueven/samplesNewSeedNoDuplicates/customMINIAODSIM/STOP/600_588_200:
+  files:
+  - filename: run753-testIVF1_customMINIAODSIM_STOP_600_588_200_Standard_5000.root
+    sumPassWeights: 385.0
+    sumWeights: 1346.0
+  - filename: run747-testIVF1_customMINIAODSIM_STOP_600_588_200_Standard_5000.root
+    sumPassWeights: 364.0
+    sumWeights: 1267.0
+  - filename: run752-testIVF1_customMINIAODSIM_STOP_600_588_200_Standard_5000.root
+    sumPassWeights: 375.0
+    sumWeights: 1275.0
+  - filename: run754-testIVF1_customMINIAODSIM_STOP_600_588_200_Standard_5000.root
+    sumPassWeights: 356.0
+    sumWeights: 1239.0
+  - filename: run750-testIVF1_customMINIAODSIM_STOP_600_588_200_Standard_5000.root
+    sumPassWeights: 386.0
+    sumWeights: 1292.0
+  - filename: run748-testIVF1_customMINIAODSIM_STOP_600_588_200_Standard_5000.root
+    sumPassWeights: 353.0
+    sumWeights: 1280.0
+  - filename: run746-testIVF1_customMINIAODSIM_STOP_600_588_200_Standard_5000.root
+    sumPassWeights: 387.0
+    sumWeights: 1268.0
+  - filename: run749-testIVF1_customMINIAODSIM_STOP_600_588_200_Standard_5000.root
+    sumPassWeights: 401.0
+    sumWeights: 1282.0
+  - filename: run755-testIVF1_customMINIAODSIM_STOP_600_588_200_Standard_5000.root
+    sumPassWeights: 380.0
+    sumWeights: 1286.0
+  - filename: run751-testIVF1_customMINIAODSIM_STOP_600_588_200_Standard_5000.root
+    sumPassWeights: 342.0
+    sumWeights: 1266.0
+  - filename: run757-testIVF1_customMINIAODSIM_STOP_600_588_200_Standard_5000.root
+    sumPassWeights: 381.0
+    sumWeights: 1274.0
+  - filename: run764-testIVF1_customMINIAODSIM_STOP_600_588_200_Standard_5000.root
+    sumPassWeights: 380.0
+    sumWeights: 1301.0
+  - filename: run760-testIVF1_customMINIAODSIM_STOP_600_588_200_Standard_5000.root
+    sumPassWeights: 374.0
+    sumWeights: 1278.0
+  - filename: run758-testIVF1_customMINIAODSIM_STOP_600_588_200_Standard_5000.root
+    sumPassWeights: 374.0
+    sumWeights: 1270.0
+  - filename: run759-testIVF1_customMINIAODSIM_STOP_600_588_200_Standard_5000.root
+    sumPassWeights: 371.0
+    sumWeights: 1256.0
+  - filename: run756-testIVF1_customMINIAODSIM_STOP_600_588_200_Standard_5000.root
+    sumPassWeights: 367.0
+    sumWeights: 1264.0
+  - filename: run762-testIVF1_customMINIAODSIM_STOP_600_588_200_Standard_5000.root
+    sumPassWeights: 394.0
+    sumWeights: 1268.0
+  - filename: run763-testIVF1_customMINIAODSIM_STOP_600_588_200_Standard_5000.root
+    sumPassWeights: 389.0
+    sumWeights: 1264.0
+  - filename: run761-testIVF1_customMINIAODSIM_STOP_600_588_200_Standard_5000.root
+    sumPassWeights: 372.0
+    sumWeights: 1304.0
+  - filename: run765-testIVF1_customMINIAODSIM_STOP_600_588_200_Standard_5000.root
+    sumPassWeights: 402.0
+    sumWeights: 1327.0
+  totalsumPassWeights: 7533.0
+  totalsumWeights: 25607.0

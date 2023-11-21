@@ -1,0 +1,35 @@
+bkg: 
+    - name: ZJetsToNuNu_HT-100To200
+      nanodir: /eos/vbc/experiments/cms/store/user/liko/ZJetsToNuNu_HT-100To200_TuneCP5_13TeV-madgraphMLM-pythia8/ZJetsToNuNu_HT-100To200_MC_UL18_CustomNanoAODv1/
+      totalSumWeights: 1088373.0
+      xs: 280.35
+
+    - name: ZJetsToNuNu_HT-200To400
+      nanodir: /eos/vbc/experiments/cms/store/user/liko/ZJetsToNuNu_HT-200To400_TuneCP5_13TeV-madgraphMLM-pythia8/ZJetsToNuNu_HT-200To400_MC_UL18_CustomNanoAODv1/
+      totalSumWeights: 1595848.0
+      xs: 77.67
+
+    - name: ZJetsToNuNu_HT-400To600
+      nanodir: /eos/vbc/experiments/cms/store/user/liko/ZJetsToNuNu_HT-400To600_TuneCP5_13TeV-madgraphMLM-pythia8/ZJetsToNuNu_HT-400To600_MC_UL18_CustomNanoAODv1
+      totalSumWeights: 1412133.0
+      xs: 10.73
+
+    - name: ZJetsToNuNu_HT-600To800
+      nanodir: /eos/vbc/experiments/cms/store/user/liko/ZJetsToNuNu_HT-600To800_TuneCP5_13TeV-madgraphMLM-pythia8/ZJetsToNuNu_HT-600To800_MC_UL18_CustomNanoAODv1/
+      totalSumWeights: 551024.0
+      xs: 2.559
+
+    - name: ZJetsToNuNu_HT-800To1200
+      nanodir: /eos/vbc/experiments/cms/store/user/liko/ZJetsToNuNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8/ZJetsToNuNu_HT-800To1200_MC_UL18_CustomNanoAODv1/
+      totalSumWeights: 120452.0
+      xs: 1.1796
+
+    - name: ZJetsToNuNu_HT-1200To2500
+      nanodir: /eos/vbc/experiments/cms/store/user/liko/ZJetsToNuNu_HT-1200To2500_TuneCP5_13TeV-madgraphMLM-pythia8/ZJetsToNuNu_HT-1200To2500_MC_UL18_CustomNanoAODv1/
+      totalSumWeights: 21846.0
+      xs: 0.28833
+
+    - name: ZJetsToNuNu_HT-2500ToInf
+      nanodir: /eos/vbc/experiments/cms/store/user/liko/ZJetsToNuNu_HT-2500ToInf_TuneCP5_13TeV-madgraphMLM-pythia8/ZJetsToNuNu_HT-2500ToInf_MC_UL18_CustomNanoAODv1/
+      totalSumWeights: 16847.0
+      xs: 0.006945

@@ -1,16 +1,18 @@
-# python K_plotter.py RawMET_pt,20,0,2000 -ev RawMET -sv DPHIRM,RALPHA,LXYSIG,NGTR -tr DXYSIG,DZ,NVH,RSPT
-# python K_plotter.py SDVSecVtx_Lxy,40,0,120 -ev RawMET -sv DPHIRM,RALPHA,LXYSIG,NGTR -tr DXYSIG,DZ,NVH,RSPT
+# python K_plotter.py RawMET_pt,20,0,2000 -ev RawMET -sv DPHIRM,RALPHA,LXYSIG,NGTR -tr DXYSIG,DZ,NVH,RSPT -files /users/alikaan.gueven/samplesNewSeedNoDuplicates/customMINIAODSIM/STOP/600_580_2
+# python K_plotter.py SDVSecVtx_Lxy,40,0,120 -ev RawMET -sv DPHIRM,RALPHA,LXYSIG,NGTR -tr DXYSIG,DZ,NVH,RSPT -files /users/alikaan.gueven/samplesNewSeedNoDuplicates/customMINIAODSIM/STOP/600_580_2
 
 import ROOT
 
 import click
 import varcutlib
 import os
-import pickle
+import glob
+import yaml
 
-# ROOT.TH1.SetDefaultSumw2(False)
+
 ROOT.gInterpreter.Declare('#include "RDF_helper.h"')
 # ROOT.EnableImplicitMT()    # Tells ROOT to go parallel
+# ROOT.TH1.SetDefaultSumw2(False)
 
 # Empty class for the dot notation.
 class DotDict:
@@ -27,42 +29,49 @@ def data_load_step(directory):
     files: Should be a directory.
     """
 
-    # Check out https://root-forum.cern.ch/t/how-to-open-multiple-root-files-with-rdataframe-in-pyroot/31497
-    # ROOT_str_filenames = ROOT.std.vector('string')()
-    # if isinstance(files, list):
-    #     for filename in files:
-    #         ROOT_str_filenames.push_back(filename)
-    # elif isinstance(files, str):
-    #     if os.path.isdir(files):
-    #         ROOT_str_filenames = os.path.join(files, "*.root")
-    #     else:
-    #         ROOT_str_filenames.push_back(files)
-
     
     if os.path.isdir(directory):
         filenames = os.path.join(directory, "*.root")
     else:
         raise ValueError('You should provide a directory.')
 
-    df = ROOT.RDataFrame("Events", filenames)
     
+    sig_df = ROOT.RDataFrame("Events", filenames)
     # df = ROOT.RDataFrame("Events", "/users/alikaan.gueven/AOD_to_nanoAOD/data/dataFromFelix-NanoAODv9.root")
 
 
-    lumi = 300.  # integrated luminosity
-    xs   = 205.  # cross-section
-    k_f  = 1.23 # LO -> NLO correction
+    lumi   = 300.  # integrated luminosity
+    k_f    = 1.23  # LO -> NLO correction
+    sig_xs = 205.  # cross-section (femtobarn)
+    
 
-    with open(os.path.join(directory.replace('NANO', 'MINI'), 'metadata.pkl'), 'rb') as f:
-        pickle_dict = pickle.load(f)
-    SumgenWeight = pickle_dict['totalSumWeights']
+    with open('database_meta/signal.yaml', 'r') as sig_meta:
+        sig_meta_dict = yaml.safe_load(sig_meta)
+
+    
+    SumgenWeight = sig_meta_dict[os.path.abspath(directory.replace('NANO', 'MINI'))]['totalsumWeights']
     # SumgenWeight = df.Sum('genWeight').GetValue()
     
-    df = df.Define('scaling_factor', f'{lumi*xs*k_f/SumgenWeight}/genWeight')
-    print(f"Scaling factor: {df.Take['double']('scaling_factor').GetValue()[0]}")
+    sig_df = sig_df.Define('scaling_factor', f'{lumi*sig_xs*k_f/SumgenWeight}*genWeight')
+    # print(f"Scaling factor: {df.Take['double']('scaling_factor').GetValue()[0]}")
     # df = df.Define('scaling_factor', '1')
+
+    with open('database_meta/background.yaml', 'r') as bkg_meta:
+        bkg_meta_dict = yaml.safe_load(bkg_meta)
+
+    bkg_dfs = {}
+    for subdict in bkg_meta_dict['bkg']:
+        SumgenWeight = subdict['totalSumWeights']
+        bkg_xs = subdict['xs']
+        filenames = glob.glob(subdict['nanodir']+"/**/*.root", recursive=True)
+        bkg_df = ROOT.RDataFrame("Events", filenames)
+        bkg_df = bkg_df.Define('scaling_factor', f'{lumi*bkg_xs*k_f/SumgenWeight}*genWeight')
+        bkg_dfs[subdict['name']] = bkg_df
+
+    for key, df in bkg_dfs.items():
+        print(key, df.Count().GetValue())
     
-    return df
+    return sig_df, bkg_dfs
 
 
 def filtering_step(df, cutstring, debug=False):
@@ -323,18 +332,18 @@ def main_cli(var_and_bins, ev, sv, tr, files):
     # files = "/users/alikaan.gueven/AOD_to_nanoAOD/data/dataFromFelix-NanoAODv9.root"
     assert files != 1, "Please don't forget to pass a ROOT file. or a list/directory of ROOT files."
     # files = "/users/alikaan.gueven/samplesNewSeedNoDuplicates/customNANOAODSIM/STOP/600_588_200"
-    df = data_load_step(files)
+    sig_df, bkg_dfs = data_load_step(files)
 
-    # Check if the var is entry level or subentry level (e.g. RawMET_pt or SDVSecVtx_Lxy)
-    if df.GetColumnType(plot_args.var)[:18] == 'ROOT::VecOps::RVec':
-        df_ev, df_sv = masking_step(df, plot_args.var, cuts)
-        hh_ev, hh_sv = histogram_step(df_ev, df_sv, plot_args, is_masked=True, debug=True)
-        plotting_step(hh_ev, hh_sv, plot_args)
+    # # Check if the var is entry level or subentry level (e.g. RawMET_pt or SDVSecVtx_Lxy)
+    # if df.GetColumnType(plot_args.var)[:18] == 'ROOT::VecOps::RVec':
+    #     df_ev, df_sv = masking_step(df, plot_args.var, cuts)
+    #     hh_ev, hh_sv = histogram_step(df_ev, df_sv, plot_args, is_masked=True, debug=False)
+    #     plotting_step(hh_ev, hh_sv, plot_args)
 
-    else:
-        df_ev, df_sv = filtering_step(df, cuts)
-        hh_ev, hh_sv = histogram_step(df_ev, df_sv, plot_args, debug=True)
-        plotting_step(hh_ev, hh_sv, plot_args)
+    # else:
+    #     df_ev, df_sv = filtering_step(df, cuts)
+    #     hh_ev, hh_sv = histogram_step(df_ev, df_sv, plot_args, debug=False)
+    #     plotting_step(hh_ev, hh_sv, plot_args)
 
 
 if __name__ == "__main__":

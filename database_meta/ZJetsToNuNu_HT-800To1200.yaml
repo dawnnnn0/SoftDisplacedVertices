@@ -1,0 +1,430 @@
+? /eos/vbc/experiments/cms/store/user/liko/ZJetsToNuNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8/ZJetsToNuNu_HT-800To1200_MC_UL18_CustomMiniAODv1/231029_221258/0000
+: files:
+  - filename: MiniAOD_1.root
+    sumPassWeights: 844.0
+    sumWeights: 844.0
+  - filename: MiniAOD_10.root
+    sumPassWeights: 801.0
+    sumWeights: 801.0
+  - filename: MiniAOD_100.root
+    sumPassWeights: 871.0
+    sumWeights: 871.0
+  - filename: MiniAOD_101.root
+    sumPassWeights: 888.0
+    sumWeights: 888.0
+  - filename: MiniAOD_102.root
+    sumPassWeights: 884.0
+    sumWeights: 884.0
+  - filename: MiniAOD_103.root
+    sumPassWeights: 825.0
+    sumWeights: 825.0
+  - filename: MiniAOD_104.root
+    sumPassWeights: 869.0
+    sumWeights: 869.0
+  - filename: MiniAOD_105.root
+    sumPassWeights: 796.0
+    sumWeights: 796.0
+  - filename: MiniAOD_106.root
+    sumPassWeights: 860.0
+    sumWeights: 860.0
+  - filename: MiniAOD_107.root
+    sumPassWeights: 884.0
+    sumWeights: 884.0
+  - filename: MiniAOD_108.root
+    sumPassWeights: 856.0
+    sumWeights: 856.0
+  - filename: MiniAOD_109.root
+    sumPassWeights: 876.0
+    sumWeights: 876.0
+  - filename: MiniAOD_11.root
+    sumPassWeights: 884.0
+    sumWeights: 884.0
+  - filename: MiniAOD_110.root
+    sumPassWeights: 811.0
+    sumWeights: 811.0
+  - filename: MiniAOD_111.root
+    sumPassWeights: 852.0
+    sumWeights: 852.0
+  - filename: MiniAOD_112.root
+    sumPassWeights: 817.0
+    sumWeights: 817.0
+  - filename: MiniAOD_113.root
+    sumPassWeights: 882.0
+    sumWeights: 882.0
+  - filename: MiniAOD_114.root
+    sumPassWeights: 841.0
+    sumWeights: 841.0
+  - filename: MiniAOD_115.root
+    sumPassWeights: 855.0
+    sumWeights: 855.0
+  - filename: MiniAOD_116.root
+    sumPassWeights: 865.0
+    sumWeights: 865.0
+  - filename: MiniAOD_117.root
+    sumPassWeights: 845.0
+    sumWeights: 845.0
+  - filename: MiniAOD_118.root
+    sumPassWeights: 879.0
+    sumWeights: 879.0
+  - filename: MiniAOD_119.root
+    sumPassWeights: 902.0
+    sumWeights: 902.0
+  - filename: MiniAOD_12.root
+    sumPassWeights: 837.0
+    sumWeights: 837.0
+  - filename: MiniAOD_120.root
+    sumPassWeights: 835.0
+    sumWeights: 835.0
+  - filename: MiniAOD_121.root
+    sumPassWeights: 879.0
+    sumWeights: 879.0
+  - filename: MiniAOD_122.root
+    sumPassWeights: 826.0
+    sumWeights: 826.0
+  - filename: MiniAOD_123.root
+    sumPassWeights: 795.0
+    sumWeights: 795.0
+  - filename: MiniAOD_124.root
+    sumPassWeights: 859.0
+    sumWeights: 859.0
+  - filename: MiniAOD_125.root
+    sumPassWeights: 797.0
+    sumWeights: 797.0
+  - filename: MiniAOD_126.root
+    sumPassWeights: 869.0
+    sumWeights: 869.0
+  - filename: MiniAOD_127.root
+    sumPassWeights: 805.0
+    sumWeights: 805.0
+  - filename: MiniAOD_128.root
+    sumPassWeights: 863.0
+    sumWeights: 863.0
+  - filename: MiniAOD_129.root
+    sumPassWeights: 815.0
+    sumWeights: 815.0
+  - filename: MiniAOD_13.root
+    sumPassWeights: 845.0
+    sumWeights: 845.0
+  - filename: MiniAOD_130.root
+    sumPassWeights: 845.0
+    sumWeights: 845.0
+  - filename: MiniAOD_131.root
+    sumPassWeights: 835.0
+    sumWeights: 835.0
+  - filename: MiniAOD_132.root
+    sumPassWeights: 814.0
+    sumWeights: 814.0
+  - filename: MiniAOD_133.root
+    sumPassWeights: 887.0
+    sumWeights: 887.0
+  - filename: MiniAOD_134.root
+    sumPassWeights: 822.0
+    sumWeights: 822.0
+  - filename: MiniAOD_135.root
+    sumPassWeights: 829.0
+    sumWeights: 829.0
+  - filename: MiniAOD_136.root
+    sumPassWeights: 856.0
+    sumWeights: 856.0
+  - filename: MiniAOD_137.root
+    sumPassWeights: 808.0
+    sumWeights: 808.0
+  - filename: MiniAOD_138.root
+    sumPassWeights: 813.0
+    sumWeights: 813.0
+  - filename: MiniAOD_139.root
+    sumPassWeights: 818.0
+    sumWeights: 818.0
+  - filename: MiniAOD_14.root
+    sumPassWeights: 882.0
+    sumWeights: 882.0
+  - filename: MiniAOD_140.root
+    sumPassWeights: 883.0
+    sumWeights: 883.0
+  - filename: MiniAOD_141.root
+    sumPassWeights: 887.0
+    sumWeights: 887.0
+  - filename: MiniAOD_142.root
+    sumPassWeights: 886.0
+    sumWeights: 886.0
+  - filename: MiniAOD_15.root
+    sumPassWeights: 836.0
+    sumWeights: 836.0
+  - filename: MiniAOD_16.root
+    sumPassWeights: 883.0
+    sumWeights: 883.0
+  - filename: MiniAOD_17.root
+    sumPassWeights: 849.0
+    sumWeights: 849.0
+  - filename: MiniAOD_18.root
+    sumPassWeights: 823.0
+    sumWeights: 823.0
+  - filename: MiniAOD_19.root
+    sumPassWeights: 849.0
+    sumWeights: 849.0
+  - filename: MiniAOD_2.root
+    sumPassWeights: 805.0
+    sumWeights: 805.0
+  - filename: MiniAOD_20.root
+    sumPassWeights: 865.0
+    sumWeights: 865.0
+  - filename: MiniAOD_21.root
+    sumPassWeights: 862.0
+    sumWeights: 862.0
+  - filename: MiniAOD_22.root
+    sumPassWeights: 880.0
+    sumWeights: 880.0
+  - filename: MiniAOD_23.root
+    sumPassWeights: 844.0
+    sumWeights: 844.0
+  - filename: MiniAOD_24.root
+    sumPassWeights: 871.0
+    sumWeights: 871.0
+  - filename: MiniAOD_25.root
+    sumPassWeights: 840.0
+    sumWeights: 840.0
+  - filename: MiniAOD_26.root
+    sumPassWeights: 869.0
+    sumWeights: 869.0
+  - filename: MiniAOD_27.root
+    sumPassWeights: 846.0
+    sumWeights: 846.0
+  - filename: MiniAOD_28.root
+    sumPassWeights: 874.0
+    sumWeights: 874.0
+  - filename: MiniAOD_29.root
+    sumPassWeights: 830.0
+    sumWeights: 830.0
+  - filename: MiniAOD_3.root
+    sumPassWeights: 875.0
+    sumWeights: 875.0
+  - filename: MiniAOD_30.root
+    sumPassWeights: 866.0
+    sumWeights: 866.0
+  - filename: MiniAOD_31.root
+    sumPassWeights: 776.0
+    sumWeights: 776.0
+  - filename: MiniAOD_32.root
+    sumPassWeights: 821.0
+    sumWeights: 821.0
+  - filename: MiniAOD_33.root
+    sumPassWeights: 821.0
+    sumWeights: 821.0
+  - filename: MiniAOD_34.root
+    sumPassWeights: 860.0
+    sumWeights: 860.0
+  - filename: MiniAOD_35.root
+    sumPassWeights: 851.0
+    sumWeights: 851.0
+  - filename: MiniAOD_36.root
+    sumPassWeights: 863.0
+    sumWeights: 863.0
+  - filename: MiniAOD_37.root
+    sumPassWeights: 870.0
+    sumWeights: 870.0
+  - filename: MiniAOD_38.root
+    sumPassWeights: 842.0
+    sumWeights: 842.0
+  - filename: MiniAOD_39.root
+    sumPassWeights: 800.0
+    sumWeights: 800.0
+  - filename: MiniAOD_4.root
+    sumPassWeights: 857.0
+    sumWeights: 857.0
+  - filename: MiniAOD_40.root
+    sumPassWeights: 845.0
+    sumWeights: 845.0
+  - filename: MiniAOD_41.root
+    sumPassWeights: 864.0
+    sumWeights: 864.0
+  - filename: MiniAOD_42.root
+    sumPassWeights: 893.0
+    sumWeights: 893.0
+  - filename: MiniAOD_43.root
+    sumPassWeights: 834.0
+    sumWeights: 834.0
+  - filename: MiniAOD_44.root
+    sumPassWeights: 845.0
+    sumWeights: 845.0
+  - filename: MiniAOD_45.root
+    sumPassWeights: 897.0
+    sumWeights: 897.0
+  - filename: MiniAOD_46.root
+    sumPassWeights: 843.0
+    sumWeights: 843.0
+  - filename: MiniAOD_47.root
+    sumPassWeights: 846.0
+    sumWeights: 846.0
+  - filename: MiniAOD_48.root
+    sumPassWeights: 865.0
+    sumWeights: 865.0
+  - filename: MiniAOD_49.root
+    sumPassWeights: 908.0
+    sumWeights: 908.0
+  - filename: MiniAOD_5.root
+    sumPassWeights: 854.0
+    sumWeights: 854.0
+  - filename: MiniAOD_50.root
+    sumPassWeights: 810.0
+    sumWeights: 810.0
+  - filename: MiniAOD_51.root
+    sumPassWeights: 827.0
+    sumWeights: 827.0
+  - filename: MiniAOD_52.root
+    sumPassWeights: 859.0
+    sumWeights: 859.0
+  - filename: MiniAOD_53.root
+    sumPassWeights: 859.0
+    sumWeights: 859.0
+  - filename: MiniAOD_54.root
+    sumPassWeights: 793.0
+    sumWeights: 793.0
+  - filename: MiniAOD_55.root
+    sumPassWeights: 866.0
+    sumWeights: 866.0
+  - filename: MiniAOD_56.root
+    sumPassWeights: 837.0
+    sumWeights: 837.0
+  - filename: MiniAOD_57.root
+    sumPassWeights: 835.0
+    sumWeights: 835.0
+  - filename: MiniAOD_58.root
+    sumPassWeights: 806.0
+    sumWeights: 806.0
+  - filename: MiniAOD_59.root
+    sumPassWeights: 846.0
+    sumWeights: 846.0
+  - filename: MiniAOD_6.root
+    sumPassWeights: 841.0
+    sumWeights: 841.0
+  - filename: MiniAOD_60.root
+    sumPassWeights: 851.0
+    sumWeights: 851.0
+  - filename: MiniAOD_61.root
+    sumPassWeights: 896.0
+    sumWeights: 896.0
+  - filename: MiniAOD_62.root
+    sumPassWeights: 865.0
+    sumWeights: 865.0
+  - filename: MiniAOD_63.root
+    sumPassWeights: 854.0
+    sumWeights: 854.0
+  - filename: MiniAOD_64.root
+    sumPassWeights: 832.0
+    sumWeights: 832.0
+  - filename: MiniAOD_65.root
+    sumPassWeights: 833.0
+    sumWeights: 833.0
+  - filename: MiniAOD_66.root
+    sumPassWeights: 891.0
+    sumWeights: 891.0
+  - filename: MiniAOD_67.root
+    sumPassWeights: 857.0
+    sumWeights: 857.0
+  - filename: MiniAOD_68.root
+    sumPassWeights: 871.0
+    sumWeights: 871.0
+  - filename: MiniAOD_69.root
+    sumPassWeights: 857.0
+    sumWeights: 857.0
+  - filename: MiniAOD_7.root
+    sumPassWeights: 875.0
+    sumWeights: 875.0
+  - filename: MiniAOD_70.root
+    sumPassWeights: 784.0
+    sumWeights: 784.0
+  - filename: MiniAOD_71.root
+    sumPassWeights: 848.0
+    sumWeights: 848.0
+  - filename: MiniAOD_72.root
+    sumPassWeights: 836.0
+    sumWeights: 836.0
+  - filename: MiniAOD_73.root
+    sumPassWeights: 858.0
+    sumWeights: 858.0
+  - filename: MiniAOD_74.root
+    sumPassWeights: 882.0
+    sumWeights: 882.0
+  - filename: MiniAOD_75.root
+    sumPassWeights: 822.0
+    sumWeights: 822.0
+  - filename: MiniAOD_76.root
+    sumPassWeights: 835.0
+    sumWeights: 835.0
+  - filename: MiniAOD_77.root
+    sumPassWeights: 882.0
+    sumWeights: 882.0
+  - filename: MiniAOD_78.root
+    sumPassWeights: 854.0
+    sumWeights: 854.0
+  - filename: MiniAOD_79.root
+    sumPassWeights: 881.0
+    sumWeights: 881.0
+  - filename: MiniAOD_8.root
+    sumPassWeights: 875.0
+    sumWeights: 875.0
+  - filename: MiniAOD_80.root
+    sumPassWeights: 866.0
+    sumWeights: 866.0
+  - filename: MiniAOD_81.root
+    sumPassWeights: 822.0
+    sumWeights: 822.0
+  - filename: MiniAOD_82.root
+    sumPassWeights: 819.0
+    sumWeights: 819.0
+  - filename: MiniAOD_83.root
+    sumPassWeights: 829.0
+    sumWeights: 829.0
+  - filename: MiniAOD_84.root
+    sumPassWeights: 869.0
+    sumWeights: 869.0
+  - filename: MiniAOD_85.root
+    sumPassWeights: 866.0
+    sumWeights: 866.0
+  - filename: MiniAOD_86.root
+    sumPassWeights: 813.0
+    sumWeights: 813.0
+  - filename: MiniAOD_87.root
+    sumPassWeights: 846.0
+    sumWeights: 846.0
+  - filename: MiniAOD_88.root
+    sumPassWeights: 832.0
+    sumWeights: 832.0
+  - filename: MiniAOD_89.root
+    sumPassWeights: 803.0
+    sumWeights: 803.0
+  - filename: MiniAOD_9.root
+    sumPassWeights: 858.0
+    sumWeights: 858.0
+  - filename: MiniAOD_90.root
+    sumPassWeights: 890.0
+    sumWeights: 890.0
+  - filename: MiniAOD_91.root
+    sumPassWeights: 822.0
+    sumWeights: 822.0
+  - filename: MiniAOD_92.root
+    sumPassWeights: 762.0
+    sumWeights: 762.0
+  - filename: MiniAOD_93.root
+    sumPassWeights: 861.0
+    sumWeights: 861.0
+  - filename: MiniAOD_94.root
+    sumPassWeights: 876.0
+    sumWeights: 876.0
+  - filename: MiniAOD_95.root
+    sumPassWeights: 789.0
+    sumWeights: 789.0
+  - filename: MiniAOD_96.root
+    sumPassWeights: 850.0
+    sumWeights: 850.0
+  - filename: MiniAOD_97.root
+    sumPassWeights: 911.0
+    sumWeights: 911.0
+  - filename: MiniAOD_98.root
+    sumPassWeights: 810.0
+    sumWeights: 810.0
+  - filename: MiniAOD_99.root
+    sumPassWeights: 841.0
+    sumWeights: 841.0
+  totalsumPassWeights: 120452.0
+  totalsumWeights: 120452.0

@@ -1,0 +1,97 @@
+? /eos/vbc/experiments/cms/store/user/liko/ZJetsToNuNu_HT-1200To2500_TuneCP5_13TeV-madgraphMLM-pythia8/ZJetsToNuNu_HT-1200To2500_MC_UL18_CustomMiniAODv1/231029_221242/0000
+: files:
+  - filename: MiniAOD_1.root
+    sumPassWeights: 741.0
+    sumWeights: 741.0
+  - filename: MiniAOD_10.root
+    sumPassWeights: 673.0
+    sumWeights: 673.0
+  - filename: MiniAOD_11.root
+    sumPassWeights: 665.0
+    sumWeights: 665.0
+  - filename: MiniAOD_12.root
+    sumPassWeights: 716.0
+    sumWeights: 716.0
+  - filename: MiniAOD_13.root
+    sumPassWeights: 696.0
+    sumWeights: 696.0
+  - filename: MiniAOD_14.root
+    sumPassWeights: 710.0
+    sumWeights: 710.0
+  - filename: MiniAOD_15.root
+    sumPassWeights: 677.0
+    sumWeights: 677.0
+  - filename: MiniAOD_16.root
+    sumPassWeights: 751.0
+    sumWeights: 751.0
+  - filename: MiniAOD_17.root
+    sumPassWeights: 746.0
+    sumWeights: 746.0
+  - filename: MiniAOD_18.root
+    sumPassWeights: 660.0
+    sumWeights: 660.0
+  - filename: MiniAOD_19.root
+    sumPassWeights: 745.0
+    sumWeights: 745.0
+  - filename: MiniAOD_2.root
+    sumPassWeights: 698.0
+    sumWeights: 698.0
+  - filename: MiniAOD_20.root
+    sumPassWeights: 737.0
+    sumWeights: 737.0
+  - filename: MiniAOD_21.root
+    sumPassWeights: 681.0
+    sumWeights: 681.0
+  - filename: MiniAOD_22.root
+    sumPassWeights: 671.0
+    sumWeights: 671.0
+  - filename: MiniAOD_23.root
+    sumPassWeights: 705.0
+    sumWeights: 705.0
+  - filename: MiniAOD_24.root
+    sumPassWeights: 695.0
+    sumWeights: 695.0
+  - filename: MiniAOD_25.root
+    sumPassWeights: 721.0
+    sumWeights: 721.0
+  - filename: MiniAOD_26.root
+    sumPassWeights: 719.0
+    sumWeights: 719.0
+  - filename: MiniAOD_27.root
+    sumPassWeights: 720.0
+    sumWeights: 720.0
+  - filename: MiniAOD_28.root
+    sumPassWeights: 712.0
+    sumWeights: 712.0
+  - filename: MiniAOD_29.root
+    sumPassWeights: 705.0
+    sumWeights: 705.0
+  - filename: MiniAOD_3.root
+    sumPassWeights: 696.0
+    sumWeights: 696.0
+  - filename: MiniAOD_30.root
+    sumPassWeights: 705.0
+    sumWeights: 705.0
+  - filename: MiniAOD_31.root
+    sumPassWeights: 688.0
+    sumWeights: 688.0
+  - filename: MiniAOD_4.root
+    sumPassWeights: 693.0
+    sumWeights: 693.0
+  - filename: MiniAOD_5.root
+    sumPassWeights: 704.0
+    sumWeights: 704.0
+  - filename: MiniAOD_6.root
+    sumPassWeights: 695.0
+    sumWeights: 695.0
+  - filename: MiniAOD_7.root
+    sumPassWeights: 672.0
+    sumWeights: 672.0
+  - filename: MiniAOD_8.root
+    sumPassWeights: 725.0
+    sumWeights: 725.0
+  - filename: MiniAOD_9.root
+    sumPassWeights: 724.0
+    sumWeights: 724.0
+  totalsumPassWeights: 21846.0
+  totalsumWeights: 21846.0
