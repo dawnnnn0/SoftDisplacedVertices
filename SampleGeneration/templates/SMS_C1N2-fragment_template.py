@@ -7,7 +7,7 @@ from Configuration.Generator.PSweightsPythia.PythiaPSweightsSettings_cfi import 
 #Need hbar*c to convert lifetime to width
 hBarCinGeVmm = 1.973269788e-13
 
-mN2N3 = N2N3MASS
+mC1N2 = C1N2MASS
 mLSP = LSPMASS
 CTAU = CTAUVALUE
 
@@ -46,11 +46,11 @@ BLOCK MASS  # Mass Spectrum
    2000015     1.00000000E+05   # ~tau_2
    1000016     1.00000000E+05   # ~nu_tauL
    1000021     1.00000000E+05   # ~g
-   1000022     %MCHI1%           # ~chi_10
-   1000023     %MCHI2%           # ~chi_20
-   1000025     %MCHI2%           # ~chi_30
+   1000022     %MLSP%           # ~chi_10
+   1000023     %MC1N2%          # ~chi_20
+   1000025     1.00000000E+05   # ~chi_30
    1000035     1.00000000E+05   # ~chi_40
-   1000024     1.00000000E+05   # ~chi_1+
+   1000024     %MC1N2%          # ~chi_1+
    1000037     1.00000000E+05   # ~chi_2+
    1000039     1.00000000E+05   # ~gravitino
 
@@ -84,13 +84,12 @@ DECAY   1000023     %WCHI2%   # neutralino2 decays
     0.50000000E+00    2     1000022   25      # BR(N2 -> N1 + H)
     0.500000000E+00   2     1000022   23      # BR(N2 -> N1 + Z)
 DECAY   1000024     0.00000000E+00   # chargino1+ decays
-DECAY   1000025     %WCHI2%   # neutralino3 decays
     0.00000000E+00    3     1000022   5   -5  # Dummy decay 
-    0.50000000E+00    2     1000022   25      # BR(N3 -> N1 + H)
-    0.500000000E+00   2     1000022   23      # BR(N3 -> N1 + Z)
+    1.00000000E+00    2     1000022   24      # BR(N3 -> N1 + W)
+DECAY   1000025     0.00000000E+00   # neutralino3 decays
 DECAY   1000035     0.00000000E+00   # neutralino4 decays
 DECAY   1000037     0.00000000E+00   # chargino2+ decays
-""".replace('%MCHI1%','%e' % mLSP).replace('%MCHI2%','%e' % mN2N3).replace('%WCHI2%','%e' % WCHI2)
+""".replace('%MLSP%','%e' % mLSP).replace('%MC1N2%','%e' % mC1N2)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -111,7 +110,6 @@ generator = cms.EDFilter("Pythia8ConcurrentHadronizerFilter",
         pythia8PSweightsSettingsBlock,
         processParameters = cms.vstring(
             '1000023:tau0 = %.1f' % CTAU,
-            '1000025:tau0 = %.1f' % CTAU,
             'LesHouches:setLifetime = 2',
         ),
         JetMatchingParameters = cms.vstring(
@@ -122,16 +120,16 @@ generator = cms.EDFilter("Pythia8ConcurrentHadronizerFilter",
             'JetMatching:etaJetMax = 5.',
             'JetMatching:coneRadius = 1.',
             'JetMatching:slowJetPower = 1',
-            'JetMatching:qCut = 76.', #this is the actual merging scale
+            'JetMatching:qCut = 76.', #this is the actual merging scale 
             'JetMatching:nQmatch = 5', #4 corresponds to 4-flavour scheme (no matching of b-quarks), 5 for 5-flavour scheme
             'JetMatching:nJetMax = 2', #number of partons in born matrix element for highest multiplicity
             'JetMatching:doShowerKt = off', #off for MLM matching, turn on for shower-kT matching
             '6:m0 = 172.5',
-            '25:onMode = off',
-            '25:onIfMatch = 5 -5', # Only H->bb decays
+#            '25:onMode = off',
+#            '25:onIfMatch = 5 -5', # Only H->bb decays
             '25:m0 = 125.0',
-            '23:onMode = off',
-            '23:onIfAny = 1 2 3 4 5', # Only Z->qq decays
+#            '23:onMode = off',
+#            '23:onIfAny = 1 2 3 4 5', # Only Z->qq decays
         ),
         parameterSets = cms.vstring('pythia8CommonSettings',
                                     'pythia8CP2Settings',
@@ -143,6 +141,7 @@ generator = cms.EDFilter("Pythia8ConcurrentHadronizerFilter",
 )
 
 #ProductionFilterSequence = cms.Sequence(generator)
+
 
 #     Filter setup
 # ------------------------
@@ -223,7 +222,6 @@ jetEtaCut = cms.double(5.0), #GenJet eta cut for HT
 genHTcut = cms.double(200.0) #genHT cut
 )
 
-
 tmpGenMetTrue = cms.EDProducer("GenMETProducer",
 src = cms.InputTag("tmpGenParticlesForJetsNoNu"),
 onlyFiducialParticles = cms.bool(False), ## Use only fiducial GenParticles
@@ -242,9 +240,15 @@ src = cms.InputTag("genMETfilter1"),
 minNumber = cms.uint32(1),
 )
 
-
+'''
 ProductionFilterSequence = cms.Sequence(generator*
                                     tmpGenParticles * tmpGenParticlesForJetsNoNu *
                                     tmpAk4GenJetsNoNu * genHTFilter *
                                     tmpGenMetTrue * genMETfilter1 * genMETfilter2
+)
+'''
+ProductionFilterSequence = cms.Sequence(generator*
+                                    tmpGenParticles * tmpGenParticlesForJetsNoNu *
+                                    tmpAk4GenJetsNoNu * genHTFilter *
+                                    tmpGenMetTrue * genMETfilter1
 )

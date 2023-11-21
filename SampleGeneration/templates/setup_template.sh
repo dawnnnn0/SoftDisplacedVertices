@@ -39,7 +39,7 @@ cmsDriver.py  --python_filename AODSIM-cfg.py --eventcontent AODSIM --customise 
 
 cmsDriver.py  --python_filename MINIAODSIM-cfg.py --eventcontent MINIAODSIM --customise Configuration/DataProcessing/Utils.addMonitoring --datatier MINIAODSIM --fileout file:MINIAODSIM.root --conditions 106X_upgrade2018_realistic_v16_L1v1 --step PAT --procModifiers run2_miniAOD_UL --geometry DB:Extended --filein file:AODSIM.root --era Run2_2018 --runUnscheduled --no_exec --mc -n $n
 
-cmsDriver.py  --python_filename NANOAODSIM-cfg.py --eventcontent NANOEDMAODSIM --customise Configuration/DataProcessing/Utils.addMonitoring --datatier NANOAODSIM --fileout file:NANOAODSIM.root --conditions 106X_upgrade2018_realistic_v16_L1v1 --step NANO --filein file:MINIAODSIM.root --era Run2_2018 --no_exec --mc -n $n
+cmsDriver.py  --python_filename NANOAODSIM-cfg.py --eventcontent NANOAODSIM --customise Configuration/DataProcessing/Utils.addMonitoring --datatier NANOAODSIM --fileout file:NANOAODSIM.root --conditions 106X_upgrade2018_realistic_v16_L1v1 --step NANO --filein file:MINIAODSIM.root --era Run2_2018 --no_exec --mc -n $n
 
 cd $HOME
 

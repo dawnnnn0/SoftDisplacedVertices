@@ -6,6 +6,8 @@ n=EVENTCOUNT
 HOME="$PWD"
 STORE="/scratch/felix.lang/SignalProduction"
 RUN_NUMBER=$RUN_NUMBER
+FIRST_EVENT=$FIRST_EVENT
+#EVENT_NUMBER=$EVENT_NUMBER
 
 if [ ! -r CMSSW_10_6_30/src ]; then
   scram p CMSSW CMSSW_10_6_30
@@ -19,6 +21,16 @@ scram b
 
 #GEN
 cp $HOME/drivers/LHEGEN-cfg.py LHEGEN-cfg.py
+config_content=$(cat <<EOL
+#####################################
+
+process.source.firstEvent = cms.untracked.uint32($FIRST_EVENT)
+
+#####################################
+EOL
+)
+echo "$config_content" >> "LHEGEN-cfg.py"
+
 cmsRun LHEGEN-cfg.py
 
 #SIM
@@ -63,7 +75,7 @@ cmsRun NANOAODSIM-cfg.py
 #COPY FILES
 cd $STORE
 
-directories=("samplesNewSeed" "samplesNewSeed/AODSIM" "samplesNewSeed/MINIAODSIM" "samplesNewSeed/NANOAODSIM")
+directories=("samplesNewSeedNoDuplicates" "samplesNewSeedNoDuplicates/AODSIM" "samplesNewSeedNoDuplicates/MINIAODSIM" "samplesNewSeedNoDuplicates/NANOAODSIM")
 
 for dir in "${directories[@]}"; do
   if [ ! -d "$dir" ]; then
@@ -71,9 +83,9 @@ for dir in "${directories[@]}"; do
   fi
 done
 
-cp $HOME/CMSSW_10_6_30/src/AODSIM.root samplesNewSeed/AODSIM/$RUN_NUMBER-testIVF1_AODSIM_PROCESS_IMASS_LSPMASS_CTAUVALUE_Standard_EVENTCOUNT.root
-cp $HOME/CMSSW_10_6_30/src/MINIAODSIM.root samplesNewSeed/MINIAODSIM/$RUN_NUMBER-testIVF1_MINIAODSIM_PROCESS_IMASS_LSPMASS_CTAUVALUE_Standard_EVENTCOUNT.root
-cp $HOME/CMSSW_10_6_30/src/NANOAODSIM.root samplesNewSeed/NANOAODSIM/$RUN_NUMBER-testIVF1_NANOAODSIM_PROCESS_IMASS_LSPMASS_CTAUVALUE_Standard_EVENTCOUNT.root
+cp $HOME/CMSSW_10_6_30/src/AODSIM.root samplesNewSeedNoDuplicates/AODSIM/$RUN_NUMBER-testIVF1_AODSIM_PROCESS_LLPMASS_LSPMASS_CTAUVALUE_Standard_EVENTCOUNT.root
+cp $HOME/CMSSW_10_6_30/src/MINIAODSIM.root samplesNewSeedNoDuplicates/MINIAODSIM/$RUN_NUMBER-testIVF1_MINIAODSIM_PROCESS_LLPMASS_LSPMASS_CTAUVALUE_Standard_EVENTCOUNT.root
+cp $HOME/CMSSW_10_6_30/src/NANOAODSIM.root samplesNewSeedNoDuplicates/NANOAODSIM/$RUN_NUMBER-testIVF1_NANOAODSIM_PROCESS_LLPMASS_LSPMASS_CTAUVALUE_Standard_EVENTCOUNT.root
 
 rm -r $HOME/CMSSW_10_6_30
 rm -r $HOME/CMSSW_10_2_16_UL
