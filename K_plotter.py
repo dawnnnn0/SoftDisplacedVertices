@@ -11,7 +11,7 @@ import yaml
 
 
 ROOT.gInterpreter.Declare('#include "RDF_helper.h"')
-# ROOT.EnableImplicitMT()    # Tells ROOT to go parallel
+ROOT.EnableImplicitMT()    # Tells ROOT to go parallel
 # ROOT.TH1.SetDefaultSumw2(False)
 
 # Empty class for the dot notation.
@@ -40,7 +40,7 @@ def data_load_step(directory):
     # df = ROOT.RDataFrame("Events", "/users/alikaan.gueven/AOD_to_nanoAOD/data/dataFromFelix-NanoAODv9.root")
 
 
-    lumi   = 300.  # integrated luminosity
+    lumi   = 300.  # integrated luminosity (femtobarn^-1)
     k_f    = 1.23  # LO -> NLO correction
     sig_xs = 205.  # cross-section (femtobarn)
     
@@ -65,7 +65,7 @@ def data_load_step(directory):
         bkg_xs = subdict['xs']
         filenames = glob.glob(subdict['nanodir']+"/**/*.root", recursive=True)
         bkg_df = ROOT.RDataFrame("Events", filenames)
-        bkg_df = bkg_df.Define('scaling_factor', f'{lumi*bkg_xs*k_f/SumgenWeight}*genWeight')
+        bkg_df = bkg_df.Define('scaling_factor', f'{lumi*bkg_xs*k_f*1000/SumgenWeight}*genWeight') # background cross sections are given in pb
         bkg_dfs[subdict['name']] = bkg_df
 
     for key, df in bkg_dfs.items():
@@ -297,6 +297,71 @@ def plotting_step(hh_ev, hh_sv, pargs):
 
     print('-'*100)
     print('\n')
+
+def tmp_plotting_step(hh_ev, hh_sv, pargs):
+
+    c1 = ROOT.TCanvas("c1","myCanvas1",800,800)
+    c1.Divide(1,2,0,0)
+    
+    yswidth = 700
+    ylwidth = 1000
+    scaleFacBottomPad = yswidth/float((ylwidth-yswidth))
+    yBorder = (ylwidth-yswidth)/float(ylwidth)    
+    p1 = c1.cd(1)
+    p1.SetBottomMargin(0.005)
+    p1.SetTopMargin(0.05)
+    p1.SetRightMargin(0.1)
+    p1.SetPad(p1.GetX1(), yBorder, p1.GetX2(), p1.GetY2())
+    p2 = c1.cd(2)
+    p2.SetTopMargin(0)
+    p2.SetRightMargin(0.1)
+    p2.SetBottomMargin(scaleFacBottomPad*0.13)
+    p2.SetPad(p2.GetX1(), p2.GetY1(),p2.GetX2(), yBorder-0.003)
+    
+    
+    p1.cd()
+    p1.SetLogy(True)
+    hh_ev.SetFillColorAlpha(1, 0.2)
+    hh_ev.SetLineColor(1)
+    hh_ev.SetLineWidth(1)
+    hh_ev.SetYTitle('events/bin')
+    hh_ev.Draw('HIST SAME')
+    
+    hh_sv.SetFillColorAlpha(4, 0.2)
+    hh_sv.SetLineColor(4)
+    hh_sv.SetLineWidth(1)
+    hh_sv.Draw('HIST SAME')
+    
+    p2.cd()
+    hh_eff = ROOT.TEfficiency(hh_sv.GetValue(), hh_ev)
+    hh_eff.SetTitle(f';{pargs.var};sig/(sig+bkg)')
+    hh_eff.SetMarkerSize(1)
+    hh_eff.SetFillStyle(3001)
+    hh_eff.SetFillColorAlpha(4, 0.80)
+    
+    hh_eff.Draw('e2')
+    hh_eff.Draw('p0 same')
+    c1.Update()
+
+    
+    hh_eff.GetPaintedGraph().GetXaxis().SetLimits(hh_ev.GetXaxis().GetXmin(),hh_ev.GetXaxis().GetXmax())
+    hh_eff.GetPaintedGraph().GetXaxis().SetTitleSize(scaleFacBottomPad*hh_eff.GetPaintedGraph().GetXaxis().GetTitleSize())
+    hh_eff.GetPaintedGraph().GetXaxis().SetLabelSize(scaleFacBottomPad*hh_eff.GetPaintedGraph().GetXaxis().GetLabelSize())
+    hh_eff.GetPaintedGraph().GetXaxis().SetTickLength(scaleFacBottomPad*hh_eff.GetPaintedGraph().GetXaxis().GetTickLength())
+
+    hh_eff.GetPaintedGraph().SetMinimum(0.)
+    hh_eff.GetPaintedGraph().SetMaximum(1.05)
+    hh_eff.GetPaintedGraph().GetYaxis().SetTitleSize(scaleFacBottomPad*hh_eff.GetPaintedGraph().GetYaxis().GetTitleSize())
+    hh_eff.GetPaintedGraph().GetYaxis().SetLabelSize(scaleFacBottomPad*hh_eff.GetPaintedGraph().GetYaxis().GetLabelSize())
+    hh_eff.GetPaintedGraph().GetYaxis().SetNdivisions(505)
+    hh_eff.GetPaintedGraph().GetYaxis().SetTitleOffset(1.00 / scaleFacBottomPad)
+    c1.Update()
+    
+    c1.SetLogy(True)
+    c1.SaveAs(pargs.savename)
+
+    print('-'*100)
+    print('\n')
     
     
     
@@ -334,16 +399,27 @@ def main_cli(var_and_bins, ev, sv, tr, files):
     # files = "/users/alikaan.gueven/samplesNewSeedNoDuplicates/customNANOAODSIM/STOP/600_588_200"
     sig_df, bkg_dfs = data_load_step(files)
 
-    # # Check if the var is entry level or subentry level (e.g. RawMET_pt or SDVSecVtx_Lxy)
-    # if df.GetColumnType(plot_args.var)[:18] == 'ROOT::VecOps::RVec':
-    #     df_ev, df_sv = masking_step(df, plot_args.var, cuts)
-    #     hh_ev, hh_sv = histogram_step(df_ev, df_sv, plot_args, is_masked=True, debug=False)
-    #     plotting_step(hh_ev, hh_sv, plot_args)
+    # Check if the var is entry level or subentry level (e.g. RawMET_pt or SDVSecVtx_Lxy)
+    if sig_df.GetColumnType(plot_args.var)[:18] == 'ROOT::VecOps::RVec':
+        df_ev, df_sv = masking_step(df, plot_args.var, cuts)
+        hh_ev, hh_sv = histogram_step(df_ev, df_sv, plot_args, is_masked=True, debug=False)
+        plotting_step(hh_ev, hh_sv, plot_args)
 
-    # else:
-    #     df_ev, df_sv = filtering_step(df, cuts)
-    #     hh_ev, hh_sv = histogram_step(df_ev, df_sv, plot_args, debug=False)
-    #     plotting_step(hh_ev, hh_sv, plot_args)
+    else:
+        sig_df_ev, sig_df_sv = filtering_step(sig_df, cuts)
+        sig_hh_ev, sig_hh_sv = histogram_step(sig_df_ev, sig_df_sv, plot_args, debug=False)
+
+
+        all_hh_sv = ROOT.TH1D('all_hh_sv', 'All Background', plot_args.nb, plot_args.xlow, plot_args.xup)
+        
+        for key, bkg_df in bkg_dfs.items():
+            bkg_df_ev, bkg_df_sv = filtering_step(bkg_df, cuts)
+            bkg_hh_ev, bkg_hh_sv = histogram_step(bkg_df_ev, bkg_df_sv, plot_args, debug=False)
+            all_hh_sv.Add(all_hh_sv, bkg_hh_sv.GetPtr())
+            
+        all_hh_sv.Add(all_hh_sv, sig_hh_sv.GetPtr())
+
+        tmp_plotting_step(all_hh_sv, sig_hh_sv, plot_args)
 
 
 if __name__ == "__main__":

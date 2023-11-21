@@ -1,5 +1,13 @@
 # Usage:
 # python getGenFilterInfo.py /users/alikaan.gueven/samplesNewSeedNoDuplicates/customMINIAODSIM data.yaml
+# python getGenFilterInfo.py /eos/vbc/experiments/cms/store/user/liko/ZJetsToNuNu_HT-100To200_TuneCP5_13TeV-madgraphMLM-pythia8/ZJetToNuNu_HT-100To200_MC_UL18_CustomMiniAODv1-1/ database_meta/ZJetsToNuNu_HT-100To200.yaml
+# python getGenFilterInfo.py /eos/vbc/experiments/cms/store/user/liko/ZJetsToNuNu_HT-200To400_TuneCP5_13TeV-madgraphMLM-pythia8/ZJetsToNuNu_HT-200To400_MC_UL18_CustomMiniAODv1-1/ database_meta/ZJetsToNuNu_HT-200To400.yaml
+# python getGenFilterInfo.py /eos/vbc/experiments/cms/store/user/liko/ZJetsToNuNu_HT-400To600_TuneCP5_13TeV-madgraphMLM-pythia8/ZJetsToNuNu_HT-400To600_MC_UL18_CustomMiniAODv1-1/ database_meta/ZJetsToNuNu_HT-400To600.yaml
+# python getGenFilterInfo.py /eos/vbc/experiments/cms/store/user/liko/ZJetsToNuNu_HT-600To800_TuneCP5_13TeV-madgraphMLM-pythia8/ZJetsToNuNu_HT-600To800_MC_UL18_CustomMiniAODv1-1/ database_meta/ZJetsToNuNu_HT-600To800.yaml
+# python getGenFilterInfo.py /eos/vbc/experiments/cms/store/user/liko/ZJetsToNuNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8/ZJetsToNuNu_HT-800To1200_MC_UL18_CustomMiniAODv1-1/ database_meta/ZJetsToNuNu_HT-800To1200.yaml
+# python getGenFilterInfo.py /eos/vbc/experiments/cms/store/user/liko/ZJetsToNuNu_HT-1200To2500_TuneCP5_13TeV-madgraphMLM-pythia8/ZJetsToNuNu_HT-1200To2500_MC_UL18_CustomMiniAODv1-1/ database_meta/ZJetsToNuNu_HT-1200To2500.yaml
+# python getGenFilterInfo.py /eos/vbc/experiments/cms/store/user/liko/ZJetsToNuNu_HT-2500ToInf_TuneCP5_13TeV-madgraphMLM-pythia8/ZJetsToNuNu_HT-2500ToInf_MC_UL18_CustomMiniAODv1-1/ database_meta/ZJetsToNuNu_HT-2500ToInf.yaml
+
 
 from DataFormats.FWLite import Lumis, Handle
 import os
@@ -18,9 +26,7 @@ def get_metadata(directory, outFileName):
     for root, dirnames, filenames in os.walk(directory):
         filename_list = []
         sumPassWeights = []
-        sumPassWeights2 = []
         sumWeights = []
-        sumWeights2 = []
         yaml_dict[root] = {'totalsumWeights': None,
                            'totalsumPassWeights': None,
                            'files': []}
@@ -31,16 +37,21 @@ def get_metadata(directory, outFileName):
             filename_list.append(filename)
             file_path = os.path.join(root, filename)
             lumis = Lumis(file_path)
-            handle = Handle("GenFilterInfo")
-            lumis.getByLabel('genFilterEfficiencyProducer', handle)
-            GenFilterInfo = handle.product()
+            lumisumWeights = []
+            lumisumPassWeights = []
+            for lumi in lumis:
+                handle = Handle("GenFilterInfo")
+                lumi.getByLabel('genFilterEfficiencyProducer', handle)
+                GenFilterInfo = handle.product()
+                lumisumWeights.append(GenFilterInfo.sumWeights())
+                lumisumPassWeights.append(GenFilterInfo.sumPassWeights())
             
-            sumWeights.append(GenFilterInfo.sumWeights())
-            sumPassWeights.append(GenFilterInfo.sumPassWeights())
+            sumWeights.append(sum(lumisumWeights))
+            sumPassWeights.append(sum(lumisumPassWeights))
 
             yaml_dict[root]['files'].append({'filename': filename,
-                                             'sumWeights': GenFilterInfo.sumWeights(),
-                                             'sumPassWeights': GenFilterInfo.sumPassWeights()})
+                                             'sumWeights': sum(lumisumWeights),
+                                             'sumPassWeights': sum(lumisumPassWeights)})
 
         
         totalsumWeights = sum(sumWeights)
