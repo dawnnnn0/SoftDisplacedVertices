@@ -1,5 +1,5 @@
-# python K_plotter.py RawMET_pt,20,0,2000 -ev RawMET -sv DPHIRM,RALPHA,LXYSIG,NGTR -tr DXYSIG,DZ,NVH,RSPT -files /users/alikaan.gueven/samplesNewSeedNoDuplicates/customMINIAODSIM/STOP/600_580_2
-# python K_plotter.py SDVSecVtx_Lxy,40,0,120 -ev RawMET -sv DPHIRM,RALPHA,LXYSIG,NGTR -tr DXYSIG,DZ,NVH,RSPT -files /users/alikaan.gueven/samplesNewSeedNoDuplicates/customMINIAODSIM/STOP/600_580_2
+# python K_plotter.py RawMET_pt,20,0,2000 -ev GenMET,GenJet -sv DPHIRM,RALPHA,LXYSIG,NGTR,DPHIJ,NDOF -tr DXYSIG,CHI2,DZ,NVH,RSPT,DPHIJ,DPHIM -files /users/alikaan.gueven/samplesNewSeedNoDuplicates/customNANOAODSIM/STOP/600_580_2
+# python K_plotter.py SDVSecVtx_Lxy,40,0,120 -ev PuppiMET -sv DPHIRM,RALPHA,LXYSIG,NGTR -tr DXYSIG,CHI2,DZ,NVH,RSPT,DPHIJ,DPHIM -files /users/alikaan.gueven/samplesNewSeedNoDuplicates/customNANOAODSIM/STOP/600_580_2
 
 import ROOT
 
@@ -8,10 +8,10 @@ import varcutlib
 import os
 import glob
 import yaml
-
+import time
 
 ROOT.gInterpreter.Declare('#include "RDF_helper.h"')
-ROOT.EnableImplicitMT()    # Tells ROOT to go parallel
+ROOT.EnableImplicitMT(16)    # Tells ROOT to go parallel
 # ROOT.TH1.SetDefaultSumw2(False)
 
 # Empty class for the dot notation.
@@ -52,7 +52,7 @@ def data_load_step(directory):
     SumgenWeight = sig_meta_dict[os.path.abspath(directory.replace('NANO', 'MINI'))]['totalsumWeights']
     # SumgenWeight = df.Sum('genWeight').GetValue()
     
-    sig_df = sig_df.Define('scaling_factor', f'{lumi*sig_xs*k_f/SumgenWeight}*genWeight')
+    sig_df = sig_df.Define('scaling_factor', f'{lumi*sig_xs/SumgenWeight}*genWeight')
     # print(f"Scaling factor: {df.Take['double']('scaling_factor').GetValue()[0]}")
     # df = df.Define('scaling_factor', '1')
 
@@ -325,12 +325,14 @@ def tmp_plotting_step(hh_ev, hh_sv, pargs):
     hh_ev.SetLineColor(1)
     hh_ev.SetLineWidth(1)
     hh_ev.SetYTitle('events/bin')
-    hh_ev.Draw('HIST SAME')
+    # hh_ev.Draw('HIST SAME')
+    hh_ev.Draw('E2 SAME')
     
     hh_sv.SetFillColorAlpha(4, 0.2)
     hh_sv.SetLineColor(4)
     hh_sv.SetLineWidth(1)
-    hh_sv.Draw('HIST SAME')
+    # hh_sv.Draw('HIST SAME')
+    hh_sv.Draw('E2 SAME')
     
     p2.cd()
     hh_eff = ROOT.TEfficiency(hh_sv.GetValue(), hh_ev)
@@ -362,10 +364,19 @@ def tmp_plotting_step(hh_ev, hh_sv, pargs):
 
     print('-'*100)
     print('\n')
-    
-    
-    
-    
+
+    print('')
+    for i in range(1, hh_ev.GetNbinsX()):
+        bin_center = hh_ev.GetBinCenter(i)
+        eff = hh_eff.GetEfficiency(i)
+        efferrlow = hh_eff.GetEfficiencyErrorLow(i)
+        efferrup = hh_eff.GetEfficiencyErrorUp(i)
+
+        print('bin:       ', bin_center)
+        print('eff:       ', eff)
+        print('efferrlow: ', efferrlow)
+        print('efferrup:  ', efferrup)
+
     
     
 @click.command()
@@ -376,6 +387,7 @@ def tmp_plotting_step(hh_ev, hh_sv, pargs):
 @click.option("-files", default="1")
 
 def main_cli(var_and_bins, ev, sv, tr, files):
+    s_time = time.time()
     print("Running main...")
     print('')
     print('var:   ', var_and_bins.split(',')[0])
@@ -410,7 +422,7 @@ def main_cli(var_and_bins, ev, sv, tr, files):
         sig_hh_ev, sig_hh_sv = histogram_step(sig_df_ev, sig_df_sv, plot_args, debug=False)
 
 
-        all_hh_sv = ROOT.TH1D('all_hh_sv', 'All Background', plot_args.nb, plot_args.xlow, plot_args.xup)
+        all_hh_sv = ROOT.TH1D('all_hh_sv', '', plot_args.nb, plot_args.xlow, plot_args.xup)
         
         for key, bkg_df in bkg_dfs.items():
             bkg_df_ev, bkg_df_sv = filtering_step(bkg_df, cuts)
@@ -420,6 +432,9 @@ def main_cli(var_and_bins, ev, sv, tr, files):
         all_hh_sv.Add(all_hh_sv, sig_hh_sv.GetPtr())
 
         tmp_plotting_step(all_hh_sv, sig_hh_sv, plot_args)
+
+    e_time = time.time()
+    print(e_time - s_time)
 
 
 if __name__ == "__main__":

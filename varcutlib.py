@@ -50,7 +50,8 @@ def get_cuts(ev,sv,tr):
     cutdict_ev = {}
     cutdict_ev['1'] = 'true'
     cutdict_ev['RawMET'] = 'RawMET_pt>200.'
-    cutdict_ev['PuppiMET'] = 'PuppiMET_pt>200.'
+    cutdict_ev['GenMET'] = 'GenMET_pt>200.'
+    cutdict_ev['GenJet'] = 'GenJet_pt[0]>100.'
     
     cutstr_ev = '&&'.join(cutdict_ev[i] if i in cutdict_ev else i for i in cuts_ev)
     print("cutstr_ev: ", cutstr_ev) 
@@ -59,10 +60,12 @@ def get_cuts(ev,sv,tr):
     cutdict_sv = {}
     # cutdict_sv['1'] = 'ROOT::RVecB(nSDVSecVtx, 1)' # When nSDVSecVtx is 0, RVec is ambiguous, thus set to false. Avoid this with the following line.
     cutdict_sv['1'] = '(nSDVSecVtx>0) ? ROOT::RVecB(nSDVSecVtx, 1) : ROOT::RVecB(1, 1)'
-    cutdict_sv['DPHIRM'] = 'acos(cos(SDVSecVtx_L_phi-RawMET_phi))<1.5'
+    cutdict_sv['DPHIRM'] = 'acos(cos(SDVSecVtx_L_phi-GenMET_phi))<1.5'
     cutdict_sv['RALPHA'] = 'SDVSecVtx_pAngle>0.2'
     cutdict_sv['LXYSIG'] = 'SDVSecVtx_LxySig>20'
     cutdict_sv['NGTR'] = 'SDVSecVtx_newgoodtr>=2'
+    cutdict_sv["DPHIJ"] = 'acos(cos(SDVSecVtx_L_phi-GenJet_phi[0]))>1'
+    cutdict_sv["NDOF"] = 'SDVSecVtx_ndof>1'
     
     cutstr_sv = '&&'.join(cutdict_sv[i] if i in cutdict_sv else i for i in cuts_sv)
     print("cutstr_sv: ", cutstr_sv) 
@@ -76,6 +79,8 @@ def get_cuts(ev,sv,tr):
     cutdict_tr['DZ'] = 'abs(SDVTrack_dz)<4.'
     cutdict_tr['NVH'] = 'SDVTrack_numberOfValidHits>13'
     cutdict_tr['RSPT'] = '(SDVTrack_ptError/SDVTrack_pt)<0.015'
+    cutdict_tr["DPHIJ"] = 'acos(cos(SDVTrack_phi-GenJet_phi[0]))>1'
+    cutdict_tr["DPHIM"] = 'acos(cos(SDVTrack_phi-GenMET_phi))<1.5'
     
     cutstr_tr = '&&'.join(cutdict_tr[i] if i in cutdict_tr else i for i in cuts_tr)
     print("cutstr_tr: ", cutstr_tr)
