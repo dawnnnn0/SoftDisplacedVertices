@@ -73,7 +73,7 @@ private:
 METFilter::METFilter(const edm::ParameterSet &pset)
     : src_(pset.getParameter<edm::InputTag>("src")),
       srcToken_(consumes<std::vector<reco::PFMET>>(src_)),
-      minMET_(pset.getParameter<float>("minMET"))
+      minMET_(pset.getParameter<double>("minMET"))
 {
    // now do what ever initialization is needed
 }

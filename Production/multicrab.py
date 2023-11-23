@@ -9,7 +9,7 @@ import CRABClient
 from CRABClient.UserUtilities import config
 from CRABAPI.RawCommand import crabCommand
 
-WORK_AREA = '/groups/hephy/cms/%s/sdv_prod' % os.getlogin()
+WORK_AREA = '/groups/hephy/cms/%s/sdv_prod_2' % os.getlogin()
 
 def flatten(datasets):
     for key, value in datasets.iteritems():
@@ -39,6 +39,7 @@ def submit(datasets):
 
     cfg.JobType.pluginName = 'Analysis'
     cfg.JobType.maxMemoryMB = 4000
+    cfg.JobType.numCores = 4
 
     cfg.Data.inputDBS = 'global'
     cfg.Data.splitting = 'Automatic'
@@ -54,10 +55,19 @@ def submit(datasets):
             sys.exit()
             
         config_file = os.path.join(os.environ['CMSSW_BASE'], 'src', dset_info['config'])
+        print(config_file)
         if not os.path.exists(config_file):
             print("Fatal configfile")
             sys.exit()
         cfg.JobType.psetName = config_file
+
+        whitelist = dset_info.get('whitelist')
+        if whitelist is None:
+            cfg.Site.whitelist = []
+        elif isinstance(whitelist, str):
+            cfg.Site.whitelist = [ whitelist ]
+        else:
+            cfg.Site.whitelist = whitelist
 
         for key, value in flatten(dset_info['datasets']):
 
@@ -67,6 +77,10 @@ def submit(datasets):
             
             cfg.General.requestName = "{}_{}".format(key, dset_info['name'])
             cfg.Data.inputDataset = value
+            if value.endswith('/USER'):
+                cfg.Data.inputDBS="phys03"
+            else:
+                cfg.Data.inputDBS="global"
             cfg.Data.outputDatasetTag = "{}_{}".format(key, dset_info['name'])
             
             crabCommand('submit', config = cfg)

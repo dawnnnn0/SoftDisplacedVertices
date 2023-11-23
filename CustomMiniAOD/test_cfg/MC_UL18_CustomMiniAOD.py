@@ -199,5 +199,5 @@ process = miniAOD_customizeAllMC(process)
 from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEarlyDelete
 process = customiseEarlyDelete(process)
 # End adding early deletion
-process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
+# process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 

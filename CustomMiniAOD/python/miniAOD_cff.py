@@ -34,6 +34,7 @@ def miniAOD_filter_SoftDisplacedVertices(process):
     process.pfMETSkim = cms.EDFilter(
         "METFilter",
         src = cms.InputTag("pfMet"),
+        minMET = cms.double(200.),
     )
     process.Flag_pfMETSkim = cms.Path(process.pfMETSkim)
     process.schedule.append(process.Flag_pfMETSkim)
@@ -50,8 +51,14 @@ def miniAOD_filter_SoftDisplacedVertices(process):
     # process.schedule.append(process.Flag_pfMETSelectorHighMETSkim)
 
     # process.MINIAODSIMoutput.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('Flag_pfMETSelectorHighMETSkim'))
-    process.MINIAODSIMoutput.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('Flag_pfMETSkim'))
-    
+
+    if hasattr(process, 'MINIAODoutput'):
+        process.MINIAODoutput.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('Flag_pfMETSkim'))
+    elif hasattr(process, 'MINIAODSIMoutput'):
+        process.MINIAODSIMoutput.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('Flag_pfMETSkim'))
+    else:
+        print("WARNING: No MINIAOD[SIM]output definition")
+
     return process
 
 

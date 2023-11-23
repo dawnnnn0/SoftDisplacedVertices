@@ -13,7 +13,12 @@ def main():
     options = VarParsing ('python')
     options.parseArguments()
     
-    events = Events(options)
+    if len(options.inputFiles) == 1 and options.inputFiles[0].endswith(".txt"):
+        inputFiles = open(options.inputFiles[0],"r").read().splitlines()
+        inputFiles = [ "root://eos.grid.vbc.ac.at/"+f for f in inputFiles ]
+        events = Events(inputFiles)
+    else:
+        events = Events(options)
     handle = Handle('vector<pat::MET>')
     label = ("slimmedMETs")
     
@@ -24,10 +29,14 @@ def main():
         slimmedMETs = handle.product()
         
         h_genmet.Fill(slimmedMETs[0].pt())
+
+    rout = ROOT.TFile.Open(options.outputFile,"RECREATE")
+    h_genmet.Write()
+    rout.Close()
         
     c = ROOT.TCanvas()
     h_genmet.Draw()
-    c.SaveAs("slimmedmet.png")
+    c.SaveAs(options.outputFile.split(".")[0]+".png")
 
 if __name__ == "__main__":
     main()

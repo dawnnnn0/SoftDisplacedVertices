@@ -1,3 +1,8 @@
 #!/bin/sh
 
-awk '/CRAB project directory:/ {name=substr($4,47) } /Publication status/ { print name ": " $9 $10}' status.log
+awk '
+/CRAB project directory:/ {name=substr($4,49) } 
+/Publication status/ { status=$9 $10}
+/Output dataset:/ {dset=$3}
+/Summary of run jobs:/ { print name ": " status " : " dset }
+' status.log
