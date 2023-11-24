@@ -11,7 +11,7 @@ import yaml
 import time
 
 ROOT.gInterpreter.Declare('#include "RDF_helper.h"')
-ROOT.EnableImplicitMT(16)    # Tells ROOT to go parallel
+ROOT.EnableImplicitMT(32)    # Tells ROOT to go parallel
 # ROOT.TH1.SetDefaultSumw2(False)
 
 # Empty class for the dot notation.
@@ -326,13 +326,13 @@ def tmp_plotting_step(hh_ev, hh_sv, pargs):
     hh_ev.SetLineWidth(1)
     hh_ev.SetYTitle('events/bin')
     # hh_ev.Draw('HIST SAME')
-    hh_ev.Draw('E2 SAME')
+    hh_ev.Draw('HIST')
     
     hh_sv.SetFillColorAlpha(4, 0.2)
     hh_sv.SetLineColor(4)
     hh_sv.SetLineWidth(1)
     # hh_sv.Draw('HIST SAME')
-    hh_sv.Draw('E2 SAME')
+    hh_sv.Draw('HIST SAME')
     
     p2.cd()
     hh_eff = ROOT.TEfficiency(hh_sv.GetValue(), hh_ev)
@@ -361,21 +361,23 @@ def tmp_plotting_step(hh_ev, hh_sv, pargs):
     
     c1.SetLogy(True)
     c1.SaveAs(pargs.savename)
+    print('')
+    print(f'Saving {pargs.savename}...')
 
     print('-'*100)
     print('\n')
 
     print('')
-    for i in range(1, hh_ev.GetNbinsX()):
-        bin_center = hh_ev.GetBinCenter(i)
-        eff = hh_eff.GetEfficiency(i)
-        efferrlow = hh_eff.GetEfficiencyErrorLow(i)
-        efferrup = hh_eff.GetEfficiencyErrorUp(i)
+    # for i in range(1, hh_ev.GetNbinsX()):
+    #     bin_center = hh_ev.GetBinCenter(i)
+    #     eff = hh_eff.GetEfficiency(i)
+    #     efferrlow = hh_eff.GetEfficiencyErrorLow(i)
+    #     efferrup = hh_eff.GetEfficiencyErrorUp(i)
 
-        print('bin:       ', bin_center)
-        print('eff:       ', eff)
-        print('efferrlow: ', efferrlow)
-        print('efferrup:  ', efferrup)
+    #     print('bin:       ', bin_center)
+    #     print('eff:       ', eff)
+    #     print('efferrlow: ', efferrlow)
+    #     print('efferrup:  ', efferrup)
 
     
     
