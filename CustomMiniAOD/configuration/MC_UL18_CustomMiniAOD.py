@@ -2,7 +2,7 @@
 # using: 
 # Revision: 1.19 
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
-# with command line options: CustomMiniAOD --python_filename MC_UL18_CustomMiniAOD.py --filein file:AOD.root --fileout MiniAOD.root --step PAT --eventcontent MINIAODSIM --datatier MINIAODSIM --customise Configuration/DataProcessing/Utils.addMonitoring --customise SoftDisplacedVertices/CustomMiniAOD/miniAOD_cff.miniAOD_customise_SoftDisplacedVerticesMC --conditions 106X_upgrade2018_realistic_v16_L1v1 --procModifiers run2_miniAOD_UL --geometry DB:Extended --era Run2_2018 --runUnscheduled --no_exec --mc
+# with command line options: CustomMiniAOD --python_filename MC_UL18_CustomMiniAOD.py --filein file:AOD.root --fileout MiniAOD.root --step PAT --eventcontent MINIAODSIM --datatier MINIAODSIM --customise Configuration/DataProcessing/Utils.addMonitoring --customise SoftDisplacedVertices/CustomMiniAOD/miniAOD_cff.miniAOD_customise_SoftDisplacedVerticesMC --customise SoftDisplacedVertices/CustomMiniAOD/miniAOD_cff.miniAOD_filter_SoftDisplacedVertices --conditions 106X_upgrade2018_realistic_v16_L1v1 --procModifiers run2_miniAOD_UL --geometry DB:Extended --era Run2_2018 --runUnscheduled --no_exec --mc
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
@@ -166,10 +166,13 @@ from Configuration.DataProcessing.Utils import addMonitoring
 process = addMonitoring(process)
 
 # Automatic addition of the customisation function from SoftDisplacedVertices.CustomMiniAOD.miniAOD_cff
-from SoftDisplacedVertices.CustomMiniAOD.miniAOD_cff import miniAOD_customise_SoftDisplacedVerticesMC 
+from SoftDisplacedVertices.CustomMiniAOD.miniAOD_cff import miniAOD_customise_SoftDisplacedVerticesMC,miniAOD_filter_SoftDisplacedVertices 
 
 #call to customisation function miniAOD_customise_SoftDisplacedVerticesMC imported from SoftDisplacedVertices.CustomMiniAOD.miniAOD_cff
 process = miniAOD_customise_SoftDisplacedVerticesMC(process)
+
+#call to customisation function miniAOD_filter_SoftDisplacedVertices imported from SoftDisplacedVertices.CustomMiniAOD.miniAOD_cff
+process = miniAOD_filter_SoftDisplacedVertices(process)
 
 # End of customisation functions
 #do not add changes to your config after this point (unless you know what you are doing)
