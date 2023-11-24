@@ -1,0 +1,10 @@
+---
+name: Data_UL18_CustomMiniAODv1-1
+CMSSW: CMSSW_10_6_27
+config: SoftDisplacedVertices/CustomMiniAOD/configuration/Data_UL18_CustomMiniAOD.py
+datasets:
+   MET:
+      MET_2018A: /MET/Run2018A-15Feb2022_UL2018-v1/AOD
+      MET_2018B: /MET/Run2018B-15Feb2022_UL2018-v1/AOD
+      MET_2018C: /MET/Run2018C-15Feb2022_UL2018-v1/AOD
+      MET_2018D: /MET/Run2018D-15Feb2022_UL2018-v1/AOD
