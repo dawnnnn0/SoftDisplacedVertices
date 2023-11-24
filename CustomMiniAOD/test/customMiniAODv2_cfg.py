@@ -56,7 +56,8 @@ from SoftDisplacedVertices.HEPHYCommon.list_directory_cff import get_files
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
         # *file_list
-        "file:/eos/vbc/experiments/cms/store/user/imikulec/dataFromFelix/testAODSIM-4.root"
+        #'file:/scratch/felix.lang/SignalProduction/samplesNewSeedNoDuplicates/AODSIM/run710-testIVF1_AODSIM_N2N3_600_588_200_Standard_2000.root',
+        'file:/scratch/felix.lang/SignalProduction/samplesNewSeedNoDuplicates/AODSIM/run750-testIVF1_AODSIM_STOP_600_588_200_Standard_5000.root',
         # '/store/mc/RunIISummer20UL18RECO/SMS-T2tt-4bd_genMET-100_genHT200_mStop-300_mLSP-290_TuneCP5_LLStop_13TeV-madgraphMLM-pythia8/AODSIM/106X_upgrade2018_realistic_v11_L1v1-v1/2500000/0798C2C1-91C9-AE40-A8AD-9C6298204B60.root', 
         # '/store/mc/RunIISummer20UL18RECO/SMS-T2tt-4bd_genMET-100_genHT200_mStop-300_mLSP-290_TuneCP5_LLStop_13TeV-madgraphMLM-pythia8/AODSIM/106X_upgrade2018_realistic_v11_L1v1-v1/2500000/0828F7CE-98C4-7F4B-8CD1-3D68E33EA7A1.root', 
         # '/store/mc/RunIISummer20UL18RECO/SMS-T2tt-4bd_genMET-100_genHT200_mStop-300_mLSP-290_TuneCP5_LLStop_13TeV-madgraphMLM-pythia8/AODSIM/106X_upgrade2018_realistic_v11_L1v1-v1/2500000/0BBC6E3D-B41A-C242-88C6-E77AC709BF57.root', 
