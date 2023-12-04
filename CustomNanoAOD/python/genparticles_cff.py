@@ -79,6 +79,38 @@ genParticleTableForSDV = cms.EDProducer("SimpleCandidateFlatTableProducer",
             mcOnly = cms.bool(False),
             precision = cms.int32(-1),
             type = cms.string('int')
-        )
+        ),
+        charge = cms.PSet(
+            compression = cms.string('none'),
+            doc = cms.string('charge'),
+            expr = cms.string('charge'),
+            mcOnly = cms.bool(False),
+            precision = cms.int32(-1),
+            type = cms.string('int')
+        ),
+        vertex_x = cms.PSet(
+            compression = cms.string('none'),
+            doc = cms.string('x position of vertex'),
+            expr = cms.string('vx'),
+            mcOnly = cms.bool(False),
+            precision = cms.int32(8),
+            type = cms.string('float')
+        ),
+        vertex_y = cms.PSet(
+            compression = cms.string('none'),
+            doc = cms.string('y position of vertex'),
+            expr = cms.string('vy'),
+            mcOnly = cms.bool(False),
+            precision = cms.int32(8),
+            type = cms.string('float')
+        ),
+        vertex_z = cms.PSet(
+            compression = cms.string('none'),
+            doc = cms.string('z position of vertex'),
+            expr = cms.string('vz'),
+            mcOnly = cms.bool(False),
+            precision = cms.int32(8),
+            type = cms.string('float')
+        ),
     )
 )

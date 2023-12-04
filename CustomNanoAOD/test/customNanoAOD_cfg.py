@@ -24,6 +24,7 @@ process = cms.Process('customNanoAOD',Run2_2018,run2_nanoAOD_106Xv2)
 # from FWCore.MessageService.MessageLogger_cfi import *
 # MessageLogger = cms.Service("MessageLogger")
 process.load('FWCore.MessageLogger.MessageLogger_cfi')
+process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 
 
 # import of standard configurations
@@ -50,7 +51,7 @@ process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
 
 
 process.maxEvents = cms.untracked.PSet(
-    #input = cms.untracked.int32(100)
+    input = cms.untracked.int32(100)
 )
 
 MessageLogger = cms.Service("MessageLogger")
@@ -58,7 +59,8 @@ MessageLogger = cms.Service("MessageLogger")
 
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:/users/ang.li/public/SoftDV/CMSSW_10_6_30/src/SoftDisplacedVertices/CustomMiniAOD/test/MiniAOD.root'),
+    #fileNames = cms.untracked.vstring('file:/users/ang.li/public/SoftDV/CMSSW_10_6_30/src/SoftDisplacedVertices/CustomMiniAOD/test/MiniAOD.root'),
+    fileNames = cms.untracked.vstring('file:/eos/vbc/experiments/cms/store/user/liko/ZJetsToNuNu_HT-1200To2500_TuneCP5_13TeV-madgraphMLM-pythia8/ZJetsToNuNu_HT-1200To2500_MC_UL18_CustomMiniAODv1-1/231112_223113/0000/MiniAOD_1.root'),
     secondaryFileNames = cms.untracked.vstring()
 )
 
