@@ -227,29 +227,29 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
   // Flat table for the secondary vertices
   auto svsTable = std::make_unique<nanoaod::FlatTable>(vertices->size(), svName_, false);
-  svsTable->addColumn<float>("x", x, "x position in cm", nanoaod::FlatTable::FloatColumn, 10);
-  svsTable->addColumn<float>("y", y, "y position in cm", nanoaod::FlatTable::FloatColumn, 10);
-  svsTable->addColumn<float>("z", z, "z position in cm", nanoaod::FlatTable::FloatColumn, 10);
-  svsTable->addColumn<float>("dlen", dlen, "decay length in cm", nanoaod::FlatTable::FloatColumn, 10);
-  svsTable->addColumn<float>("dlenSig", dlenSig, "decay length significance", nanoaod::FlatTable::FloatColumn, 10);
-  svsTable->addColumn<float>("Lxy", Lxy, "2D decay length in cm", nanoaod::FlatTable::FloatColumn, 10);
-  svsTable->addColumn<float>("LxySig", LxySig, "2D decay length significance", nanoaod::FlatTable::FloatColumn, 10);
+  svsTable->addColumn<float>("x", x, "x position in cm", 10);
+  svsTable->addColumn<float>("y", y, "y position in cm", 10);
+  svsTable->addColumn<float>("z", z, "z position in cm", 10);
+  svsTable->addColumn<float>("dlen", dlen, "decay length in cm", 10);
+  svsTable->addColumn<float>("dlenSig", dlenSig, "decay length significance", 10);
+  svsTable->addColumn<float>("Lxy", Lxy, "2D decay length in cm", 10);
+  svsTable->addColumn<float>("LxySig", LxySig, "2D decay length significance", 10);
   svsTable->addColumn<float>(
-      "pAngle", pAngle, "pointing angle, i.e. acos(p_SV * (SV - PV)) ", nanoaod::FlatTable::FloatColumn, 10);
+      "pAngle", pAngle, "pointing angle, i.e. acos(p_SV * (SV - PV)) ", 10);
   svsTable->addColumn<float>(
-      "L_phi", L_phi, "Azimuthal angle of the vector from PV to SV", nanoaod::FlatTable::FloatColumn, 10);
+      "L_phi", L_phi, "Azimuthal angle of the vector from PV to SV", 10);
   svsTable->addColumn<float>(
-      "L_eta", L_eta, "Pseudorapidity of the vector from PV to SV", nanoaod::FlatTable::FloatColumn, 10);
-  svsTable->addColumn<int>("tracksSize", sv_tracksSize, "number of tracks in the SV", nanoaod::FlatTable::IntColumn);
-  svsTable->addColumn<int>("nTracks", sv_nTracks, "the number of tracks in the vertex with weight above 0.50", nanoaod::FlatTable::IntColumn);
+      "L_eta", L_eta, "Pseudorapidity of the vector from PV to SV", 10);
+  svsTable->addColumn<int16_t>("tracksSize", sv_tracksSize, "number of tracks in the SV", 10);
+  svsTable->addColumn<int16_t>("nTracks", sv_nTracks, "the number of tracks in the vertex with weight above 0.50", 10);
   if (storeCharge_) {
-    svsTable->addColumn<int>("charge", charge, "sum of the charge of the SV tracks", nanoaod::FlatTable::IntColumn);
+    svsTable->addColumn<int16_t>("charge", charge, "sum of the charge of the SV tracks", 10);
   }
-  svsTable->addColumn<float>("chi2", chi2, "chi2 of vertex fit", nanoaod::FlatTable::FloatColumn, 10);
-  svsTable->addColumn<float>("normalizedChi2", normalizedChi2, "normalizedChi2 of vertex fit", nanoaod::FlatTable::FloatColumn, 10);
-  svsTable->addColumn<float>("ndof", ndof, "ndof of vertex fit", nanoaod::FlatTable::FloatColumn, 10);
-  svsTable->addColumn<float>("sum_tkW", sum_tkW, "sum of track weights", nanoaod::FlatTable::FloatColumn, 10);
-  svsTable->addColumn<int>("ngoodTrack", ngoodTrackVec, "number of good tracks associated with the vertex according to Ivan's criteria", nanoaod::FlatTable::IntColumn);
+  svsTable->addColumn<float>("chi2", chi2, "chi2 of vertex fit", 10);
+  svsTable->addColumn<float>("normalizedChi2", normalizedChi2, "normalizedChi2 of vertex fit", 10);
+  svsTable->addColumn<float>("ndof", ndof, "ndof of vertex fit", 10);
+  svsTable->addColumn<float>("sum_tkW", sum_tkW, "sum of track weights", 10);
+  svsTable->addColumn<int16_t>("ngoodTrack", ngoodTrackVec, "number of good tracks associated with the vertex according to Ivan's criteria", 10);
    
   
   if (debug) {
@@ -335,9 +335,9 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
   auto LUT = std::make_unique<nanoaod::FlatTable>(SecVtxIdx.size(), lookupName_, false);
 
 
-  LUT->addColumn<int>("SecVtxIdx", SecVtxIdx, "Secondary vertex index", nanoaod::FlatTable::IntColumn);
-  LUT->addColumn<int>("TrackIdx", TrackIdx, "Track index", nanoaod::FlatTable::IntColumn);
-  LUT->addColumn<float>("TrackWeight", tk_W, "Trck weight", nanoaod::FlatTable::FloatColumn, -1);
+  LUT->addColumn<int16_t>("SecVtxIdx", SecVtxIdx, "Secondary vertex index", 10);
+  LUT->addColumn<int16_t>("TrackIdx", TrackIdx, "Track index", 10);
+  LUT->addColumn<float>("TrackWeight", tk_W, "Trck weight", -1);
   // LUT->addColumn<float>("Trackpt", tk_pt_vec, "Secondary vertex index", nanoaod::FlatTable::FloatColumn, -1);
   // ----------------------------------------------------------------------------------------------------
 

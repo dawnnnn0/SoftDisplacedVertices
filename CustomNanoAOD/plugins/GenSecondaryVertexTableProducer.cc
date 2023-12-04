@@ -144,10 +144,10 @@ void GenSecondaryVertexTableProducer::produce(edm::Event &iEvent, const edm::Eve
    }
    auto vtxTable = std::make_unique<nanoaod::FlatTable>(vertices.size(), genVtxName_, false);
    vtxTable->setDoc(genVtxDoc_);
-   vtxTable->addColumn<float>("x", vtx_x, "vertex x", nanoaod::FlatTable::FloatColumn, 10);
-   vtxTable->addColumn<float>("y", vtx_y, "vertex y", nanoaod::FlatTable::FloatColumn, 10);
-   vtxTable->addColumn<float>("z", vtx_z, "vertex z", nanoaod::FlatTable::FloatColumn, 10);
-   vtxTable->addColumn<int>("nrTracks", vtx_nr_tracks, "number of charged tracks", nanoaod::FlatTable::IntColumn);
+   vtxTable->addColumn<float>("x", vtx_x, "vertex x", 10);
+   vtxTable->addColumn<float>("y", vtx_y, "vertex y", 10);
+   vtxTable->addColumn<float>("z", vtx_z, "vertex z", 10);
+   vtxTable->addColumn<int16_t>("nrTracks", vtx_nr_tracks, "number of charged tracks", 10);
 
    std::vector<int> gp_vtx_idx(genParticles->size(), -1);
    for (std::size_t ivx = 0; ivx < vertices.size(); ++ivx)
@@ -159,7 +159,7 @@ void GenSecondaryVertexTableProducer::produce(edm::Event &iEvent, const edm::Eve
    };
 
    auto partTable = std::make_unique<nanoaod::FlatTable>(genParticles->size(), genPartName_, false, true);
-   partTable->addColumn<int>("svxIdx", gp_vtx_idx, "secondary vertex index", nanoaod::FlatTable::IntColumn);
+   partTable->addColumn<int16_t>("svxIdx", gp_vtx_idx, "secondary vertex index", 10);
 
    iEvent.put(std::move(vtxTable), "GenVtx");
    iEvent.put(std::move(partTable), "GenPart");

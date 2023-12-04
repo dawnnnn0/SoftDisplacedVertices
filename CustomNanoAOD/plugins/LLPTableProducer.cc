@@ -233,47 +233,47 @@ void LLPTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
   // Flat table for LLPs
   auto llpTable = std::make_unique<nanoaod::FlatTable>(llp_idx.size(), LLPName_, false);
-  llpTable->addColumn<float>("pt", llp_pt, "pt", nanoaod::FlatTable::FloatColumn, 10);
-  llpTable->addColumn<float>("eta", llp_eta, "eta", nanoaod::FlatTable::FloatColumn, 10);
-  llpTable->addColumn<float>("phi", llp_phi, "phi", nanoaod::FlatTable::FloatColumn, 10);
-  llpTable->addColumn<float>("mass", llp_mass, "mass", nanoaod::FlatTable::FloatColumn, 10);
-  llpTable->addColumn<float>("ctau", llp_ctau, "ctau", nanoaod::FlatTable::FloatColumn, 10);
-  llpTable->addColumn<float>("decay_x", llp_decay_x, "x position of LLP decay in cm", nanoaod::FlatTable::FloatColumn, 10);
-  llpTable->addColumn<float>("decay_y", llp_decay_y, "y position of LLP decay in cm", nanoaod::FlatTable::FloatColumn, 10);
-  llpTable->addColumn<float>("decay_z", llp_decay_z, "z position of LLP decay in cm", nanoaod::FlatTable::FloatColumn, 10);
-  llpTable->addColumn<int>("pdgId", llp_pdgId, "pdgID of LLP", nanoaod::FlatTable::IntColumn);
-  llpTable->addColumn<int>("status", llp_status, "status of LLP", nanoaod::FlatTable::IntColumn);
-  llpTable->addColumn<int>("statusFlags", llp_statusFlags, "gen status flags stored bitwise, bits are: 0 : isPrompt, 1 : isDecayedLeptonHadron, 2 : isTauDecayProduct, 3 : isPromptTauDecayProduct, 4 : isDirectTauDecayProduct, 5 : isDirectPromptTauDecayProduct, 6 : isDirectHadronDecayProduct, 7 : isHardProcess, 8 : fromHardProcess, 9 : isHardProcessTauDecayProduct, 10 : isDirectHardProcessTauDecayProduct, 11 : fromHardProcessBeforeFSR, 12 : isFirstCopy, 13 : isLastCopy, 14 : isLastCopyBeforeFSR, ", nanoaod::FlatTable::IntColumn);
-  llpTable->addColumn<int>("ngentk", llp_ngentk, "Number of gen tracks", nanoaod::FlatTable::IntColumn);
-  llpTable->addColumn<int>("nrecotk", llp_nrecotk, "Number of gen tracks that match with reco track", nanoaod::FlatTable::IntColumn);
-  llpTable->addColumn<int>("matchedSDVIdx_bydau", llp_match_bydau, "SDV index matched with LLP by daughters", nanoaod::FlatTable::IntColumn);
-  llpTable->addColumn<int>("matchedSDVnDau_bydau", llp_match_bydau_ntk, "The number of matched gen daughters of LLP", nanoaod::FlatTable::IntColumn); 
-  llpTable->addColumn<float>("matchedSDVDist_bydau", llp_match_bydau_dist, "The distance between daughter-matched SDV and LLP", nanoaod::FlatTable::FloatColumn, 10);
-  llpTable->addColumn<int>("matchedSDVIdx_bydist", llp_match_bydist, "SDV index matched with LLP by daughters", nanoaod::FlatTable::IntColumn);
-  llpTable->addColumn<float>("matchedSDVDist_bydist", llp_match_bydist_dist, "The distance between distance-matched SDV and LLP", nanoaod::FlatTable::FloatColumn, 10);
+  llpTable->addColumn<float>("pt", llp_pt, "pt", 10);
+  llpTable->addColumn<float>("eta", llp_eta, "eta", 10);
+  llpTable->addColumn<float>("phi", llp_phi, "phi", 10);
+  llpTable->addColumn<float>("mass", llp_mass, "mass", 10);
+  llpTable->addColumn<float>("ctau", llp_ctau, "ctau", 10);
+  llpTable->addColumn<float>("decay_x", llp_decay_x, "x position of LLP decay in cm", 10);
+  llpTable->addColumn<float>("decay_y", llp_decay_y, "y position of LLP decay in cm", 10);
+  llpTable->addColumn<float>("decay_z", llp_decay_z, "z position of LLP decay in cm", 10);
+  llpTable->addColumn<int16_t>("pdgId", llp_pdgId, "pdgID of LLP", 10);
+  llpTable->addColumn<int16_t>("status", llp_status, "status of LLP", 10);
+  llpTable->addColumn<int16_t>("statusFlags", llp_statusFlags, "gen status flags stored bitwise, bits are: 0 : isPrompt, 1 : isDecayedLeptonHadron, 2 : isTauDecayProduct, 3 : isPromptTauDecayProduct, 4 : isDirectTauDecayProduct, 5 : isDirectPromptTauDecayProduct, 6 : isDirectHadronDecayProduct, 7 : isHardProcess, 8 : fromHardProcess, 9 : isHardProcessTauDecayProduct, 10 : isDirectHardProcessTauDecayProduct, 11 : fromHardProcessBeforeFSR, 12 : isFirstCopy, 13 : isLastCopy, 14 : isLastCopyBeforeFSR, ", 10);
+  llpTable->addColumn<int16_t>("ngentk", llp_ngentk, "Number of gen tracks", 10);
+  llpTable->addColumn<int16_t>("nrecotk", llp_nrecotk, "Number of gen tracks that match with reco track", 10);
+  llpTable->addColumn<int16_t>("matchedSDVIdx_bydau", llp_match_bydau, "SDV index matched with LLP by daughters", 10);
+  llpTable->addColumn<int16_t>("matchedSDVnDau_bydau", llp_match_bydau_ntk, "The number of matched gen daughters of LLP", 10); 
+  llpTable->addColumn<float>("matchedSDVDist_bydau", llp_match_bydau_dist, "The distance between daughter-matched SDV and LLP", 10);
+  llpTable->addColumn<int16_t>("matchedSDVIdx_bydist", llp_match_bydist, "SDV index matched with LLP by daughters", 10);
+  llpTable->addColumn<float>("matchedSDVDist_bydist", llp_match_bydist_dist, "The distance between distance-matched SDV and LLP", 10);
 
 
   auto genPartTable = std::make_unique<nanoaod::FlatTable>(genParticles->size(), "SDVGenPart", false, true);
-  genPartTable->addColumn<int>("LLPIdx",genpart_llpidx, "LLP index", nanoaod::FlatTable::IntColumn);
-  genPartTable->addColumn<int>("isGentk",genpart_isgentk, "whether the gen particle is possibly measured as a reco track", nanoaod::FlatTable::IntColumn);
-  genPartTable->addColumn<int>("recomatch",genpart_recomatch, "whether the gen particle is matched with a reco track", nanoaod::FlatTable::IntColumn);
-  genPartTable->addColumn<int>("charge",genpart_charge, "charge", nanoaod::FlatTable::IntColumn);
-  genPartTable->addColumn<float>("recomatch_dr",genpart_recomatch_dr, "dR between the matched track and the gen particle", nanoaod::FlatTable::FloatColumn, 10);
-  genPartTable->addColumn<float>("dxy",genpart_dxy, "dxy between PV and the closest approach", nanoaod::FlatTable::FloatColumn, 10);
-  genPartTable->addColumn<float>("dz",genpart_dz, "dz between PV and the closest approach", nanoaod::FlatTable::FloatColumn, 10);
-  genPartTable->addColumn<float>("vertex_x",genpart_vertex_x, "x position of gen particle vertex", nanoaod::FlatTable::FloatColumn, 10);
-  genPartTable->addColumn<float>("vertex_y",genpart_vertex_y, "y position of gen particle vertex", nanoaod::FlatTable::FloatColumn, 10);
-  genPartTable->addColumn<float>("vertex_z",genpart_vertex_z, "z position of gen particle vertex", nanoaod::FlatTable::FloatColumn, 10);
+  genPartTable->addColumn<int16_t>("LLPIdx",genpart_llpidx, "LLP index", 10);
+  genPartTable->addColumn<int16_t>("isGentk",genpart_isgentk, "whether the gen particle is possibly measured as a reco track", 10);
+  genPartTable->addColumn<int16_t>("recomatch",genpart_recomatch, "whether the gen particle is matched with a reco track", 10);
+  genPartTable->addColumn<int16_t>("charge",genpart_charge, "charge", 10);
+  genPartTable->addColumn<float>("recomatch_dr",genpart_recomatch_dr, "dR between the matched track and the gen particle", 10);
+  genPartTable->addColumn<float>("dxy",genpart_dxy, "dxy between PV and the closest approach", 10);
+  genPartTable->addColumn<float>("dz",genpart_dz, "dz between PV and the closest approach", 10);
+  genPartTable->addColumn<float>("vertex_x",genpart_vertex_x, "x position of gen particle vertex", 10);
+  genPartTable->addColumn<float>("vertex_y",genpart_vertex_y, "y position of gen particle vertex", 10);
+  genPartTable->addColumn<float>("vertex_z",genpart_vertex_z, "z position of gen particle vertex", 10);
 
   auto tkTable = std::make_unique<nanoaod::FlatTable>(tracks->size(), "SDVTrack", false, true);
-  tkTable->addColumn<int>("GenPartIdx", tk_genpartidx, "GenParticle index", nanoaod::FlatTable::IntColumn);
-  tkTable->addColumn<int>("LLPIdx", tk_llpidx, "LLP index", nanoaod::FlatTable::IntColumn);
+  tkTable->addColumn<int16_t>("GenPartIdx", tk_genpartidx, "GenParticle index", 10);
+  tkTable->addColumn<int16_t>("LLPIdx", tk_llpidx, "LLP index", 10);
 
   auto vtxTable = std::make_unique<nanoaod::FlatTable>(secondary_vertices->size(), "SDVSecVtx", false, true);
-  vtxTable->addColumn<int>("matchedLLPIdx_bydau", SDV_match_bydau, "LLP index matched with SDV by daughters", nanoaod::FlatTable::IntColumn);
-  vtxTable->addColumn<int>("matchedLLPnDau_bydau", SDV_match_bydau_ntk, "The number of matched gen daughters of LLP", nanoaod::FlatTable::IntColumn);
-  vtxTable->addColumn<int>("matchedLLPIdx_bydist", SDV_match_bydist, "LLP index matched with SDV by distance", nanoaod::FlatTable::IntColumn);
-  vtxTable->addColumn<float>("matchedLLPDist_bydist", SDV_match_bydist_dist, "The distance between matched SDV and LLP", nanoaod::FlatTable::FloatColumn, 10);
+  vtxTable->addColumn<int16_t>("matchedLLPIdx_bydau", SDV_match_bydau, "LLP index matched with SDV by daughters", 10);
+  vtxTable->addColumn<int16_t>("matchedLLPnDau_bydau", SDV_match_bydau_ntk, "The number of matched gen daughters of LLP", 10);
+  vtxTable->addColumn<int16_t>("matchedLLPIdx_bydist", SDV_match_bydist, "LLP index matched with SDV by distance", 10);
+  vtxTable->addColumn<float>("matchedLLPDist_bydist", SDV_match_bydist_dist, "The distance between matched SDV and LLP", 10);
 
   iEvent.put(std::move(llpTable), "LLPs"); 
   iEvent.put(std::move(genPartTable), "GenPart");
