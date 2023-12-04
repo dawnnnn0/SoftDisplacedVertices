@@ -8,9 +8,9 @@ import SoftDisplacedVertices.Samples.cmsRunJobs as job
 
 dryrun = False
 input_label = "CustomMiniAODv1"
-version = "CustomNanoAODv1_IVF"
+version = "CustomNanoAODv1_MFV_1"
 
-j = job.cmsRunJob(cfg='customNanoAOD_cfg.py')
+j = job.cmsRunJob(cfg='customNanoAOD_cfg.py',logLevel = "INFO")
 
 input_samples = s.znunu_2018
 
@@ -24,7 +24,7 @@ for sp in input_samples:
     useDBS = True
   if useDBS:
     input = 'dbs:'+sp.dataset[input_label]
-    j.setJob(title=sp.name+input_label+version,input=input,instance=sp.dataset_instance[input_label],targetDir=targetDir,n_files=10)
+    j.setJob(title=sp.name+input_label+version,input=input,instance=sp.dataset_instance[input_label],targetDir=targetDir,n_files=1)
 
     j.prepare()
     j.submit(dryrun=dryrun)
@@ -33,7 +33,7 @@ for sp in input_samples:
     with open("filename.txt","w") as fns:
       fns.write("\n".join(sp.getFileList(input_label,"")))
 
-    j.setJob(title=sp.name+input_label+version, input="filename.txt",targetDir=targetDir,n_files=10)
+    j.setJob(title=sp.name+input_label+version, input="filename.txt",targetDir=targetDir,n_files=1)
     j.prepare()
     j.submit(dryrun=dryrun)
     shutil.move("filename.txt",os.path.join(targetDir+'/input',"filename.txt"))

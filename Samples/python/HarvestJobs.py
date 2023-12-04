@@ -36,13 +36,16 @@ for s in os.listdir(args.dir):
     d[args.label]["dir"][s] = info["output"]
 
 json_name = os.path.join(os.environ['CMSSW_BASE'],'src/SoftDisplacedVertices/Samples/json/{}'.format(args.label))
+
 if os.path.exists(json_name+'.json'):
   i = 1
   json_name += '_{}'
   while os.path.exists(json_name.format(i)+'.json'):
     i += 1
 
-json_name_new = json_name.format(i)
+  json_name_new = json_name.format(i)
+else:
+  json_name_new = json_name
 
 assert not os.path.exists(json_name_new+'.json')
 

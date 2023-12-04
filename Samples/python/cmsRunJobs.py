@@ -170,18 +170,18 @@ class cmsRunJob:
     self.info["jobdir"] = targetDir
     if not os.path.exists( targetDir ):
         os.makedirs( targetDir )
-        self.logger.info( 'Created job directory %s', targetDir )
+        self.logger.debug( 'Created job directory %s', targetDir )
 
     targetDir_out = os.path.join(targetDir, 'output')
     self.info["output"] = targetDir_out
     if not os.path.exists( targetDir_out ):
         os.makedirs( targetDir_out )
-        self.logger.info( 'Created output directory %s', targetDir_out )
+        self.logger.debug( 'Created output directory %s', targetDir_out )
     
     targetDir_fs = os.path.join( self.targetDir, subDirName, 'fs')
     if not os.path.exists( targetDir_fs ):
         os.makedirs( targetDir_fs )
-        self.logger.info( 'Created TFileService output directory %s', targetDir_fs )
+        self.logger.debug( 'Created TFileService output directory %s', targetDir_fs )
     
     user          = os.getenv("USER")
     #batch_tmp     = "/scratch/%s/batch_input/"%(user)
@@ -189,7 +189,7 @@ class cmsRunJob:
     
     if not os.path.exists( batch_tmp):
         os.makedirs( batch_tmp )
-        self.logger.info( 'Created directory %s', batch_tmp)
+        self.logger.debug( 'Created directory %s', batch_tmp)
     
     # write the configs
     import FWCore.ParameterSet.Config as cms
@@ -228,7 +228,7 @@ class cmsRunJob:
             out_cfg_name = os.path.join( batch_tmp, str(uuid.uuid4()).replace('-','_')+'.py' )
             with file(out_cfg_name, 'w') as out_cfg:
                 out_cfg.write(self.module.process.dumpPython())
-            self.logger.info("Written %s", out_cfg_name)
+            self.logger.debug("Written %s", out_cfg_name)
     
             move_string =  ";" if len(move_cmds)>0 else ""
             move_string += ";".join(["mv %s %s"%move_cmd for move_cmd in move_cmds])
@@ -242,7 +242,7 @@ class cmsRunJob:
         os.makedirs( logdir)
     if not dryrun:
       p = subprocess.Popen(args="submit {0} --output={1} --title={2} --logLevel={3}".format(self.jobname,logdir,self.info["title"],self.logLevel),stdout = subprocess.PIPE,stderr = subprocess.STDOUT, shell=True)
-      self.logger.info(p.stdout.read())
+      self.logger.debug(p.stdout.read())
     self.logger.info("Archiving {}".format(self.jobname))
     shutil.move(self.jobname,os.path.join(self.info["jobdir"],"input",self.jobname))
     with open(os.path.join(logdir,"jobinfo.json"),"w") as f:
