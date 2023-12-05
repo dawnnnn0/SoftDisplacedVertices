@@ -1,13 +1,13 @@
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 
-class TracksMiniAOD : public edm::EDProducer {
+class TracksMiniAOD : public edm::one::EDProducer<edm::one::SharedResources> {
   public:
     explicit TracksMiniAOD(const edm::ParameterSet&);
     virtual void produce(edm::Event&, const edm::EventSetup&);
@@ -18,6 +18,7 @@ class TracksMiniAOD : public edm::EDProducer {
 TracksMiniAOD::TracksMiniAOD(const edm::ParameterSet& cfg)
   : packed_candidates_token(consumes<pat::PackedCandidateCollection>(cfg.getParameter<edm::InputTag>("packed_candidates")))
 {
+  usesResource();
   produces<reco::TrackCollection>();
 }
 
