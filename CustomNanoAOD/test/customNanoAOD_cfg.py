@@ -51,7 +51,7 @@ process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(1000)
 )
 
 MessageLogger = cms.Service("MessageLogger")
@@ -59,8 +59,8 @@ MessageLogger = cms.Service("MessageLogger")
 
 # Input source
 process.source = cms.Source("PoolSource",
-    #fileNames = cms.untracked.vstring('file:/users/ang.li/public/SoftDV/CMSSW_10_6_30/src/SoftDisplacedVertices/CustomMiniAOD/test/MiniAOD.root'),
-    fileNames = cms.untracked.vstring('file:/eos/vbc/experiments/cms/store/user/liko/ZJetsToNuNu_HT-1200To2500_TuneCP5_13TeV-madgraphMLM-pythia8/ZJetsToNuNu_HT-1200To2500_MC_UL18_CustomMiniAODv1-1/231112_223113/0000/MiniAOD_1.root'),
+    fileNames = cms.untracked.vstring('file:/eos/vbc/experiments/cms/store/user/felang/SignalProduction/samples/Stop/600_585_20/CustomMiniAOD/MINIAODSIMoutput_0.root'),
+    #fileNames = cms.untracked.vstring('file:/eos/vbc/experiments/cms/store/user/liko/ZJetsToNuNu_HT-1200To2500_TuneCP5_13TeV-madgraphMLM-pythia8/ZJetsToNuNu_HT-1200To2500_MC_UL18_CustomMiniAODv1-1/231112_223113/0000/MiniAOD_1.root'),
     secondaryFileNames = cms.untracked.vstring()
 )
 
@@ -115,7 +115,7 @@ VertexRecoSeq(process, useMINIAOD=False, useIVF=True)
 # process.reco_step = cms.Path(process.trig_filter + process.vtxreco + process.myEventContent)
 
 
-from SoftDisplacedVertices.CustomNanoAOD.nanoAOD_cff import nanoAOD_customise_SoftDisplacedVerticesMC
+from SoftDisplacedVertices.CustomNanoAOD.nanoAOD_cff import nanoAOD_customise_SoftDisplacedVerticesMC,nanoAOD_filter_SoftDisplacedVertices
 nanoAOD_customise_SoftDisplacedVerticesMC(process)
 
 
@@ -131,6 +131,7 @@ process.schedule = cms.Schedule(process.nanoAOD_step,
                                 process.endjob_step,
                                 process.NANOAODSIMoutput_step)
 
+nanoAOD_filter_SoftDisplacedVertices(process)
 
 from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
 associatePatAlgosToolsTask(process)
