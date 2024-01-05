@@ -7,7 +7,8 @@
             "zjetstonunuht1200_2018": "/scratch-cbe/users/ang.li/SoftDV/NanoAOD_CustomNanoAODv1_IVF_1/zjetstonunuht1200_2018/output", 
             "zjetstonunuht0400_2018": "/scratch-cbe/users/ang.li/SoftDV/NanoAOD_CustomNanoAODv1_IVF_1/zjetstonunuht0400_2018/output", 
             "zjetstonunuht0600_2018": "/scratch-cbe/users/ang.li/SoftDV/NanoAOD_CustomNanoAODv1_IVF_1/zjetstonunuht0600_2018/output", 
-            "zjetstonunuht2500_2018": "/scratch-cbe/users/ang.li/SoftDV/NanoAOD_CustomNanoAODv1_IVF_1/zjetstonunuht2500_2018/output"
+            "zjetstonunuht2500_2018": "/scratch-cbe/users/ang.li/SoftDV/NanoAOD_CustomNanoAODv1_IVF_1/zjetstonunuht2500_2018/output",
+            "stop_M600_585_ct20": "/scratch-cbe/users/ang.li/SoftDV/NanoAOD_STOP_600_585_20_1113_IVF_1"
         }, 
         "dataset": {}
     }

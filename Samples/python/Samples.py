@@ -17,17 +17,6 @@ def loadData(samples, json_path, label):
     else:
       print("Sample {} has no records!".format(b.name))
 
-
-background = [
-    Sample("ZJetsToNuNu_HT-100To200_TuneCP5_13TeV-madgraphMLM-pythia8",xsec=280.35),
-    Sample("ZJetsToNuNu_HT-200To400_TuneCP5_13TeV-madgraphMLM-pythia8", xsec=77.67),
-    Sample("ZJetsToNuNu_HT-400To600_TuneCP5_13TeV-madgraphMLM-pythia8", xsec=10.73),
-    Sample("ZJetsToNuNu_HT-600To800_TuneCP5_13TeV-madgraphMLM-pythia8", xsec=2.559),
-    Sample("ZJetsToNuNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8", xsec=1.1796),
-    Sample("ZJetsToNuNu_HT-1200To2500_TuneCP5_13TeV-madgraphMLM-pythia8",xsec=0.28833),
-    Sample("ZJetsToNuNu_HT-2500ToInf_TuneCP5_13TeV-madgraphMLM-pythia8",xsec=0.006945),
-    ]
-
 znunu_2018 = [
     Sample("zjetstonunuht0100_2018",xsec=280.35),
     Sample("zjetstonunuht0200_2018", xsec=77.67),
@@ -56,17 +45,3 @@ for samples in all_samples:
   for s in samples:
     exec("{} = s".format(s.name))
 
-#MINIAOD_datasets = [
-#    '/ZJetsToNuNu_HT-100To200_TuneCP5_13TeV-madgraphMLM-pythia8/liko-ZJetToNuNu_HT-100To200_MC_UL18_CustomMiniAODv1-1-d89a5f51c8622d62b5accbd8b7f90262/USER',
-#    '/ZJetsToNuNu_HT-200To400_TuneCP5_13TeV-madgraphMLM-pythia8/liko-ZJetsToNuNu_HT-200To400_MC_UL18_CustomMiniAODv1-1-d89a5f51c8622d62b5accbd8b7f90262/USER',
-#    '/ZJetsToNuNu_HT-400To600_TuneCP5_13TeV-madgraphMLM-pythia8/liko-ZJetsToNuNu_HT-400To600_MC_UL18_CustomMiniAODv1-1-d89a5f51c8622d62b5accbd8b7f90262/USER',
-#    '/ZJetsToNuNu_HT-600To800_TuneCP5_13TeV-madgraphMLM-pythia8/liko-ZJetsToNuNu_HT-600To800_MC_UL18_CustomMiniAODv1-1-d89a5f51c8622d62b5accbd8b7f90262/USER',
-#    '/ZJetsToNuNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8/liko-ZJetsToNuNu_HT-800To1200_MC_UL18_CustomMiniAODv1-1-d89a5f51c8622d62b5accbd8b7f90262/USER',
-#    '/ZJetsToNuNu_HT-1200To2500_TuneCP5_13TeV-madgraphMLM-pythia8/liko-ZJetsToNuNu_HT-1200To2500_MC_UL18_CustomMiniAODv1-1-d89a5f51c8622d62b5accbd8b7f90262/USER',
-#    '/ZJetsToNuNu_HT-2500ToInf_TuneCP5_13TeV-madgraphMLM-pythia8/liko-ZJetsToNuNu_HT-2500ToInf_MC_UL18_CustomMiniAODv1-1-d89a5f51c8622d62b5accbd8b7f90262/USER',
-#    ]
-#
-#for i in range(len(background)):
-#  background[i].setDataset(tier='MINIAOD', dataset=MINIAOD_datasets[i], instance='phys03')
-#
-#background[0].setDirs(tier='MINIAOD',dirs="/eos/vbc/experiments/cms/store/user/liko/ZJetsToNuNu_HT-100To200_TuneCP5_13TeV-madgraphMLM-pythia8/ZJetToNuNu_HT-100To200_MC_UL18_CustomMiniAODv1-1/231112_223048/")

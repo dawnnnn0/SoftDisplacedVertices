@@ -7,12 +7,14 @@ import SoftDisplacedVertices.Samples.Samples as s
 import SoftDisplacedVertices.Samples.cmsRunJobs as job
 
 dryrun = False
-input_label = "CustomMiniAODv1"
-version = "CustomNanoAODv1_MFV_1"
+#input_label = "CustomMiniAODv1"
+input_label = "CustomMiniAODv0"
+version = "CustomNanoAODv0_IVF_nosharetk"
 
 j = job.cmsRunJob(cfg='customNanoAOD_cfg.py',logLevel = "INFO")
 
-input_samples = s.znunu_2018
+#input_samples = s.znunu_2018
+input_samples = [s.stop_M600_585_ct20]
 
 s.loadData(input_samples,os.path.join(os.environ['CMSSW_BASE'],'src/SoftDisplacedVertices/Samples/json/test.json'),input_label)
 
