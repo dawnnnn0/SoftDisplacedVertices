@@ -87,7 +87,7 @@ SVTrackTableProducer::SVTrackTableProducer(const edm::ParameterSet& params)
 
 {
   produces<nanoaod::FlatTable>("svs");
-  //produces<nanoaod::FlatTable>("tks");
+  produces<nanoaod::FlatTable>("tksrefit");
   produces<nanoaod::FlatTable>("svstksidx"); // secondary vertex track index
 }
 
@@ -119,6 +119,13 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
   /////////////////
   VertexDistance3D vdist;
   VertexDistanceXY vdistXY;
+
+  std::vector<float> tk_eta, tk_phi, tk_dxy, tk_dz, tk_pt, tk_dxyError, tk_dzError, tk_ptError, tk_phiError, tk_etaError, tk_validFraction, tk_normalizedChi2;
+  std::vector<int> tk_charge, tk_numberOfValidHits, tk_numberOfLostHits;
+  std::vector<int> tk_isHighPurity;
+  std::vector<int> tk_algo; 
+  std::vector<int> tk_svIdx, tk_tkIdx;
+  int ntk_refit = 0;
 
 
   size_t i = 0;
@@ -154,6 +161,42 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
         chi2.push_back(sv.chi2());
         normalizedChi2.push_back(sv.normalizedChi2());
         ndof.push_back(sv.ndof());
+
+        // Print refitted tracks and original track
+        std::cout << "Print tracks:" << std::endl;
+        if (!sv.hasRefittedTracks()) {
+          std::cout << "SV has no refitted tracks!" << std::endl;
+        }
+        else{
+          auto rtks = sv.refittedTracks();
+          for (auto& rtk:rtks){
+            tk_normalizedChi2.push_back(rtk.normalizedChi2());
+            tk_eta.push_back(rtk.eta());
+            tk_phi.push_back(rtk.phi());
+            tk_pt.push_back(rtk.pt());
+            tk_dxy.push_back(rtk.dxy(PV0.position()));
+            tk_dz.push_back(rtk.dz(PV0.position()));
+            tk_etaError.push_back(rtk.etaError());
+            tk_phiError.push_back(rtk.phiError());
+            tk_ptError.push_back(rtk.ptError());
+            tk_dxyError.push_back(rtk.dxyError(PV0.position(), PV0.covariance()));
+            tk_dzError.push_back(rtk.dzError());
+            tk_charge.push_back(rtk.charge());
+            tk_isHighPurity.push_back(rtk.quality(reco::TrackBase::TrackQuality::highPurity));
+            tk_numberOfValidHits.push_back(rtk.numberOfValidHits());
+            tk_numberOfLostHits.push_back(rtk.numberOfLostHits());
+            tk_validFraction.push_back(rtk.validFraction());
+            tk_algo.push_back(rtk.algo());
+            tk_svIdx.push_back(&sv - &((*svsIn)[0]));
+
+            auto otk = sv.originalTrack(rtk);
+            tk_tkIdx.push_back(otk.key());
+            ntk_refit += 1;
+
+            std::cout << "Original track: key " << otk.key() << "pt " << otk->pt() << " eta " << otk->eta() << " phi " << otk->phi() << " dxy " << otk->dxy(PV0.position()) << " dz " << otk->dz(PV0.position()) << std::endl;
+            std::cout << "Refitted track: pt " << rtk.pt() << " eta " << rtk.eta() << " phi " << rtk.phi() << " dxy " << rtk.dxy(PV0.position()) << " dz " << rtk.dz(PV0.position()) << std::endl;
+          }
+        }
 
         // GOOD TRACK CRITERIA
         // ---------------------------
@@ -263,6 +306,29 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
     }
   }
 
+  // Refitted track table
+  //
+  auto refittkTable = std::make_unique<nanoaod::FlatTable>(ntk_refit, tkName_, false);
+  refittkTable->addColumn<float>("normalizedChi2", tk_normalizedChi2, "normalizedChi2", nanoaod::FlatTable::FloatColumn, 10);
+  refittkTable->addColumn<float>("eta", tk_eta, "eta", nanoaod::FlatTable::FloatColumn, 10);
+  refittkTable->addColumn<float>("phi", tk_phi, "phi", nanoaod::FlatTable::FloatColumn, 10);
+  refittkTable->addColumn<float>("pt", tk_pt, "pt", nanoaod::FlatTable::FloatColumn, 10);
+  refittkTable->addColumn<float>("dxy", tk_dxy, "dxy", nanoaod::FlatTable::FloatColumn, 10);
+  refittkTable->addColumn<float>("dz", tk_dz, "dz", nanoaod::FlatTable::FloatColumn, 10);
+  refittkTable->addColumn<float>("etaError", tk_etaError, "etaError", nanoaod::FlatTable::FloatColumn, 10);
+  refittkTable->addColumn<float>("phiError", tk_phiError, "phiError", nanoaod::FlatTable::FloatColumn, 10);
+  refittkTable->addColumn<float>("ptError", tk_ptError, "ptError", nanoaod::FlatTable::FloatColumn, 10);
+  refittkTable->addColumn<float>("dxyError", tk_dxyError, "dxyError", nanoaod::FlatTable::FloatColumn, 10);
+  refittkTable->addColumn<float>("dzError", tk_dzError, "dzError", nanoaod::FlatTable::FloatColumn, 10);
+  refittkTable->addColumn<int>("charge", tk_charge, "Charge", nanoaod::FlatTable::IntColumn, 10);
+  refittkTable->addColumn<int>("isHighPurity", tk_isHighPurity, "Is High Purity", nanoaod::FlatTable::IntColumn);
+  refittkTable->addColumn<int>("numberOfValidHits", tk_numberOfValidHits, "Number of valid hits", nanoaod::FlatTable::IntColumn);
+  refittkTable->addColumn<int>("numberOfLostHits", tk_numberOfLostHits, "Number of cases with layers without hits", nanoaod::FlatTable::IntColumn);
+  refittkTable->addColumn<float>("validFraction", tk_validFraction, "Fraction of valid hits on track", nanoaod::FlatTable::FloatColumn, 10);
+  refittkTable->addColumn<int>("algo", tk_algo, "Algorithm of track reconstruction", nanoaod::FlatTable::IntColumn);
+  refittkTable->addColumn<int>("svIdx", tk_svIdx, "Index of displaced vertex the track is associated to", nanoaod::FlatTable::IntColumn);
+  refittkTable->addColumn<int>("tkIdx", tk_tkIdx, "Index of original track that the refitted track corresponds to", nanoaod::FlatTable::IntColumn);
+
 
   //This part used to generate the index mapping between reco vertex and reco tracks, a bette way (LUT) is used now so this part is commented out
   // -------------------------------------------------------------
@@ -346,6 +412,7 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
   //tktab->addColumn<int>(tkbranchName_, key, tkbranchDoc_, nanoaod::FlatTable::IntColumn);
 
   iEvent.put(std::move(svsTable), "svs");
+  iEvent.put(std::move(refittkTable), "tksrefit");
   //iEvent.put(std::move(tktab), "tks");
   iEvent.put(std::move(LUT), "svstksidx");
 }
