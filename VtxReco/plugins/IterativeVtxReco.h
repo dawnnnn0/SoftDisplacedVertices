@@ -61,7 +61,7 @@ class MFVVertexer : public edm::EDProducer {
     void createSetofSharedJetTracks(std::vector<std::vector<size_t>>& vec_sharedjet_track_idx, std::vector<size_t>& vec_special_sharedjet_track_idx, std::vector<size_t>& vec_all_track_idx, std::vector<size_t>& vec_sharedjet_idx, size_t sharedjet_idx); 
     bool match_track_jet(const reco::Track& tk, const Jet& jet, const std::vector<Jet>& jets, const size_t& idx);
 
-    void finish(edm::Event&, const std::vector<reco::TransientTrack>&, std::unique_ptr<reco::VertexCollection>);
+    void finish(edm::Event&, const std::vector<reco::TransientTrack>&, std::unique_ptr<reco::VertexCollection>, std::unique_ptr<reco::VertexCollection>);
 
     enum stepEnum{afterdzfit, aftermerge, aftersharedjets, N_STEPS};
     std::vector<TString> stepStrs = {"afterdzfit", "aftermerge", "aftersharedjets", "N_STEPS"};
@@ -309,6 +309,7 @@ MFVVertexer<Jet>::MFVVertexer(const edm::ParameterSet& cfg)
     throw cms::Exception("MFVVertexer", "n_tracks_per_seed_vertex must be one of 2,3,4,5");
 
   produces<reco::VertexCollection>();
+  produces<reco::VertexCollection>("seed");
   //produces<VertexerPairEffs>();
   produces<reco::TrackCollection>("seed"); // JMTBAD remove me
   produces<reco::TrackCollection>("inVertices");
@@ -417,7 +418,7 @@ MFVVertexer<Jet>::MFVVertexer(const edm::ParameterSet& cfg)
 }
 
 template <class Jet>
-void MFVVertexer<Jet>::finish(edm::Event& event, const std::vector<reco::TransientTrack>& seed_tracks, std::unique_ptr<reco::VertexCollection> vertices) {
+void MFVVertexer<Jet>::finish(edm::Event& event, const std::vector<reco::TransientTrack>& seed_tracks, std::unique_ptr<reco::VertexCollection> vertices, std::unique_ptr<reco::VertexCollection> vertices_seed) {
   std::unique_ptr<reco::TrackCollection> tracks_seed      (new reco::TrackCollection);
   std::unique_ptr<reco::TrackCollection> tracks_inVertices(new reco::TrackCollection);
 
@@ -460,6 +461,7 @@ void MFVVertexer<Jet>::finish(edm::Event& event, const std::vector<reco::Transie
   }
 
   event.put(std::move(vertices));
+  event.put(std::move(vertices_seed),     "seed");
   //event.put(std::move(vpeffs));
   event.put(std::move(tracks_seed),       "seed");
   event.put(std::move(tracks_inVertices), "inVertices");
@@ -504,13 +506,14 @@ void MFVVertexer<Jet>::produce(edm::Event& event, const edm::EventSetup& setup) 
   //////////////////////////////////////////////////////////////////////
 
   std::unique_ptr<reco::VertexCollection> vertices(new reco::VertexCollection);
+  std::unique_ptr<reco::VertexCollection> vertices_seed(new reco::VertexCollection);
   //std::unique_ptr<VertexerPairEffs> vpeffs(new VertexerPairEffs);
   //std::vector<std::pair<track_set, track_set>> vpeffs_tracks;
 
   if (ntk == 0) {
     if (verbose)
       printf("no seed tracks -> putting empty vertex collection into event\n");
-    finish(event, seed_tracks, std::move(vertices));
+    finish(event, seed_tracks, std::move(vertices), std::move(vertices_seed));
     return;
   }
 
@@ -524,6 +527,7 @@ void MFVVertexer<Jet>::produce(edm::Event& event, const edm::EventSetup& setup) 
     TransientVertex seed_vertex = kv_reco->vertex(ttks);
     if (seed_vertex.isValid() && seed_vertex.normalisedChiSquared() < max_seed_vertex_chi2) {
       vertices->push_back(reco::Vertex(seed_vertex));
+      vertices_seed->push_back(reco::Vertex(seed_vertex));
 
       if (verbose || histos) {
         const reco::Vertex& v = vertices->back();
@@ -1565,7 +1569,7 @@ void MFVVertexer<Jet>::produce(edm::Event& event, const edm::EventSetup& setup) 
   // Put the output.
   //////////////////////////////////////////////////////////////////////
 
-  finish(event, seed_tracks, std::move(vertices));
+  finish(event, seed_tracks, std::move(vertices), std::move(vertices_seed));
 }
 
 // this function will only return false only if shared jets between the given vertex pair contribute multiple shared-jet tracks to 'both' vertices (not a special case we consider).   
