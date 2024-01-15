@@ -29,8 +29,8 @@ def nanoAOD_customise_SoftDisplacedVertices(process):
       process.SVTrackTable.svSrc = cms.InputTag("MFVSecondaryVerticesSoftDV")
     
 #   have care when running on data
-    print(process.nanoSequenceMC)
-    process.nanoSequenceMC = cms.Sequence(process.nanoSequenceMC + process.recoTrackTable + process.vtxReco + process.SVTrackTable)
+    print(process.nanoSequence)
+    process.nanoSequence = cms.Sequence(process.nanoSequence + process.recoTrackTable + process.vtxReco + process.SVTrackTable)
     
     return process
 
