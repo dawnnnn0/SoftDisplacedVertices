@@ -90,6 +90,8 @@ namespace SoftDV {
   //std::vector<int> GetDaughters(const reco::GenParticle& gen, const edm::Handle<reco::GenParticleCollection>& gen_particles, bool debug);
   std::vector<int> GetDaughters(const size_t igen, const edm::Handle<reco::GenParticleCollection>& gen_particles, bool debug);
 
+  std::map<std::vector<double>,std::vector<int>> ClusterGenParts(const std::vector<int> parts, const edm::Handle<reco::GenParticleCollection>& gen_particles);
+
   SoftDV::MatchResult matchtracks(const reco::GenParticle& gtk, const edm::Handle<reco::TrackCollection>& tracks, const SoftDV::Point& refpoint);
 
   SoftDV::Match matchchi2(const reco::GenParticle& gtk, const reco::TrackRef& rtk, const SoftDV::Point& refpoint);

@@ -44,6 +44,7 @@ process.load("SoftDisplacedVertices.VtxReco.GenProducer_cfi")
 process.load("SoftDisplacedVertices.VtxReco.GenMatchedTracks_cfi")
 process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
 process.load("SoftDisplacedVertices.VtxReco.DisplayProducer_cfi")
+process.load("SoftDisplacedVertices.VtxReco.MFVGen_cfi")
 
 # Import custom table configurations
 
@@ -119,7 +120,8 @@ process.vtxRecoIVF = cms.Sequence(
     process.IVFSecondaryVerticesSoftDV
 )
 
-process.MFVSecondaryVerticesSoftDV = process.mfvVerticesMINIAOD.clone()
+#process.MFVSecondaryVerticesSoftDV = process.mfvVerticesMINIAOD.clone()
+process.MFVSecondaryVerticesSoftDV = process.MFVGenMINIAOD.clone()
 process.vtxRecoMFV = cms.Sequence(
     process.MFVSecondaryVerticesSoftDV
 )

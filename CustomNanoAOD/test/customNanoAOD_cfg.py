@@ -51,7 +51,7 @@ process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(100)
 )
 
 MessageLogger = cms.Service("MessageLogger")
@@ -59,7 +59,8 @@ MessageLogger = cms.Service("MessageLogger")
 
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:/eos/vbc/experiments/cms/store/user/felang/SignalProduction/samples/Stop/600_585_20/CustomMiniAOD/MINIAODSIMoutput_0.root'),
+    #fileNames = cms.untracked.vstring('file:/eos/vbc/experiments/cms/store/user/felang/SignalProduction/samples/Stop/600_585_20/CustomMiniAOD/MINIAODSIMoutput_0.root'),
+    fileNames = cms.untracked.vstring('file:/users/ang.li/public/SoftDV/CMSSW_10_6_30/src/SoftDisplacedVertices/CustomMiniAOD/test/MiniAOD.root'),
     #fileNames = cms.untracked.vstring('file:/eos/vbc/experiments/cms/store/user/liko/ZJetsToNuNu_HT-1200To2500_TuneCP5_13TeV-madgraphMLM-pythia8/ZJetsToNuNu_HT-1200To2500_MC_UL18_CustomMiniAODv1-1/231112_223113/0000/MiniAOD_1.root'),
     secondaryFileNames = cms.untracked.vstring()
 )

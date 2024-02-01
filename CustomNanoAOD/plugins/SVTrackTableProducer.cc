@@ -162,8 +162,6 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
         normalizedChi2.push_back(sv.normalizedChi2());
         ndof.push_back(sv.ndof());
 
-        // Print refitted tracks and original track
-        std::cout << "Print tracks:" << std::endl;
         if (!sv.hasRefittedTracks()) {
           std::cout << "SV has no refitted tracks!" << std::endl;
         }
@@ -193,8 +191,6 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
             tk_tkIdx.push_back(otk.key());
             ntk_refit += 1;
 
-            std::cout << "Original track: key " << otk.key() << "pt " << otk->pt() << " eta " << otk->eta() << " phi " << otk->phi() << " dxy " << otk->dxy(PV0.position()) << " dz " << otk->dz(PV0.position()) << std::endl;
-            std::cout << "Refitted track: pt " << rtk.pt() << " eta " << rtk.eta() << " phi " << rtk.phi() << " dxy " << rtk.dxy(PV0.position()) << " dz " << rtk.dz(PV0.position()) << std::endl;
           }
         }
 

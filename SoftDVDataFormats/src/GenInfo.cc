@@ -115,6 +115,31 @@ std::vector<int> SoftDV::GetDaughters(const size_t igen, const edm::Handle<reco:
 
 }
 
+std::map<std::vector<double>,std::vector<int>> SoftDV::ClusterGenParts(const std::vector<int> parts, const edm::Handle<reco::GenParticleCollection>& gen_particles) {
+  std::map<std::vector<double>,std::vector<int>> clusters;
+  for (const auto& p : parts) {
+    const reco::GenParticle gen = gen_particles->at(p);
+    std::vector<double> v = {gen.vx(),gen.vy(),gen.vz()};
+    if (clusters.find(v)==clusters.end()) {
+      bool found_close = false;
+      for (auto it=clusters.begin(); it!=clusters.end(); ++it){
+        std::vector<double> nv = it->first;
+        double dist = sqrt(pow(v[0]-nv[0],2)+pow(v[1]-nv[1],2)+pow(v[2]-nv[2],2));
+        if (dist<0.005){
+          clusters[nv].push_back(p);
+          break;
+        }
+      }
+      if (!found_close)
+        clusters[v] = {p};
+    }
+    else {
+      clusters[v].push_back(p);
+    }
+  }
+  return clusters;
+}
+
 SoftDV::MatchResult SoftDV::matchtracks(const reco::GenParticle& gtk, const edm::Handle<reco::TrackCollection>& tracks, const SoftDV::Point& refpoint) {
   SoftDV::Match min_match(-1,std::vector<double>());
   int tk_idx = -1;
