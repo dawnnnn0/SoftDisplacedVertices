@@ -8,3 +8,4 @@ __init__.py
 *Report.xml
 *.xml
 *.html
+*.ipynb_checkpoints*
