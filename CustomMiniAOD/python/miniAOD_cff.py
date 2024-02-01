@@ -2,6 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask
 
+# # Commented out with as part of first attempt.
+# from PhysicsTools.PatAlgos.slimming.isolatedTracks_cfi import isolatedTracks
+
 def miniAOD_customise_SoftDisplacedVertices(process):
 
     task = getPatAlgosToolsTask(process)
@@ -12,6 +15,24 @@ def miniAOD_customise_SoftDisplacedVertices(process):
 
     process.MINIAODEventContent.outputCommands.append('keep *_VertexTracks*_*_*')
     process.MINIAODSIMEventContent.outputCommands.append('keep *_VertexTracks*_*_*')
+
+    # # First implementation: Clone here, match the isolated tracks with filtered tracks in the nanoAOD.
+    # # add a new isolated tracks object.
+    # process.isolatedTracksSoftDV = isolatedTracks.clone(
+    #     pT_cut = cms.double(0.5),
+    #     generalTracks = cms.InputTag("generalTracks"),
+    # )
+    # process.MINIAODEventContent.outputCommands.append('keep *_isolatedTracksSoftDV*_*_*')
+    # process.MINIAODSIMEventContent.outputCommands.append('keep *_isolatedTracksSoftDV*_*_*')
+    # task.add(process.isolatedTracksSoftDV)
+
+    # Second attempt: Use a separate track filter and store isolation independently
+    #                   in the same order as filtered tracks.
+    process.load('SoftDisplacedVertices.CustomMiniAOD.FilterIsolateTracks_cfi')
+    process.FilterIsolateTracks.histos = cms.bool(False)
+    task.add(process.FilterIsolateTracks)
+    process.MINIAODEventContent.outputCommands.append('keep *_FilterIso*_*_*')
+    process.MINIAODSIMEventContent.outputCommands.append('keep *_FilterIso*_*_*')
 
     return process
 

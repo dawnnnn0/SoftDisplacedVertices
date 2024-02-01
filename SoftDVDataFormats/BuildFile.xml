@@ -4,6 +4,10 @@
 <use name="DataFormats/Math"/>
 <use name="DataFormats/HepMCCandidate"/>
 <use name="DataFormats/GeometryCommonDetAlgo"/>
+
+<use name="DataFormats/PatCandidates"/>
+
+
 <export>
   <lib name="1"/>
 </export>
