@@ -4,7 +4,7 @@ from PhysicsTools.NanoAOD.common_cff import *
 isN2N3 = False
 useIVF = True
 
-def nanoAOD_customise_SoftDisplacedVertices(process):
+def nanoAOD_customise_SoftDisplacedVertices(process, isMC=None):
 
     process.load("SoftDisplacedVertices.VtxReco.VertexReco_cff")
     process.load("SoftDisplacedVertices.VtxReco.Vertexer_cfi")
@@ -29,15 +29,17 @@ def nanoAOD_customise_SoftDisplacedVertices(process):
       process.SVTrackTable.svSrc = cms.InputTag("MFVSecondaryVerticesSoftDV")
     
 #   have care when running on data
-    print(process.nanoSequence)
-    process.nanoSequence = cms.Sequence(process.nanoSequence + process.recoTrackTable + process.vtxReco + process.SVTrackTable)
+    if isMC:
+      process.nanoSequenceMC = cms.Sequence(process.nanoSequenceMC + process.recoTrackTable + process.vtxReco + process.SVTrackTable)
+    else:
+      process.nanoSequence = cms.Sequence(process.nanoSequence + process.recoTrackTable + process.vtxReco + process.SVTrackTable)
     
     return process
 
 def nanoAOD_customise_SoftDisplacedVerticesMC(process):
 
-    process = nanoAOD_customise_SoftDisplacedVertices(process)
-    
+    process = nanoAOD_customise_SoftDisplacedVertices(process, "MC")
+
     process.finalGenParticlesWithStableCharged = process.finalGenParticles.clone(
         src = cms.InputTag("prunedGenParticles")
     )
