@@ -67,4 +67,16 @@ def nanoAOD_customise_SoftDisplacedVerticesMC(process):
     
     return process
 
+def nanoAOD_filter_SoftDisplacedVertices(process):
+    process.load("SoftDisplacedVertices.CustomNanoAOD.LumiFilter_cfi")
+    process.passLumiFilter = cms.Path(process.LumiFilter)
+    process.schedule.insert(0,process.passLumiFilter)
 
+    if hasattr(process, 'NANOAODoutput'):
+        process.NANOAODoutput.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('passLumiFilter'))
+    elif hasattr(process, 'NANOAODSIMoutput'):
+        process.NANOAODSIMoutput.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('passLumiFilter'))
+    else:
+        print("WARNING: No NANOAOD[SIM]output definition")
+
+    return process

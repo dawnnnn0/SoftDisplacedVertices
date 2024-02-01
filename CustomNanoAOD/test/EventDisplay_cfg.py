@@ -11,14 +11,13 @@ You must adapt your the input source and output filename before you run this.
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
-from Configuration.Eras.Modifier_run2_nanoAOD_106Xv2_cff import run2_nanoAOD_106Xv2
 
 import HLTrigger.HLTfilters.hltHighLevel_cfi as hlt
 # import Ang's custom CMSSW modules
 from SoftDisplacedVertices.VtxReco.VertexReco_cff import VertexRecoSeq
 
 
-process = cms.Process('customNanoAOD',Run2_2018,run2_nanoAOD_106Xv2)
+process = cms.Process('keepall')
 
 
 # from FWCore.MessageService.MessageLogger_cfi import *
@@ -44,6 +43,8 @@ process.load("SoftDisplacedVertices.VtxReco.VertexReco_cff")
 process.load("SoftDisplacedVertices.VtxReco.GenProducer_cfi")
 process.load("SoftDisplacedVertices.VtxReco.GenMatchedTracks_cfi")
 process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
+process.load("SoftDisplacedVertices.VtxReco.DisplayProducer_cfi")
+process.load("SoftDisplacedVertices.VtxReco.MFVGen_cfi")
 
 # Import custom table configurations
 
@@ -51,19 +52,21 @@ process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(1000)
 )
+
 
 MessageLogger = cms.Service("MessageLogger")
 
 
 # Input source
 process.source = cms.Source("PoolSource",
-    #fileNames = cms.untracked.vstring('file:/eos/vbc/experiments/cms/store/user/felang/SignalProduction/samples/Stop/600_585_20/CustomMiniAOD/MINIAODSIMoutput_0.root'),
-    fileNames = cms.untracked.vstring('file:/users/ang.li/public/SoftDV/CMSSW_10_6_30/src/SoftDisplacedVertices/CustomMiniAOD/test/MiniAOD.root'),
-    #fileNames = cms.untracked.vstring('file:/eos/vbc/experiments/cms/store/user/liko/ZJetsToNuNu_HT-1200To2500_TuneCP5_13TeV-madgraphMLM-pythia8/ZJetsToNuNu_HT-1200To2500_MC_UL18_CustomMiniAODv1-1/231112_223113/0000/MiniAOD_1.root'),
+    #fileNames = cms.untracked.vstring('file:/users/ang.li/public/SoftDV/CMSSW_10_6_30/src/SoftDisplacedVertices/CustomMiniAOD/test/MiniAOD.root'),
+    fileNames = cms.untracked.vstring('file:/eos/vbc/experiments/cms/store/user/felang/SignalProduction/samples/Stop/600_585_20/CustomMiniAOD/MINIAODSIMoutput_0.root'),
     secondaryFileNames = cms.untracked.vstring()
 )
+
+process.source.eventsToProcess = cms.untracked.VEventRange('1:98-1:98',"1:227-1:227",'1:231-1:231','1:257-1:257','1:263-1:263')
 
 process.options = cms.untracked.PSet(
     SkipEvent= cms.untracked.vstring("ProductNotFound"),
@@ -86,27 +89,19 @@ process.trig_filter = hlt.hltHighLevel.clone(
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, '106X_upgrade2018_realistic_v16_L1v1', '')
 
-
-# Output definition
-output_mod = cms.OutputModule("NanoAODOutputModule",
-    compressionAlgorithm = cms.untracked.string('LZMA'),
-    compressionLevel = cms.untracked.int32(9),
-    dataset = cms.untracked.PSet(
-        dataTier = cms.untracked.string('NANOAODSIM'),
-        filterName = cms.untracked.string('')
-    ),
-    fileName = cms.untracked.string('file:/users/ang.li/public/SoftDV/CMSSW_10_6_30/src/SoftDisplacedVertices/CustomNanoAOD/test/NanoAOD.root'),
-    outputCommands = process.NANOAODSIMEventContent.outputCommands
+process.out = cms.OutputModule("PoolOutputModule",
+    fileName = cms.untracked.string('keepall.root'),
+    SelectEvents = cms.untracked.PSet(
+      ),
+    outputCommands = cms.untracked.vstring(
+      'keep *',
+      )
 )
-
-
-process.NANOAODSIMoutput = output_mod
 
 # Additional output definition
 
 # Defining globally acessible service object that does not affect physics results.
 process.TFileService = cms.Service("TFileService", fileName = cms.string("/users/ang.li/public/SoftDV/CMSSW_10_6_30/src/SoftDisplacedVertices/CustomNanoAOD/test/vtxreco_histos.root") )
-VertexRecoSeq(process, useMINIAOD=False, useIVF=True)
 
 # EventContentAnalyzer
 # process.myEventContent = cms.EDAnalyzer("EventContentAnalyzer")
@@ -115,47 +110,34 @@ VertexRecoSeq(process, useMINIAOD=False, useIVF=True)
 # Path and EndPath definitions
 # process.reco_step = cms.Path(process.trig_filter + process.vtxreco + process.myEventContent)
 
+process.load("SoftDisplacedVertices.VtxReco.VertexReco_cff")
+process.load("SoftDisplacedVertices.VtxReco.Vertexer_cfi")
 
-from SoftDisplacedVertices.CustomNanoAOD.nanoAOD_cff import nanoAOD_customise_SoftDisplacedVerticesMC,nanoAOD_filter_SoftDisplacedVertices
-nanoAOD_customise_SoftDisplacedVerticesMC(process)
+process.vtxRecoIVF = cms.Sequence(
+    process.inclusiveVertexFinderSoftDV *
+    process.vertexMergerSoftDV *
+    process.trackVertexArbitratorSoftDV *
+    process.IVFSecondaryVerticesSoftDV
+)
 
+#process.MFVSecondaryVerticesSoftDV = process.mfvVerticesMINIAOD.clone()
+process.MFVSecondaryVerticesSoftDV = process.MFVGenMINIAOD.clone()
+process.vtxRecoMFV = cms.Sequence(
+    process.MFVSecondaryVerticesSoftDV
+)
 
-process.nanoAOD_step = cms.Path(process.nanoSequenceMC)
-process.endjob_step = cms.EndPath(process.endOfProcess)
-process.NANOAODSIMoutput_step = cms.EndPath(process.NANOAODSIMoutput)
+process.reco_step = cms.Path(process.vtxRecoIVF + process.vtxRecoMFV + process.DisplayProducer)
+#process.endjob_step = cms.EndPath(process.endOfProcess)
+process.output_step = cms.EndPath(process.out)
+
 
 
 
 
 # Schedule definition
-process.schedule = cms.Schedule(process.nanoAOD_step,
-                                process.endjob_step,
-                                process.NANOAODSIMoutput_step)
+process.schedule = cms.Schedule(process.reco_step,
+                                process.output_step)
+#process.schedule = cms.Schedule(process.nanoAOD_step,
+#                                process.endjob_step,
+#                                process.NANOAODSIMoutput_step)
 
-nanoAOD_filter_SoftDisplacedVertices(process)
-
-from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
-associatePatAlgosToolsTask(process)
-
-# customisation of the process.
-
-# Automatic addition of the customisation function from PhysicsTools.NanoAOD.nano_cff
-from PhysicsTools.NanoAOD.nano_cff import nanoAOD_customizeMC 
-
-#call to customisation function nanoAOD_customizeMC imported from PhysicsTools.NanoAOD.nano_cff
-process = nanoAOD_customizeMC(process)
-
-# Automatic addition of the customisation function from Configuration.DataProcessing.Utils
-from Configuration.DataProcessing.Utils import addMonitoring 
-
-#call to customisation function addMonitoring imported from Configuration.DataProcessing.Utils
-process = addMonitoring(process)
-
-# End of customisation functions
-
-# Customisation from command line
-
-# Add early deletion of temporary data products to reduce peak memory need
-from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEarlyDelete
-process = customiseEarlyDelete(process)
-# End adding early deletion
