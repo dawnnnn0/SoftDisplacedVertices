@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 recoTrackTable = cms.EDProducer("RecoTrackTableProducer",
-    src = cms.InputTag("VertexTracksFilter", "seed"),
+    src = cms.InputTag("FilterIsolateTracks", "seed"),
+    isoDR03 = cms.InputTag("FilterIsolateTracks", "isolationDR03"),
     vtx = cms.InputTag("offlineSlimmedPrimaryVertices"),
     recoTrackName = cms.string("SDVTrack"),
     recoTrackDoc = cms.string("Filtered reco Tracks"),
