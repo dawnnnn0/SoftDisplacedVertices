@@ -186,6 +186,63 @@ bool SoftDV::pass_gentk(const reco::GenParticle& gtk, const SoftDV::Point& refpo
   return true;  
 }
 
+std::map<int,std::pair<int,int>> SoftDV::VtxLLPMatch(const edm::Handle<reco::GenParticleCollection>& genPart, const edm::Handle<reco::VertexCollection>& vertices, const edm::Handle<reco::TrackCollection>& tracks, const SoftDV::Point& refpoint, std::vector<int> LLPid, int LSPid, bool debug) {
+  std::map<int,std::pair<int,int>> res;
+  std::vector<int> llp_idx = SoftDV::FindLLP(genPart, LLPid, LSPid, debug);
+  std::map<int,std::vector<int>> tk_llp_map; // first element is track key; second element is a vector of indices of matched LLPs
+  for (size_t illp=0; illp<llp_idx.size(); ++illp){
+    std::vector<int> llp_daus = SoftDV::GetDaughters(llp_idx[illp], genPart, debug);
+    for (int igen:llp_daus) {
+      const reco::GenParticle& idau = genPart->at(igen);
+      const auto matchres = SoftDV::matchtracks(idau, tracks, refpoint);
+      if (matchres.first != -1) {
+        reco::TrackRef itk = reco::TrackRef(tracks, matchres.first);
+        if (tk_llp_map.find(itk.key())!=tk_llp_map.end() && std::find(tk_llp_map[itk.key()].begin(),tk_llp_map[itk.key()].end(),illp)!=tk_llp_map[itk.key()].end()) {
+          if (debug)
+            std::cout << " LLP " << illp << " already matched with tk " << itk.key() << std::endl;
+          continue;
+        }
+        tk_llp_map[itk.key()].push_back(illp);
+        if (debug){
+          std::cout << " matched with track " << itk.key() << std::endl;
+        }
+      }
+    }
+  }
+  if (debug){
+    std::cout << "Track LLP match map:" << std::endl;
+    for (auto mit = tk_llp_map.begin(); mit!=tk_llp_map.end(); ++mit) {
+      std::cout << " tk " << mit->first << " LLP ";
+      for (auto e:mit->second){
+        std::cout << e << ", ";
+      }
+      std::cout << std::endl;
+    }
+  }
+  for (size_t ivtx=0; ivtx<vertices->size(); ++ivtx){
+    const reco::Vertex& sv = vertices->at(ivtx);
+    std::vector<int> nmatchtk(llp_idx.size(),0);
+    if (debug)
+      std::cout << "vtx tks: ";
+    for (auto v_tk = sv.tracks_begin(), vtke = sv.tracks_end(); v_tk != vtke; ++v_tk){
+      int tkkey = (*v_tk).key();
+      if (debug)
+        std::cout << tkkey << ", ";
+      const auto& otk = tracks->at(tkkey);
+      if (tk_llp_map.find(tkkey)!=tk_llp_map.end()) {
+        for (auto& imllp:tk_llp_map[tkkey]){
+          nmatchtk[imllp] += 1;
+        }
+      }
+    }
+    if (debug)
+      std::cout << std::endl;
+    int matchllp_idx = std::max_element(nmatchtk.begin(),nmatchtk.end())-nmatchtk.begin();
+    res[ivtx] = std::pair<int,int>(matchllp_idx,nmatchtk[matchllp_idx]);
+  }
+  return res;
+}
+
 double gen_dxy(const reco::GenParticle& gtk, const SoftDV::Point& refpoint){
   // calculate dxy for gen track
   double r = 88.*gtk.pt();
