@@ -26,6 +26,7 @@ def miniAOD_customise_SoftDisplacedVertices(process):
     # process.MINIAODSIMEventContent.outputCommands.append('keep *_isolatedTracksSoftDV*_*_*')
     # task.add(process.isolatedTracksSoftDV)
 
+
     # Second attempt: Use a separate track filter and store isolation independently
     #                   in the same order as filtered tracks.
     process.load('SoftDisplacedVertices.CustomMiniAOD.FilterIsolateTracks_cfi')
@@ -33,6 +34,13 @@ def miniAOD_customise_SoftDisplacedVertices(process):
     task.add(process.FilterIsolateTracks)
     process.MINIAODEventContent.outputCommands.append('keep *_FilterIso*_*_*')
     process.MINIAODSIMEventContent.outputCommands.append('keep *_FilterIso*_*_*')
+
+
+    # Get track isolations according to https://cmssdt.cern.ch/lxr/source/PhysicsTools/IsolationAlgos/python/goodTrackIsolations_cfi.py
+    process.load('SoftDisplacedVertices.CustomMiniAOD.filteredTrackIsolations_cfi')
+    task.add(process.filteredTrackIsolations)
+    process.MINIAODEventContent.outputCommands.append('keep *_filteredTrackIsolations_*_*')
+    process.MINIAODSIMEventContent.outputCommands.append('keep *_filteredTrackIsolations_*_*')
 
     return process
 
