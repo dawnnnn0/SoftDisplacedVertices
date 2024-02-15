@@ -20,6 +20,8 @@
 <use name="CondFormats/DataRecord"/>
 <use name="MagneticField/Engine"/>
 
+<use name="CommonTools/UtilAlgos"/>
+
 <use name="SoftDisplacedVertices/SoftDVDataFormats"/>
 
 

@@ -10,11 +10,7 @@
  Implementation:
      [Notes on implementation]
 */
-//
-// Original Author:  Dietrich Liko, Kaan Gueven
-//         Created:  Thu, 20 Jul 2023 10:18:55 GMT
-//
-//
+
 
 // system include files
 #include <memory>
@@ -62,6 +58,8 @@ private:
     edm::EDGetTokenT<std::vector<reco::Vertex>> vtxToken_;
     edm::InputTag isoDR03_;
     edm::EDGetTokenT<std::vector<SoftDV::PFIsolation>> isoDR03Token_;
+    edm::InputTag dr03TkSumPt_;
+    edm::EDGetTokenT<edm::ValueMap<float>> dr03TkSumPtToken_;
     const std::string recoTrackName_;
     const std::string recoTrackDoc_;
     const bool skipNonExistingSrc_;
@@ -80,6 +78,8 @@ RecoTrackTableProducer::RecoTrackTableProducer(const edm::ParameterSet &pset)
       vtxToken_(consumes<reco::VertexCollection>(vtx_)),
       isoDR03_(pset.getParameter<edm::InputTag>("isoDR03")),
       isoDR03Token_(consumes<std::vector<SoftDV::PFIsolation>>(isoDR03_)),
+      dr03TkSumPt_(pset.getParameter<edm::InputTag>("dr03TkSumPt")),
+      dr03TkSumPtToken_(consumes<edm::ValueMap<float>>(dr03TkSumPt_)),
       recoTrackName_(pset.getParameter<std::string>("recoTrackName")),
       recoTrackDoc_(pset.getParameter<std::string>("recoTrackDoc")),
       skipNonExistingSrc_(pset.getParameter<bool>("skipNonExistingSrc"))
@@ -96,6 +96,7 @@ void RecoTrackTableProducer::produce(edm::Event &iEvent, const edm::EventSetup &
 {
     edm::Handle<reco::TrackCollection> recoTracks;
     edm::Handle<std::vector<SoftDV::PFIsolation>> recoTracks_isoDR03;
+    edm::Handle<edm::ValueMap<float>> recoTracks_dr03TkSumPt;
     edm::Handle<reco::VertexCollection> recoVertices;
 
     std::vector<float> eta, phi, dxy, dz, pt, dxyError, dzError, ptError, phiError, etaError, validFraction;
@@ -104,11 +105,13 @@ void RecoTrackTableProducer::produce(edm::Event &iEvent, const edm::EventSetup &
     std::vector<int> isHighPurity;
     std::vector<int> algo;
     std::vector<float> pfRelIso03_all, pfRelIso03_chg;
+    std::vector<float> dr03TkSumPt;
     int nEntries = 0;
     try
     {
         iEvent.getByToken(srcToken_, recoTracks);
         iEvent.getByToken(isoDR03Token_, recoTracks_isoDR03);
+        iEvent.getByToken(dr03TkSumPtToken_, recoTracks_dr03TkSumPt);
         iEvent.getByToken(vtxToken_, recoVertices);
 
         auto pvx = recoVertices->begin();
@@ -117,6 +120,9 @@ void RecoTrackTableProducer::produce(edm::Event &iEvent, const edm::EventSetup &
             // ISOLATION
             int track_id = track - recoTracks->begin();
             SoftDV::PFIsolation isoDR03 = (*recoTracks_isoDR03)[track_id];
+            reco::TrackRef t_ref(recoTracks, track_id);
+            dr03TkSumPt.push_back((*recoTracks_dr03TkSumPt)[t_ref]);
+
 
             pfRelIso03_all_ = (isoDR03.chargedHadronIso() +
                                   std::max<double>(isoDR03.neutralHadronIso() +
@@ -176,6 +182,7 @@ void RecoTrackTableProducer::produce(edm::Event &iEvent, const edm::EventSetup &
 
     recoTrackTable->addColumn<float>("pfRelIso03_all", pfRelIso03_all, "PF relative isolation dR=0.3, total (deltaBeta corrections)", nanoaod::FlatTable::FloatColumn, 10);
     recoTrackTable->addColumn<float>("pfRelIso03_chg", pfRelIso03_chg, "PF relative isolation dR=0.3, charged component", nanoaod::FlatTable::FloatColumn, 10);
+    recoTrackTable->addColumn<float>("dr03TkSumPt", dr03TkSumPt, "Non-PF track isolation between a delta R cone of 0.3 and 0.015 with pt > 0.5 GeV", nanoaod::FlatTable::FloatColumn, 10);
 
     recoTrackTable->addColumn<float>("normalizedChi2", normalizedChi2, "normalizedChi2", nanoaod::FlatTable::FloatColumn, 10);
     recoTrackTable->addColumn<float>("eta", eta, "eta", nanoaod::FlatTable::FloatColumn, 10);
@@ -210,6 +217,7 @@ void RecoTrackTableProducer::fillDescriptions(edm::ConfigurationDescriptions &de
 
     desc.add<edm::InputTag>("src")->setComment("track collection");
     desc.add<edm::InputTag>("isoDR03")->setComment("PFIsolationDR03 collection");
+    desc.add<edm::InputTag>("dr03TkSumPt")->setComment("sum of tk pt in between to cocentric cones with deltaR 0.015 and 0.3");
     desc.add<edm::InputTag>("vtx")->setComment("vertex collection");
     desc.add<std::string>("recoTrackName")->setComment("name of the flat table to be produced");
     desc.add<std::string>("recoTrackDoc")->setComment("a few words about the documentation");

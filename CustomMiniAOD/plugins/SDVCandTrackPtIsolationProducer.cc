@@ -10,10 +10,10 @@ for CMSSW_10_6_X
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "PhysicsTools/IsolationAlgos/interface/IsolationProducerNew.h"
-#include "PhysicsTools/IsolationAlgos/interface/PtIsolationAlgo.h"
-// #include "SoftDisplacedVertices/CustomMiniAOD/plugins/PtIsolationAlgo.cc"
+// #include "PhysicsTools/IsolationAlgos/interface/PtIsolationAlgo.h"
+#include "SoftDisplacedVertices/CustomMiniAOD/plugins/SDVPtIsolationAlgoParams.h"
 
 typedef reco::modulesNew::IsolationProducer<reco::TrackCollection, reco::TrackCollection,
-                PtIsolationAlgo<reco::Track,reco::TrackCollection> > SDVCandTrackPtIsolationProducer;
+                SDVPtIsolationAlgo<reco::Track,reco::TrackCollection> > SDVCandTrackPtIsolationProducer;
 
 DEFINE_FWK_MODULE(SDVCandTrackPtIsolationProducer);
