@@ -1,28 +1,12 @@
+<use name="FWCore/Framework/"/>
 <use name="FWCore/ParameterSet"/>
-<use name="FWCore/Framework"/>
 <use name="FWCore/Utilities"/>
-<use name="FWCore/ServiceRegistry"/>
 
-<use name="DataFormats/ParticleFlowCandidate"/>
-<use name="DataFormats/PatCandidates"/>
+<use name="DataFormats/METReco"/>
 <use name="DataFormats/Candidate"/>
-<use name="DataFormats/Common"/>
-<use name="DataFormats/Math"/>
-<use name="DataFormats/JetReco"/>
 <use name="DataFormats/TrackReco"/>
-<use name="DataFormats/VertexReco"/>
-<use name="RecoTracker/DeDx"/>
-<use name="CommonTools/Utils"/>
-<use name="TrackingTools/TrackAssociator"/>
-<use name="TrackingTools/TrajectoryState"/>
-<use name="CondFormats/HcalObjects"/>
-<use name="CondFormats/EcalObjects"/>
-<use name="CondFormats/DataRecord"/>
-<use name="MagneticField/Engine"/>
 
-<use name="SoftDisplacedVertices/SoftDVDataFormats"/>
-
-
+<use name="PhysicsTools/IsolationAlgos"/>
 
 
 <flags EDM_PLUGIN="1"/>
