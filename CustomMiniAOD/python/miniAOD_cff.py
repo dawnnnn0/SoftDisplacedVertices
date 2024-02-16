@@ -8,13 +8,13 @@ from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask
 def miniAOD_customise_SoftDisplacedVertices(process):
 
     task = getPatAlgosToolsTask(process)
-    process.load('SoftDisplacedVertices.VtxReco.VertexTracks_cfi')
-    process.VertexTracksFilter.histos = cms.bool(False)
+    process.load('SoftDisplacedVertices.VtxReco.TrackFilter_cfi')
+    process.TrackFilter.histos = cms.bool(False)
  
-    task.add(process.VertexTracksFilter)
+    task.add(process.TrackFilter)
 
-    process.MINIAODEventContent.outputCommands.append('keep *_VertexTracks*_*_*')
-    process.MINIAODSIMEventContent.outputCommands.append('keep *_VertexTracks*_*_*')
+    process.MINIAODEventContent.outputCommands.append('keep *_TrackFilter*_*_*')
+    process.MINIAODSIMEventContent.outputCommands.append('keep *_TrackFilter*_*_*')
 
     # # First implementation: Clone here, match the isolated tracks with filtered tracks in the nanoAOD.
     # # add a new isolated tracks object.
@@ -29,18 +29,18 @@ def miniAOD_customise_SoftDisplacedVertices(process):
 
     # Second attempt: Use a separate track filter and store isolation independently
     #                   in the same order as filtered tracks.
-    process.load('SoftDisplacedVertices.CustomMiniAOD.FilterIsolateTracks_cfi')
-    process.FilterIsolateTracks.histos = cms.bool(False)
-    task.add(process.FilterIsolateTracks)
-    process.MINIAODEventContent.outputCommands.append('keep *_FilterIso*_*_*')
-    process.MINIAODSIMEventContent.outputCommands.append('keep *_FilterIso*_*_*')
+    # process.load('SoftDisplacedVertices.CustomMiniAOD.FilterIsolateTracks_cfi')
+    # process.FilterIsolateTracks.histos = cms.bool(False)
+    # task.add(process.FilterIsolateTracks)
+    # process.MINIAODEventContent.outputCommands.append('keep *_FilterIso*_*_*')
+    # process.MINIAODSIMEventContent.outputCommands.append('keep *_FilterIso*_*_*')
 
 
     # Get track isolations according to https://cmssdt.cern.ch/lxr/source/PhysicsTools/IsolationAlgos/python/goodTrackIsolations_cfi.py
-    process.load('SoftDisplacedVertices.CustomMiniAOD.filteredTrackIsolations_cfi')
-    task.add(process.filteredTrackIsolations)
-    process.MINIAODEventContent.outputCommands.append('keep *_filteredTrackIsolations_*_*')
-    process.MINIAODSIMEventContent.outputCommands.append('keep *_filteredTrackIsolations_*_*')
+    process.load('SoftDisplacedVertices.CustomMiniAOD.TrackPtIsolation_cfi')
+    task.add(process.TrackPtIsolation)
+    process.MINIAODEventContent.outputCommands.append('keep *_TrackPtIsolation_*_*')
+    process.MINIAODSIMEventContent.outputCommands.append('keep *_TrackPtIsolation_*_*')
 
     return process
 

@@ -236,7 +236,7 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
         // Matches the track idx with the vertex idx.
         // ---------------------------------------------
-        // Compares the indices of recoTracks_VertexTracksFilter_seed and 
+        // Compares the indices of recoTracks_TrackFilter_seed and 
         // recoVertexs_IVFSecondaryVerticesSoftDV objects and pushes them in two different vectors in the correct order.
         for (const auto& tr : *trIn) {
           for (auto v_tk = sv.tracks_begin(), vtke = sv.tracks_end(); v_tk != vtke; ++v_tk){

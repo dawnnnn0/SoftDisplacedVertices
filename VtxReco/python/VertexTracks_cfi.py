@@ -1,3 +1,8 @@
+""" 
+CODE IS NO LONGER USED 16/02/2024
+KEPT TEMPORARILY AS REFERENCE
+
+
 import FWCore.ParameterSet.Config as cms
 
 VertexTracksFilter = cms.EDFilter("VertexTracksFilter",
@@ -13,3 +18,4 @@ VertexTracksFilter = cms.EDFilter("VertexTracksFilter",
                     max_track_sigmapt_ratio = cms.double(0.015),
                     histos = cms.bool(True),
                     )
+ """

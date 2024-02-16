@@ -8,7 +8,9 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-/////////////////////////////////////////////////////////////////////////
+// ISOLATION RELATED INCLUDES
+// ----------------------------------------------------------------
+
 #include <string>
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
@@ -51,13 +53,14 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 
 #include "SoftDisplacedVertices/SoftDVDataFormats/interface/PFIsolation.h"
-/////////////////////////////////////////////////////////////////////////
+// -------------------------------------------------------------------------------
 
 
 
-class FilterIsolateTracks : public edm::EDFilter {
+
+class TrackFilter : public edm::EDFilter {
 public:
-  FilterIsolateTracks(const edm::ParameterSet&);
+  TrackFilter(const edm::ParameterSet&);
   virtual bool filter(edm::Event&, const edm::EventSetup&);
 
   typedef pat::IsolatedTrack::PolarLorentzVector PolarLorentzVector;
@@ -67,9 +70,9 @@ public:
                     pat::PFIsolation &iso, pat::PFIsolation &miniiso) const;
 private:
   const edm::EDGetTokenT<reco::BeamSpot>        beamspot_token;
-  const edm::EDGetTokenT<pat::PackedCandidateCollection>    pc_;
-  const edm::EDGetTokenT<pat::PackedCandidateCollection>    lt_;
-  const edm::EDGetTokenT<reco::TrackCollection>             gt_;
+  const edm::EDGetTokenT<pat::PackedCandidateCollection>    pc_;        // packedPFCandidates
+  const edm::EDGetTokenT<pat::PackedCandidateCollection>    lt_;        // lostTracks
+  const edm::EDGetTokenT<reco::TrackCollection>             gt_;        // generalTracks
   const edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection>>  gt2pc_;
   const edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection>>  gt2lt_;
   const edm::EDGetTokenT<edm::Association<reco::PFCandidateCollection>>     pc2pf_;
@@ -78,11 +81,11 @@ private:
   const float pfIsolation_DR_;  // isolation radius
   const float pfIsolation_DZ_;  // used in determining if pfcand is from PV or PU
 
+  const int min_track_nhits;
   const int min_n_seed_tracks;
   const double min_track_pt;
   const double min_track_dxy;
   const double min_track_nsigmadxy;
-  const int min_track_nhits;
   const double max_track_normchi2;
   const double max_track_dz;
   const double max_track_sigmapt_ratio;
@@ -103,7 +106,7 @@ private:
   TH1D* h_track_sigmapt_ratio[N_TRACK_TYPES];
 };
 
-FilterIsolateTracks::FilterIsolateTracks(const edm::ParameterSet& cfg)
+TrackFilter::TrackFilter(const edm::ParameterSet& cfg)
   : beamspot_token(consumes<reco::BeamSpot>(cfg.getParameter<edm::InputTag>("beamspot"))),
     pc_(consumes<pat::PackedCandidateCollection>(cfg.getParameter<edm::InputTag>("packedPFCandidates"))),
     lt_(consumes<pat::PackedCandidateCollection>(cfg.getParameter<edm::InputTag>("lostTracks"))),
@@ -114,12 +117,11 @@ FilterIsolateTracks::FilterIsolateTracks(const edm::ParameterSet& cfg)
     pfIsolation_DR_ (cfg.getParameter<double>("pfIsolation_DR")),
     pfIsolation_DZ_ (cfg.getParameter<double>("pfIsolation_DZ")),
 
-
+    min_track_nhits(cfg.getParameter<int>("min_track_nhits")),
     min_n_seed_tracks(cfg.getParameter<int>("min_n_seed_tracks")),
     min_track_pt(cfg.getParameter<double>("min_track_pt")),
     min_track_dxy(cfg.getParameter<double>("min_track_dxy")),
     min_track_nsigmadxy(cfg.getParameter<double>("min_track_nsigmadxy")),
-    min_track_nhits(cfg.getParameter<int>("min_track_nhits")),
     max_track_normchi2(cfg.getParameter<double>("max_track_normchi2")),
     max_track_dz(cfg.getParameter<double>("max_track_dz")),
     max_track_sigmapt_ratio(cfg.getParameter<double>("max_track_sigmapt_ratio")),
@@ -151,7 +153,7 @@ FilterIsolateTracks::FilterIsolateTracks(const edm::ParameterSet& cfg)
   }
 }
 
-bool FilterIsolateTracks::filter(edm::Event& event, const edm::EventSetup& setup) {
+bool TrackFilter::filter(edm::Event& event, const edm::EventSetup& setup) {
 
   std::unique_ptr<std::vector<reco::TrackRef>> all_tracks (new std::vector<reco::TrackRef>);
   std::unique_ptr<std::vector<reco::TrackRef>> seed_tracks(new std::vector<reco::TrackRef>);
@@ -171,12 +173,10 @@ bool FilterIsolateTracks::filter(edm::Event& event, const edm::EventSetup& setup
   // lostTracks collection
   edm::Handle<pat::PackedCandidateCollection> lt_h;
   event.getByToken( lt_, lt_h );
-  const pat::PackedCandidateCollection *lt = lt_h.product();
 
   // generalTracks collection
   edm::Handle<reco::TrackCollection> gt_h;
   event.getByToken( gt_, gt_h );
-  const reco::TrackCollection *generalTracks = gt_h.product();
 
   // generalTracks-->packedPFCandidate association
   edm::Handle<edm::Association<pat::PackedCandidateCollection> > gt2pc;
@@ -202,14 +202,14 @@ bool FilterIsolateTracks::filter(edm::Event& event, const edm::EventSetup& setup
 
     // Determine if this general track is associated with anything in packedPFCandidates or lostTracks
     // Sometimes, a track gets associated w/ a neutral pfCand.
-    // In this case, ignore the pfCand and take from lostTracks
+    // In this case, ignore the pfCand and take from lostTracks.
     bool isInPackedCands = (pcref.isNonnull() && pcref.id()==pc_h.id() && pfCand.charge()!=0);
     bool isInLostTracks  = (ltref.isNonnull() && ltref.id()==lt_h.id());
 
     PolarLorentzVector polarP4;
     LorentzVector p4;
     pat::PackedCandidateRef refToCand;
-    int pdgId, charge, fromPV;
+    int charge;
     // float dz, dxy, dzError, dxyError;
     int pfCandInd; //to avoid counting packedPFCands in their own isolation
 
@@ -233,16 +233,13 @@ bool FilterIsolateTracks::filter(edm::Event& event, const edm::EventSetup& setup
         pfCandInd = -1;
     }
 
-    if(charge == 0) // ask this! ask this! ask this! ask this! ask this! ask this! ask this! ask this! ask this! ask this! 
-        continue;
+    if(charge == 0)
+      continue;
 
     // get the isolation of the track
     pat::PFIsolation isolationDR03;
     pat::PFIsolation miniIso;
     getIsolation(polarP4, pc, pfCandInd, isolationDR03, miniIso);
-
-
-
 
 
     all_tracks->push_back(tkref);
@@ -296,7 +293,7 @@ bool FilterIsolateTracks::filter(edm::Event& event, const edm::EventSetup& setup
   return pass_min_n_seed_tracks;
 }
 
-void FilterIsolateTracks::getIsolation(const PolarLorentzVector& p4, 
+void TrackFilter::getIsolation(const PolarLorentzVector& p4, 
                                        const pat::PackedCandidateCollection *pc, int pc_idx,
                                        pat::PFIsolation &iso, pat::PFIsolation &miniiso) const
 {
@@ -348,4 +345,4 @@ void FilterIsolateTracks::getIsolation(const PolarLorentzVector& p4,
 
 
 
-DEFINE_FWK_MODULE(FilterIsolateTracks);
+DEFINE_FWK_MODULE(TrackFilter);

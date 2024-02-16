@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-filteredTrackIsolations = cms.EDProducer("SDVCandTrackPtIsolationProducer",
-    src = cms.InputTag("FilterIsolateTracks", "seed"),
+TrackPtIsolation = cms.EDProducer("SDVCandTrackPtIsolationProducer",
+    src = cms.InputTag("TrackFilter", "seed"),
     d0Max = cms.double(1000000.0),
     dRMin = cms.double(0.015),
     dRMax = cms.double(0.3),
