@@ -19,39 +19,41 @@
 
 struct MLInfo
 {
-  int n_vtx;
-  double met_pt;
-  double met_phi;
-  std::vector<double> llp_ctau;
-  std::vector<int> vtx_match;
-  std::vector<int> vtx_nmatchtks;
-  std::vector<int> label_llp;
-  std::vector<double> vtx_x;
-  std::vector<double> vtx_y;
-  std::vector<double> vtx_z;
-  std::vector<double> vtx_ntracks;
-  std::vector<double> vtx_ndof;
-  std::vector<double> vtx_lxy;
-  std::vector<double> vtx_lxy_err;
-  std::vector<double> vtx_dphi_jet1;
-  std::vector<double> vtx_dphi_met;
-  std::vector<double> vtx_acollinearity;
-  std::vector<std::vector<double>> vtx_tk_px;
-  std::vector<std::vector<double>> vtx_tk_py;
-  std::vector<std::vector<double>> vtx_tk_pz;
-  std::vector<std::vector<double>> vtx_tk_pt;
-  std::vector<std::vector<double>> vtx_tk_eta;
-  std::vector<std::vector<double>> vtx_tk_phi;
-  std::vector<std::vector<double>> vtx_tk_E;
-  std::vector<std::vector<double>> vtx_tk_normchi2;
-  std::vector<std::vector<double>> vtx_tk_dxy;
-  std::vector<std::vector<double>> vtx_tk_dxyerr;
-  std::vector<std::vector<double>> vtx_tk_dz;
-  std::vector<std::vector<double>> vtx_tk_dzerr;
-  std::vector<std::vector<double>> vtx_tk_nvalidhits;
-  std::vector<std::vector<double>> vtx_tk_dphi_jet1;
-  std::vector<std::vector<double>> vtx_tk_dphi_met;
-  std::vector<std::vector<double>> vtx_tk_pterr;
+  int vtx_match;
+  int vtx_nmatchtks;
+  int label_llp;
+  double vtx_x;
+  double vtx_y;
+  double vtx_z;
+  double vtx_ntracks;
+  double vtx_ndof;
+  double vtx_lxy;
+  double vtx_lxy_err;
+  double vtx_dphi_jet1;
+  double vtx_dphi_met;
+  double vtx_acollinearity;
+  double vtx_E;
+  double vtx_pt;
+  std::vector<double> vtx_tk_px;
+  std::vector<double> vtx_tk_py;
+  std::vector<double> vtx_tk_pz;
+  std::vector<double> vtx_tk_pt;
+  std::vector<double> vtx_tk_eta;
+  std::vector<double> vtx_tk_phi;
+  std::vector<double> vtx_tk_E;
+  std::vector<double> vtx_tk_normchi2;
+  std::vector<double> vtx_tk_dxy;
+  std::vector<double> vtx_tk_dxyerr;
+  std::vector<double> vtx_tk_dz;
+  std::vector<double> vtx_tk_dzerr;
+  std::vector<double> vtx_tk_nvalidhits;
+  std::vector<double> vtx_tk_dphi_jet1;
+  std::vector<double> vtx_tk_dphi_met;
+  std::vector<double> vtx_tk_dphi_Lvtx;
+  std::vector<double> vtx_tk_deta_Lvtx;
+  std::vector<double> vtx_tk_dphi_pvtx;
+  std::vector<double> vtx_tk_deta_pvtx;
+  std::vector<double> vtx_tk_pterr;
 };
 
 class MLTree : public edm::one::EDAnalyzer<edm::one::SharedResources> {
@@ -140,32 +142,39 @@ void MLTree::analyze(const edm::Event& event, const edm::EventSetup&) {
   }
 
   const auto& met = mets->at(0);
-  mlInfo->met_pt = met.pt();
-  mlInfo->met_phi = met.phi();
-
+  if (met.pt()<200)
+    return;
 
   //const reco::PFJet& leading_jet = jets->at(jet_leading_idx);
   const auto& leading_jet = jets->at(jet_leading_idx);
 
-  mlInfo->n_vtx = vertices->size();
   for(size_t ivtx=0; ivtx<vertices->size(); ++ivtx) {
+    initEventStructure();
     const reco::Vertex& vtx = vertices->at(ivtx);
     math::XYZVector l_vector = vtx.position() - primary_vertex->position();
     //const auto d = distcalc_2d.distance(vtx, fake_bs_vtx);
     const auto d = distcalc_2d.distance(vtx, *primary_vertex);
 
-    mlInfo->vtx_nmatchtks.push_back(vtxllpmatch[ivtx].second);
-    mlInfo->label_llp.push_back(vtxllpmatch[ivtx].second>1?1:0);
-    mlInfo->vtx_x.push_back(vtx.x());
-    mlInfo->vtx_y.push_back(vtx.y());
-    mlInfo->vtx_z.push_back(vtx.z());
-    mlInfo->vtx_ntracks.push_back(vtx.tracksSize());
-    mlInfo->vtx_ndof.push_back(vtx.normalizedChi2());
-    mlInfo->vtx_lxy.push_back(d.value());
-    mlInfo->vtx_lxy_err.push_back(d.error());
-    mlInfo->vtx_dphi_jet1.push_back(reco::deltaPhi(l_vector, leading_jet));
-    mlInfo->vtx_dphi_met.push_back(reco::deltaPhi(l_vector, met));
-    mlInfo->vtx_acollinearity.push_back(reco::deltaPhi(l_vector, vtx.p4()));
+    if (vtxllpmatch.find(ivtx) != vtxllpmatch.end()){
+      mlInfo->vtx_nmatchtks = vtxllpmatch[ivtx].second;
+      mlInfo->label_llp = vtxllpmatch[ivtx].second>1?1:0;
+    }
+    else {
+      mlInfo->vtx_nmatchtks = 0;
+      mlInfo->label_llp = 0;
+    }
+    mlInfo->vtx_x = vtx.x();
+    mlInfo->vtx_y = vtx.y();
+    mlInfo->vtx_z = vtx.z();
+    mlInfo->vtx_ntracks = vtx.tracksSize();
+    mlInfo->vtx_ndof = vtx.normalizedChi2();
+    mlInfo->vtx_lxy = d.value();
+    mlInfo->vtx_lxy_err = d.error();
+    mlInfo->vtx_dphi_jet1 = reco::deltaPhi(l_vector, leading_jet);
+    mlInfo->vtx_dphi_met = reco::deltaPhi(l_vector, met);
+    mlInfo->vtx_acollinearity = reco::deltaPhi(l_vector, vtx.p4());
+    mlInfo->vtx_E = vtx.p4().E();
+    mlInfo->vtx_pt = vtx.p4().pt();
 
     std::vector<double> tk_px;
     std::vector<double> tk_py;
@@ -182,6 +191,10 @@ void MLTree::analyze(const edm::Event& event, const edm::EventSetup&) {
     std::vector<double> tk_nvalidhits;
     std::vector<double> tk_dphi_jet1;
     std::vector<double> tk_dphi_met;
+    std::vector<double> tk_dphi_Lvtx;
+    std::vector<double> tk_deta_Lvtx;
+    std::vector<double> tk_dphi_pvtx;
+    std::vector<double> tk_deta_pvtx;
     std::vector<double> tk_pterr;
 
     const double mass = 0.13957018;
@@ -206,27 +219,36 @@ void MLTree::analyze(const edm::Event& event, const edm::EventSetup&) {
       tk_nvalidhits.push_back((*v_tk)->numberOfValidHits());
       tk_dphi_jet1.push_back(reco::deltaPhi((**v_tk),leading_jet));
       tk_dphi_met.push_back(reco::deltaPhi((**v_tk),met));
+      tk_dphi_Lvtx.push_back(reco::deltaPhi((**v_tk),l_vector));
+      tk_deta_Lvtx.push_back(fabs((**v_tk).eta()-l_vector.eta()));
+      tk_dphi_pvtx.push_back(reco::deltaPhi((**v_tk),vtx.p4()));
+      tk_deta_pvtx.push_back(fabs((**v_tk).eta()-vtx.p4().eta()));
       tk_pterr.push_back((*v_tk)->ptError());
     }
-    mlInfo->vtx_tk_px.push_back(tk_px);
-    mlInfo->vtx_tk_py.push_back(tk_py);
-    mlInfo->vtx_tk_pz.push_back(tk_pz);
-    mlInfo->vtx_tk_pt.push_back(tk_pt);
-    mlInfo->vtx_tk_eta.push_back(tk_eta);
-    mlInfo->vtx_tk_phi.push_back(tk_phi);
-    mlInfo->vtx_tk_E.push_back(tk_E);
-    mlInfo->vtx_tk_normchi2.push_back(tk_normchi2);
-    mlInfo->vtx_tk_dxy.push_back(tk_dxy);
-    mlInfo->vtx_tk_dxyerr.push_back(tk_dxyerr);
-    mlInfo->vtx_tk_dz.push_back(tk_dz);
-    mlInfo->vtx_tk_dzerr.push_back(tk_dzerr);
-    mlInfo->vtx_tk_nvalidhits.push_back(tk_nvalidhits);
-    mlInfo->vtx_tk_dphi_jet1.push_back(tk_dphi_jet1);
-    mlInfo->vtx_tk_dphi_met.push_back(tk_dphi_met);
-    mlInfo->vtx_tk_pterr.push_back(tk_pterr);
-  }
+    mlInfo->vtx_tk_px = tk_px;
+    mlInfo->vtx_tk_py = tk_py;
+    mlInfo->vtx_tk_pz = tk_pz;
+    mlInfo->vtx_tk_pt = tk_pt;
+    mlInfo->vtx_tk_eta = tk_eta;
+    mlInfo->vtx_tk_phi = tk_phi;
+    mlInfo->vtx_tk_E = tk_E;
+    mlInfo->vtx_tk_normchi2 = tk_normchi2;
+    mlInfo->vtx_tk_dxy = tk_dxy;
+    mlInfo->vtx_tk_dxyerr = tk_dxyerr;
+    mlInfo->vtx_tk_dz = tk_dz;
+    mlInfo->vtx_tk_dzerr = tk_dzerr;
+    mlInfo->vtx_tk_nvalidhits = tk_nvalidhits;
+    mlInfo->vtx_tk_dphi_jet1 = tk_dphi_jet1;
+    mlInfo->vtx_tk_dphi_met = tk_dphi_met;
+    mlInfo->vtx_tk_dphi_Lvtx = tk_dphi_Lvtx;
+    mlInfo->vtx_tk_deta_Lvtx = tk_deta_Lvtx;
+    mlInfo->vtx_tk_dphi_pvtx = tk_dphi_pvtx;
+    mlInfo->vtx_tk_deta_pvtx = tk_deta_pvtx;
+    mlInfo->vtx_tk_pterr = tk_pterr;
 
-  mlTree->Fill();
+    mlTree->Fill();
+
+  }
 
 }
 
@@ -235,12 +257,9 @@ void MLTree::beginJob()
   edm::Service<TFileService> fs;
   mlTree = fs->make<TTree>( "tree", "tree" );
 
-  mlTree->Branch("n_vtx",      &mlInfo->n_vtx);
-  mlTree->Branch("met_pt",     &mlInfo->met_pt);
-  mlTree->Branch("met_phi",    &mlInfo->met_phi);
-  mlTree->Branch("llp_ctau",   &mlInfo->llp_ctau);
   mlTree->Branch("vtx_match",      &mlInfo->vtx_match);
   mlTree->Branch("vtx_nmatchtks",      &mlInfo->vtx_nmatchtks);
+  mlTree->Branch("label_llp",      &mlInfo->label_llp);
   mlTree->Branch("vtx_x",      &mlInfo->vtx_x);
   mlTree->Branch("vtx_y",      &mlInfo->vtx_y);
   mlTree->Branch("vtx_z",      &mlInfo->vtx_z);
@@ -251,6 +270,8 @@ void MLTree::beginJob()
   mlTree->Branch("vtx_dphi_jet1", &mlInfo->vtx_dphi_jet1);
   mlTree->Branch("vtx_dphi_met",  &mlInfo->vtx_dphi_met);
   mlTree->Branch("vtx_acollinearity", &mlInfo->vtx_acollinearity);
+  mlTree->Branch("vtx_E", &mlInfo->vtx_E);
+  mlTree->Branch("vtx_pt",  &mlInfo->vtx_pt);
   mlTree->Branch("vtx_tk_px", &mlInfo->vtx_tk_px);
   mlTree->Branch("vtx_tk_py", &mlInfo->vtx_tk_py);
   mlTree->Branch("vtx_tk_pz", &mlInfo->vtx_tk_pz);
@@ -266,6 +287,10 @@ void MLTree::beginJob()
   mlTree->Branch("vtx_tk_nvalidhits", &mlInfo->vtx_tk_nvalidhits);
   mlTree->Branch("vtx_tk_dphi_jet1",  &mlInfo->vtx_tk_dphi_jet1);
   mlTree->Branch("vtx_tk_dphi_met", &mlInfo->vtx_tk_dphi_met);
+  mlTree->Branch("vtx_tk_dphi_Lvtx", &mlInfo->vtx_tk_dphi_Lvtx);
+  mlTree->Branch("vtx_tk_deta_Lvtx", &mlInfo->vtx_tk_deta_Lvtx);
+  mlTree->Branch("vtx_tk_dphi_pvtx", &mlInfo->vtx_tk_dphi_pvtx);
+  mlTree->Branch("vtx_tk_deta_pvtx", &mlInfo->vtx_tk_deta_pvtx);
   mlTree->Branch("vtx_tk_pterr",  &mlInfo->vtx_tk_pterr);
 }
 
@@ -274,22 +299,21 @@ void MLTree::endJob()
 
 void MLTree::initEventStructure()
 {
-  mlInfo->n_vtx = -1;
-  mlInfo->met_pt = -1;
-  mlInfo->met_phi = -1;
-  mlInfo->llp_ctau.clear();
-  mlInfo->vtx_match.clear();
-  mlInfo->vtx_nmatchtks.clear();
-  mlInfo->vtx_x.clear();
-  mlInfo->vtx_y.clear();
-  mlInfo->vtx_z.clear();
-  mlInfo->vtx_ntracks.clear();
-  mlInfo->vtx_ndof.clear();
-  mlInfo->vtx_lxy.clear();
-  mlInfo->vtx_lxy_err.clear();
-  mlInfo->vtx_dphi_jet1.clear();
-  mlInfo->vtx_dphi_met.clear();
-  mlInfo->vtx_acollinearity.clear();
+  mlInfo->vtx_match = -1;
+  mlInfo->vtx_nmatchtks = -1;
+  mlInfo->label_llp = 0;
+  mlInfo->vtx_x = -999;
+  mlInfo->vtx_y = -999;
+  mlInfo->vtx_z = -999;
+  mlInfo->vtx_ntracks = -1;
+  mlInfo->vtx_ndof = -1;
+  mlInfo->vtx_lxy = -1;
+  mlInfo->vtx_lxy_err = -1;
+  mlInfo->vtx_dphi_jet1 = -999;
+  mlInfo->vtx_dphi_met = -999;
+  mlInfo->vtx_acollinearity = -999;
+  mlInfo->vtx_E = -1;
+  mlInfo->vtx_pt = -1;
   mlInfo->vtx_tk_px.clear();
   mlInfo->vtx_tk_py.clear();
   mlInfo->vtx_tk_pz.clear();
@@ -305,6 +329,10 @@ void MLTree::initEventStructure()
   mlInfo->vtx_tk_nvalidhits.clear();
   mlInfo->vtx_tk_dphi_jet1.clear();
   mlInfo->vtx_tk_dphi_met.clear();
+  mlInfo->vtx_tk_dphi_Lvtx.clear();
+  mlInfo->vtx_tk_deta_Lvtx.clear();
+  mlInfo->vtx_tk_dphi_pvtx.clear();
+  mlInfo->vtx_tk_deta_pvtx.clear();
   mlInfo->vtx_tk_pterr.clear();
 }
 
