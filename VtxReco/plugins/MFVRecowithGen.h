@@ -1,4 +1,5 @@
 #include "TH2.h"
+#include "TTree.h"
 #include "TMath.h"
 #include <math.h>  
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
@@ -11,7 +12,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "FWCore/Framework/interface/one/EDProducer.h"
+#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -22,37 +23,46 @@
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "SoftDisplacedVertices/SoftDVDataFormats/interface/GenInfo.h"
 
-template <typename T> T mag(T x)                { return fabs(x); }
-template <typename T> T mag(T x, T y)           { return sqrt(x*x + y*y); }
-template <typename T> T mag(T x, T y, T z)      { return sqrt(x*x + y*y + z*z); }
-template <typename T> T mag(T x, T y, T z, T w) { return sqrt(x*x + y*y + z*z + w*w); }
-
-template <typename T> T mag2(T x, T y)           { return x*x + y*y; }
-template <typename T> T mag2(T x, T y, T z)      { return x*x + y*y + z*z; }
-template <typename T> T mag2(T x, T y, T z, T w) { return x*x + y*y + z*z + w*w; }
-
-template <typename T, typename T2>
-T2 mag(const T& v) {
-  return mag<T2>(v.x(), v.y(), v.z());
-}
-
-unsigned char uint2uchar_clamp(unsigned x) {
-  if (x >= 255)
-    return 255;
-  else return (unsigned char)x;
-}
+struct genvtxInfo {
+  std::vector<int> nseedvtx;
+  std::vector<int> nmatchedtk;
+  std::vector<int> nrob;
+  std::vector<int> ntotrob;
+  std::vector<int> nvtx;
+};
 
 template <class Jet>
-class MFVVertexer : public edm::one::EDProducer<edm::one::SharedResources> {
+class MFVRecowithGen: public edm::EDProducer {
   public:
-    MFVVertexer(const edm::ParameterSet&);
+    MFVRecowithGen(const edm::ParameterSet&);
     virtual void produce(edm::Event&, const edm::EventSetup&);
 
   private:
     static constexpr double track_vertex_weight_min = 0.5;
     typedef std::set<reco::TrackRef> track_set;
     typedef std::vector<reco::TrackRef> track_vec;
+
+    template <typename T> T mag(T x)                { return fabs(x); }
+    template <typename T> T mag(T x, T y)           { return sqrt(x*x + y*y); }
+    template <typename T> T mag(T x, T y, T z)      { return sqrt(x*x + y*y + z*z); }
+    template <typename T> T mag(T x, T y, T z, T w) { return sqrt(x*x + y*y + z*z + w*w); }
+    
+    template <typename T> T mag2(T x, T y)           { return x*x + y*y; }
+    template <typename T> T mag2(T x, T y, T z)      { return x*x + y*y + z*z; }
+    template <typename T> T mag2(T x, T y, T z, T w) { return x*x + y*y + z*z + w*w; }
+    
+    template <typename T, typename T2>
+    T2 mag(const T& v) {
+      return mag<T2>(v.x(), v.y(), v.z());
+    }
+    
+    unsigned char uint2uchar_clamp(unsigned x) {
+      if (x >= 255)
+        return 255;
+      else return (unsigned char)x;
+    }
 
     std::pair<bool, std::vector<std::vector<size_t>>> sharedjets(const size_t vtx0idx, const size_t vtx1idx, const std::vector < std::vector<size_t>>& sv_match_jetidx, const std::vector < std::vector<size_t>>& sv_match_trkidx);
     bool hasCommonElement(std::vector<size_t> vec0, std::vector<size_t> vec1);
@@ -151,6 +161,18 @@ class MFVVertexer : public edm::one::EDProducer<edm::one::SharedResources> {
       std::vector<TransientVertex> v(1, kv_reco->vertex(ttks));
       return v;
     }
+
+    TTree *genvtxTree;
+    genvtxInfo *info;
+
+    void initEventStructure() {
+      info->nseedvtx.clear();
+      info->nmatchedtk.clear();
+      info->nrob.clear();
+      info->ntotrob.clear();
+      info->nvtx.clear();
+    }
+
     const bool do_track_refinement;
     const bool resolve_split_vertices_loose;
     const bool resolve_split_vertices_tight;
@@ -159,7 +181,6 @@ class MFVVertexer : public edm::one::EDProducer<edm::one::SharedResources> {
     const edm::EDGetTokenT<std::vector<Jet>> shared_jet_token;
     const edm::EDGetTokenT<reco::BeamSpot> beamspot_token;
     const edm::EDGetTokenT<std::vector<reco::Track>> seed_tracks_token;
-    const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> tt_builder_token_;
     const int n_tracks_per_seed_vertex;
     const double max_seed_vertex_chi2;
     const bool use_2d_vertex_dist;
@@ -185,6 +206,11 @@ class MFVVertexer : public edm::one::EDProducer<edm::one::SharedResources> {
     const bool verbose;
     const std::string module_label;
 
+    const edm::EDGetTokenT<std::vector<reco::GenParticle>> genToken_;
+    const edm::EDGetTokenT<reco::VertexCollection> pvToken_;
+    const std::vector<int> LLPid_;
+    const int LSPid_;
+
 
     TH1F* h_n_seed_vertices;
     TH1F* h_seed_vertex_track_weights;
@@ -198,6 +224,22 @@ class MFVVertexer : public edm::one::EDProducer<edm::one::SharedResources> {
     TH1F* h_seed_vertex_r;
     TH1F* h_seed_vertex_paird2d;
     TH1F* h_seed_vertex_pairdphi;
+    TH1F* h_tkrobber_ntk;
+    TH1F* h_tkrobber_pAngle;
+    TH1F* h_tkrobber_pAngle2d;
+    TH1F* h_tkrobber_maxdphi;
+    TH1F* h_tkrobber_maxdeta;
+    TH1F* h_tkrobber_maxdR;
+    TH1F* h_sigvtx_ntk;
+    TH1F* h_sigvtx_pAngle;
+    TH1F* h_sigvtx_pAngle2d;
+    TH1F* h_sigvtx_maxdphi;
+    TH1F* h_sigvtx_maxdeta;
+    TH1F* h_sigvtx_maxdR;
+    TH1F* h_genvtx_nrob[4];
+    TH1F* h_genvtx_nmatchedtk[4];
+    TH1F* h_genvtx_nseedvtx[4];
+    TH1F* h_genvtx_nvtx[4];
     TH1F* h_n_resets;
     TH1F* h_n_onetracks;
 
@@ -270,7 +312,7 @@ class MFVVertexer : public edm::one::EDProducer<edm::one::SharedResources> {
 };
 
 template <class Jet>
-MFVVertexer<Jet>::MFVVertexer(const edm::ParameterSet& cfg)
+MFVRecowithGen<Jet>::MFVRecowithGen(const edm::ParameterSet& cfg)
   : 
     kv_reco(new KalmanVertexFitter(cfg.getParameter<edm::ParameterSet>("kvr_params"), cfg.getParameter<edm::ParameterSet>("kvr_params").getParameter<bool>("doSmoothing"))),
     do_track_refinement(cfg.getParameter<bool>("do_track_refinement")),
@@ -281,7 +323,6 @@ MFVVertexer<Jet>::MFVVertexer(const edm::ParameterSet& cfg)
     shared_jet_token(resolve_shared_jets ? consumes<std::vector<Jet>>(cfg.getParameter<edm::InputTag>("resolve_shared_jets_src")) : edm::EDGetTokenT<std::vector<Jet>>()),
     beamspot_token(consumes<reco::BeamSpot>(cfg.getParameter<edm::InputTag>("beamspot_src"))),
     seed_tracks_token(consumes<std::vector<reco::Track>>(cfg.getParameter<edm::InputTag>("seed_tracks_src"))),
-    tt_builder_token_(esConsumes<TransientTrackBuilder, TransientTrackRecord>(edm::ESInputTag("", "TransientTrackBuilder"))),
     n_tracks_per_seed_vertex(cfg.getParameter<int>("n_tracks_per_seed_vertex")),
     max_seed_vertex_chi2(cfg.getParameter<double>("max_seed_vertex_chi2")),
     use_2d_vertex_dist(cfg.getParameter<bool>("use_2d_vertex_dist")),
@@ -305,11 +346,14 @@ MFVVertexer<Jet>::MFVVertexer(const edm::ParameterSet& cfg)
     histos_output_aftermerge(cfg.getUntrackedParameter<bool>("histos_output_aftermerge", false)),
     histos_output_aftersharedjets(cfg.getUntrackedParameter<bool>("histos_output_aftersharedjets", false)),
     verbose(cfg.getUntrackedParameter<bool>("verbose", false)),
-    module_label(cfg.getParameter<std::string>("@module_label"))
+    module_label(cfg.getParameter<std::string>("@module_label")),
+    genToken_(consumes<std::vector<reco::GenParticle>>(cfg.getParameter<edm::InputTag>("gensrc"))),
+    pvToken_(consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("pvToken"))),
+    LLPid_(cfg.getParameter<std::vector<int>>("LLPid_")),
+    LSPid_(cfg.getParameter<int>("LSPid_"))
 {
-  usesResource("TFileService");
   if (n_tracks_per_seed_vertex < 2 || n_tracks_per_seed_vertex > 5)
-    throw cms::Exception("MFVVertexer", "n_tracks_per_seed_vertex must be one of 2,3,4,5");
+    throw cms::Exception("MFVRecowithGen", "n_tracks_per_seed_vertex must be one of 2,3,4,5");
 
   produces<reco::VertexCollection>();
   produces<reco::VertexCollection>("seed");
@@ -318,6 +362,8 @@ MFVVertexer<Jet>::MFVVertexer(const edm::ParameterSet& cfg)
   produces<reco::TrackCollection>("inVertices");
 
   if (histos) {
+    info = new genvtxInfo;
+
     edm::Service<TFileService> fs;
 
     h_n_seed_vertices                = fs->make<TH1F>("h_n_seed_vertices",                ";# of seed vertices",  50,   0,    200);
@@ -332,6 +378,25 @@ MFVVertexer<Jet>::MFVVertexer(const edm::ParameterSet& cfg)
     h_seed_vertex_r                  = fs->make<TH1F>("h_seed_vertex_r",                  ";vtxbsdist_r (cm.)", 20,   0,      2);
     h_seed_vertex_paird2d            = fs->make<TH1F>("h_seed_vertex_paird2d",            ";svdist2d (cm.) every pair", 100,   0,      0.2);
     h_seed_vertex_pairdphi           = fs->make<TH1F>("h_seed_vertex_pairdphi",           ";dPhi(vtx0,vtx1) every pair", 100,  -3.14,   3.14);
+    h_tkrobber_ntk                   = fs->make<TH1F>("h_tkrobber_ntk",                   ";tkrobber # of tracks", 10,  0,   10);
+    h_tkrobber_pAngle                = fs->make<TH1F>("h_tkrobber_pAngle",                ";tkrobber pAngle", 100, 0, 3.15);
+    h_tkrobber_pAngle2d              = fs->make<TH1F>("h_tkrobber_pAngle2d",              ";tkrobber pAngle2d", 100, 0, 3.15);
+    h_tkrobber_maxdphi               = fs->make<TH1F>("h_tkrobber_maxdphi",               ";tkrobber track pair max dphi", 100, 0, 3.15);
+    h_tkrobber_maxdeta               = fs->make<TH1F>("h_tkrobber_maxdeta",               ";tkrobber track pair max deta", 100, 0, 5);
+    h_tkrobber_maxdR                 = fs->make<TH1F>("h_tkrobber_maxdR",                 ";tkrobber track pair max dR", 100, 0, 5);
+    h_sigvtx_ntk                     = fs->make<TH1F>("h_sigvtx_ntk",                     ";signal vtx # of tracks", 10,  0,   10);
+    h_sigvtx_pAngle                  = fs->make<TH1F>("h_sigvtx_pAngle",                  ";signal vtx pAngle", 100, 0, 3.15);
+    h_sigvtx_pAngle2d                = fs->make<TH1F>("h_sigvtx_pAngle2d",                ";signal vtx pAngle2d", 100, 0, 3.15);
+    h_sigvtx_maxdphi                 = fs->make<TH1F>("h_sigvtx_maxdphi",                 ";signal vtx track pair max dphi", 100, 0, 3.15);
+    h_sigvtx_maxdeta                 = fs->make<TH1F>("h_sigvtx_maxdeta",                 ";signal vtx track pair max deta", 100, 0, 5);
+    h_sigvtx_maxdR                   = fs->make<TH1F>("h_sigvtx_maxdR",                   ";signal vtx track pair max dR", 100, 0, 5);
+    const char* genvtx_nice[4] = {"all gen vtx","gen vtx w/ at least 2 tracks","gen vtx w/ seed vtx","gen vtx w/ vtx"};
+    for (int ip=0; ip<4; ++ip){
+      h_genvtx_nrob[ip]              = fs->make<TH1F>(TString::Format("h_genvtx_nrob_%i",ip),TString::Format(";%s number of robs",genvtx_nice[ip]),10,0,10);
+      h_genvtx_nmatchedtk[ip]        = fs->make<TH1F>(TString::Format("h_genvtx_nmatchedtk_%i",ip),TString::Format(";%s number of matched tracks", genvtx_nice[ip]),10,0,10);
+      h_genvtx_nseedvtx[ip]          = fs->make<TH1F>(TString::Format("h_genvtx_nseedvtx_%i",ip),TString::Format(";%s number of seed vertices", genvtx_nice[ip]),10,0,10);
+      h_genvtx_nvtx[ip]              = fs->make<TH1F>(TString::Format("h_genvtx_nvtx_%i",ip),TString::Format(";%s number of vertices", genvtx_nice[ip]),10,0,10);
+    }
 
     h_n_resets                       = fs->make<TH1F>("h_n_resets",                       "", 50,   0,   500);
     h_n_onetracks                    = fs->make<TH1F>("h_n_onetracks",                    "",  5,   0,     5);
@@ -417,11 +482,18 @@ MFVVertexer<Jet>::MFVVertexer(const edm::ParameterSet& cfg)
     if (histos_output_aftersharedjets) {
       h_output_aftersharedjets_n_onetracks = fs->make<TH1F>("h_output_aftersharedjets_n_onetracks", "", 5, 0, 5);
     }
+    genvtxTree = fs->make<TTree>("genvtxtree","genvtxtree");
+    genvtxTree->Branch("nseedvtx",  &info->nseedvtx);
+    genvtxTree->Branch("nmatchedtk",  &info->nmatchedtk);
+    genvtxTree->Branch("nrob",  &info->nrob);
+    genvtxTree->Branch("ntotrob",  &info->ntotrob);
+    genvtxTree->Branch("nvtx",  &info->nvtx);
+
   }
 }
 
 template <class Jet>
-void MFVVertexer<Jet>::finish(edm::Event& event, const std::vector<reco::TransientTrack>& seed_tracks, std::unique_ptr<reco::VertexCollection> vertices, std::unique_ptr<reco::VertexCollection> vertices_seed) {
+void MFVRecowithGen<Jet>::finish(edm::Event& event, const std::vector<reco::TransientTrack>& seed_tracks, std::unique_ptr<reco::VertexCollection> vertices, std::unique_ptr<reco::VertexCollection> vertices_seed) {
   std::unique_ptr<reco::TrackCollection> tracks_seed      (new reco::TrackCollection);
   std::unique_ptr<reco::TrackCollection> tracks_inVertices(new reco::TrackCollection);
 
@@ -471,9 +543,17 @@ void MFVVertexer<Jet>::finish(edm::Event& event, const std::vector<reco::Transie
 }
 
 template <class Jet>
-void MFVVertexer<Jet>::produce(edm::Event& event, const edm::EventSetup& setup) {
+void MFVRecowithGen<Jet>::produce(edm::Event& event, const edm::EventSetup& setup) {
   if (verbose)
-    std::cout << "MFVVertexer " << module_label << " run " << event.id().run() << " lumi " << event.luminosityBlock() << " event " << event.id().event() << "\n";
+    std::cout << "MFVRecowithGen" << module_label << " run " << event.id().run() << " lumi " << event.luminosityBlock() << " event " << event.id().event() << "\n";
+
+  initEventStructure();
+
+  edm::Handle<reco::VertexCollection> primary_vertices;
+  event.getByToken(pvToken_, primary_vertices);
+  const reco::Vertex* primary_vertex = 0;
+  if (primary_vertices->size())
+    primary_vertex = &primary_vertices->at(0);
 
   edm::Handle<reco::BeamSpot> beamspot;
   event.getByToken(beamspot_token, beamspot);
@@ -482,16 +562,64 @@ void MFVVertexer<Jet>::produce(edm::Event& event, const edm::EventSetup& setup) 
   const double bsz = beamspot->position().z();
   const reco::Vertex fake_bs_vtx(beamspot->position(), beamspot->covariance3D());
 
-  // FIXME: check whether this works 
-  //edm::ESHandle<TransientTrackBuilder> tt_builder;
-  //setup.get<TransientTrackRecord>().get("TransientTrackBuilder", tt_builder);
-  edm::ESHandle<TransientTrackBuilder> tt_builder = setup.getHandle(tt_builder_token_);
+  edm::ESHandle<TransientTrackBuilder> tt_builder;
+  setup.get<TransientTrackRecord>().get("TransientTrackBuilder", tt_builder);
 
   edm::Handle<std::vector<reco::Track>> seed_track_refs;
   event.getByToken(seed_tracks_token, seed_track_refs);
 
   std::vector<reco::TransientTrack> seed_tracks;
   std::map<reco::TrackRef, size_t> seed_track_ref_map;
+
+  // First perform the gen particle matching...
+
+  edm::Handle<reco::GenParticleCollection> genParticles;
+  event.getByToken(genToken_, genParticles);
+  std::map<reco::TrackRef, std::vector<size_t>> seed_track_llp_map;
+
+  std::vector<int> llp_idx = SoftDV::FindLLP(genParticles, LLPid_, LSPid_, false);
+  std::vector<int> gen_daus;
+
+  for (size_t illp=0; illp<llp_idx.size(); ++illp){
+    // Get the LLP decay products
+    std::vector<int> llp_daus = SoftDV::GetDaughters(llp_idx[illp], genParticles, false);
+    gen_daus.insert(gen_daus.end(),llp_daus.begin(),llp_daus.end());
+  }
+
+  std::map<std::vector<double>,std::vector<int>> clus = SoftDV::ClusterGenParts(gen_daus, genParticles);
+  std::vector<std::vector<int>> genvtx;
+  for (auto it=clus.begin(); it!=clus.end(); ++it) {
+    genvtx.push_back(it->second);
+    if (verbose){
+      std::cout << "GenVtx at " << it->first[0] << " " << it->first[1] << " " << it->first[2] << std::endl;
+    }
+  }
+
+  std::vector<int> genvtx_nrobs(genvtx.size(),0);
+  std::vector<int> genvtx_totnrobs(genvtx.size(),0);
+  std::vector<int> genvtx_ntks(genvtx.size(),0);
+  std::vector<int> genvtx_nseedvtx(genvtx.size(),0);
+  std::vector<int> genvtx_nvtx(genvtx.size(),0);
+
+  for (size_t igvtx=0; igvtx<genvtx.size(); ++igvtx) {
+    for (int igen:genvtx[igvtx]){
+      const reco::GenParticle& idau = genParticles->at(igen);
+      const auto matchres = SoftDV::matchtracks(idau, seed_track_refs, primary_vertex->position());
+      if (matchres.first!=-1) {
+        reco::TrackRef itk = reco::TrackRef(seed_track_refs, matchres.first);
+        if (seed_track_llp_map.find(itk)!=seed_track_llp_map.end()){
+          seed_track_llp_map[itk].push_back(igvtx);
+        }
+        else{
+          seed_track_llp_map[itk] = std::vector<size_t>({igvtx});
+        }
+        genvtx_ntks[igvtx] += 1;
+        if (verbose){
+          std::cout << "  Gen vtx tk " << itk.key() << " GenVtx " << igvtx << std::endl;
+        }
+      }
+    }
+  }
 
   for (size_t itrk=0; itrk<seed_track_refs->size(); ++itrk){
   //for (const reco::TrackRef& tk : *seed_track_refs) {
@@ -599,6 +727,73 @@ void MFVVertexer<Jet>::produce(edm::Event& event, const edm::EventSetup& setup) 
         h_seed_vertex_paird2d->Fill(mag(v0x - v1x, v0y - v1y));
         h_seed_vertex_pairdphi->Fill(reco::deltaPhi(phi0, phi1));
       }
+      int vtx_type; // 0: no signal tracks; 1: 1 signal tracks; 2: at least 2 signal tracks
+      std::vector<int> gv_ntk(genvtx.size(),0);
+      auto tracks = vertex_track_set(*v0);
+      for (auto tk : tracks){
+        if (seed_track_llp_map.find(tk)==seed_track_llp_map.end())
+          continue;
+        for (auto& gv_idx:seed_track_llp_map[tk]){
+          gv_ntk[gv_idx] += 1;
+        }
+      }
+      std::vector<int> gvtx_idx_2;
+      std::vector<int> gvtx_idx_1;
+      for (size_t i=0; i<gv_ntk.size(); ++i) {
+        if (gv_ntk[i]>1) {
+          gvtx_idx_2.push_back(i);
+        }
+        if (gv_ntk[i]==1) {
+          gvtx_idx_1.push_back(i);
+        }
+      }
+      if (gvtx_idx_2.size()>0){
+        vtx_type = 2;
+      }
+      else if (gvtx_idx_1.size()>0){
+        vtx_type = 1;
+      }
+      else {
+        vtx_type = 0;
+      }
+      if (vtx_type==2){
+        for (auto& igvtx : gvtx_idx_2) {
+          genvtx_nseedvtx[igvtx] += 1;
+        }
+        double dx = (v0->x() - primary_vertex->x());
+        double dy = (v0->y() - primary_vertex->y());
+        double dz = (v0->z() - primary_vertex->z());
+        double pdotv = (dx * v0->p4().Px() + dy * v0->p4().Py() + dz * v0->p4().Pz()) / sqrt(v0->p4().P2()) / sqrt(dx * dx + dy * dy + dz * dz);
+        double pdotv2d = (dx * v0->p4().Px() + dy * v0->p4().Py()) / v0->p4().Pt() / sqrt(dx*dx + dy*dy);
+        size_t ntrk = (*v0).tracksSize();
+        double dphi_max = -1;
+        double deta_max = -1;
+        double dR_max = -1;
+        for (size_t iitrk=0; iitrk<ntrk; ++iitrk){
+          for (size_t jjtrk=iitrk+1; jjtrk<ntrk; ++jjtrk){
+            auto tk0 = v0->trackRefAt(iitrk);
+            auto tk1 = v0->trackRefAt(jjtrk);
+            double dphi = fabs(reco::deltaPhi(tk0->phi(),tk1->phi()));
+            double deta = fabs(tk0->eta()-tk1->eta());
+            double dR = reco::deltaR(tk0->eta(), tk0->phi(), tk1->eta(), tk1->phi());
+            if (dphi>dphi_max){
+              dphi_max = dphi;
+            }
+            if (deta>deta_max){
+              deta_max = deta;
+            }
+            if (dR>dR_max){
+              dR_max = dR;
+            }
+          }
+        }
+        h_sigvtx_ntk->Fill(ntrk);
+        h_sigvtx_pAngle->Fill(std::acos(pdotv));
+        h_sigvtx_pAngle2d->Fill(std::acos(pdotv2d));
+        h_sigvtx_maxdphi->Fill(dphi_max);
+        h_sigvtx_maxdeta->Fill(deta_max);
+        h_sigvtx_maxdR->Fill(dR_max);
+      }
     }
   }
 
@@ -685,6 +880,50 @@ void MFVVertexer<Jet>::produce(edm::Event& event, const edm::EventSetup& setup) 
       //}
       //else
       //  vpeff = 0;
+      //
+      int vtx_type[2]; // 0: no signal tracks; 1: 1 signal tracks; 2: at least 2 signal tracks
+      std::vector<std::vector<int>> vtx_genpart = {{},{}};
+      for (int iiv=0; iiv<2; ++iiv){
+        std::vector<int> gv_ntk(genvtx.size(),0);
+        int tot_tk = 0;
+        for (auto tk : tracks[iiv]){
+          if (seed_track_llp_map.find(tk)==seed_track_llp_map.end())
+            continue;
+          for (auto& gv_idx:seed_track_llp_map[tk]){
+            gv_ntk[gv_idx] += 1;
+          }
+          tot_tk += 1;
+        }
+        std::vector<int> gvtx_idx_2;
+        std::vector<int> gvtx_idx_1;
+        for (size_t i=0; i<gv_ntk.size(); ++i) {
+          if (gv_ntk[i]>1) {
+            gvtx_idx_2.push_back(i);
+          }
+          if (gv_ntk[i]==1) {
+            gvtx_idx_1.push_back(i);
+          }
+        }
+        if (gvtx_idx_2.size()>0){
+          vtx_type[iiv] = 2;
+        }
+        else if (gvtx_idx_1.size()>0){
+          vtx_type[iiv] = 1;
+        }
+        else {
+          vtx_type[iiv] = 0;
+        }
+        if (vtx_type[iiv]==2){
+          for (auto& igvtx : gvtx_idx_2) {
+            vtx_genpart[iiv].push_back(igvtx);
+          }
+        }
+        else if (vtx_type[iiv]==1){
+          for (auto& igvtx : gvtx_idx_1) {
+            vtx_genpart[iiv].push_back(igvtx);
+          }
+        }
+      }
 
       reco::TrackRefVector shared_tracks;
       for (auto tk : tracks[0])
@@ -699,6 +938,7 @@ void MFVVertexer<Jet>::produce(edm::Event& event, const edm::EventSetup& setup) 
         }
         else
           printf("   no shared tracks\n");
+        std::cout << "    Vertex type " << vtx_type[0] << " " << vtx_type[1] << std::endl;
       }
 
       if (shared_tracks.size() > 0) {
@@ -740,6 +980,104 @@ void MFVVertexer<Jet>::produce(edm::Event& event, const edm::EventSetup& setup) 
             remove_from_1 = true;
           else
             remove_from_0 = true;
+
+          // When there is one vertex with 1 signal track and the other vertex has at least 2 signal track
+          if (remove_from_1 && vtx_type[1]==2){
+            for (auto& sgv:vtx_genpart[1]){
+              genvtx_totnrobs[sgv] += 1;
+            }
+          }
+          if (remove_from_0 && vtx_type[0]==2){
+            for (auto& sgv:vtx_genpart[0]){
+              genvtx_totnrobs[sgv] += 1;
+            }
+          }
+          if ((vtx_type[0]+vtx_type[1])==3){
+            std::vector<size_t> share_gvtx;
+            for (auto& sgv:vtx_genpart[0]){
+              if (std::find(vtx_genpart[1].begin(), vtx_genpart[1].end(), sgv)!=vtx_genpart[1].end()){
+                share_gvtx.push_back(sgv);
+              }
+            }
+            if (remove_from_1 && vtx_type[0]==1 && share_gvtx.size()!=0){
+              // This is the case where vertex0 is the background vertex but take the signal track from vertex1
+              for (auto& igv:share_gvtx){
+                genvtx_nrobs[igv] += 1;
+              }
+              double dx = (v[0]->x() - primary_vertex->x());
+              double dy = (v[0]->y() - primary_vertex->y());
+              double dz = (v[0]->z() - primary_vertex->z());
+              double pdotv = (dx * v[0]->p4().Px() + dy * v[0]->p4().Py() + dz * v[0]->p4().Pz()) / sqrt(v[0]->p4().P2()) / sqrt(dx * dx + dy * dy + dz * dz);
+              double pdotv2d = (dx * v[0]->p4().Px() + dy * v[0]->p4().Py()) / v[0]->p4().Pt() / sqrt(dx*dx + dy*dy);
+              size_t ntrk = (*v[0]).tracksSize();
+              double dphi_max = -1;
+              double deta_max = -1;
+              double dR_max = -1;
+              for (size_t iitrk=0; iitrk<ntrk; ++iitrk){
+                for (size_t jjtrk=iitrk+1; jjtrk<ntrk; ++jjtrk){
+                  auto tk0 = v[0]->trackRefAt(iitrk);
+                  auto tk1 = v[0]->trackRefAt(jjtrk);
+                  double dphi = fabs(reco::deltaPhi(tk0->phi(),tk1->phi()));
+                  double deta = fabs(tk0->eta()-tk1->eta());
+                  double dR = reco::deltaR(tk0->eta(), tk0->phi(), tk1->eta(), tk1->phi());
+                  if (dphi>dphi_max){
+                    dphi_max = dphi;
+                  }
+                  if (deta>deta_max){
+                    deta_max = deta;
+                  }
+                  if (dR>dR_max){
+                    dR_max = dR;
+                  }
+                }
+              }
+              h_tkrobber_ntk->Fill((*v[0]).tracksSize());
+              h_tkrobber_pAngle->Fill(std::acos(pdotv));
+              h_tkrobber_pAngle2d->Fill(std::acos(pdotv2d));
+              h_tkrobber_maxdphi->Fill(dphi_max);
+              h_tkrobber_maxdeta->Fill(deta_max);
+              h_tkrobber_maxdR->Fill(dR_max);
+            }
+            if (remove_from_0 && vtx_type[1]==1 && share_gvtx.size()!=0){
+              // This is the case where vertex1 is the background vertex but take the signal track from vertex0
+              for (auto& igv:share_gvtx){
+                genvtx_nrobs[igv] += 1;
+              }
+              double dx = (v[1]->x() - primary_vertex->x());
+              double dy = (v[1]->y() - primary_vertex->y());
+              double dz = (v[1]->z() - primary_vertex->z());
+              double pdotv = (dx * v[1]->p4().Px() + dy * v[1]->p4().Py() + dz * v[1]->p4().Pz()) / sqrt(v[1]->p4().P2()) / sqrt(dx * dx + dy * dy + dz * dz);
+              double pdotv2d = (dx * v[1]->p4().Px() + dy * v[1]->p4().Py()) / v[1]->p4().Pt() / sqrt(dx*dx + dy*dy);
+              size_t ntrk = (*v[1]).tracksSize();
+              double dphi_max = -1;
+              double deta_max = -1;
+              double dR_max = -1;
+              for (size_t iitrk=0; iitrk<ntrk; ++iitrk){
+                for (size_t jjtrk=iitrk+1; jjtrk<ntrk; ++jjtrk){
+                  auto tk0 = v[1]->trackRefAt(iitrk);
+                  auto tk1 = v[1]->trackRefAt(jjtrk);
+                  double dphi = fabs(reco::deltaPhi(tk0->phi(),tk1->phi()));
+                  double deta = fabs(tk0->eta()-tk1->eta());
+                  double dR = reco::deltaR(tk0->eta(), tk0->phi(), tk1->eta(), tk1->phi());
+                  if (dphi>dphi_max){
+                    dphi_max = dphi;
+                  }
+                  if (deta>deta_max){
+                    deta_max = deta;
+                  }
+                  if (dR>dR_max){
+                    dR_max = dR;
+                  }
+                }
+              }
+              h_tkrobber_ntk->Fill((*v[1]).tracksSize());
+              h_tkrobber_pAngle->Fill(std::acos(pdotv));
+              h_tkrobber_pAngle2d->Fill(std::acos(pdotv2d));
+              h_tkrobber_maxdphi->Fill(dphi_max);
+              h_tkrobber_maxdeta->Fill(deta_max);
+              h_tkrobber_maxdR->Fill(dR_max);
+            }
+          }
 
           if (verbose) {
             printf("   for tk %u:\n", tk.key());
@@ -900,6 +1238,68 @@ void MFVVertexer<Jet>::produce(edm::Event& event, const edm::EventSetup& setup) 
     h_n_resets->Fill(n_resets);
     h_n_onetracks->Fill(n_onetracks);
     h_n_noshare_vertices->Fill(vertices->size());
+  }
+
+  if (histos) {
+    for (auto iv=vertices->begin(); iv!=vertices->end(); ++iv) {
+      auto vtks = vertex_track_set(*iv);
+      std::vector<int> gv_ntk(genvtx.size(),0);
+      for (auto vtk:vtks) {
+        if (seed_track_llp_map.find(vtk)==seed_track_llp_map.end())
+          continue;
+        for (auto& gv_idx:seed_track_llp_map[vtk]){
+          gv_ntk[gv_idx] += 1;
+        }
+      }
+      std::vector<int> gvtx_idx_2;
+      std::vector<int> gvtx_idx_1;
+      for (size_t i=0; i<gv_ntk.size(); ++i) {
+        if (gv_ntk[i]>1) {
+          gvtx_idx_2.push_back(i);
+        }
+        if (gv_ntk[i]==1) {
+          gvtx_idx_1.push_back(i);
+        }
+      }
+      if (gvtx_idx_2.size()>0){
+        for (auto& igvtx : gvtx_idx_2) {
+          genvtx_nvtx[igvtx] += 1;
+        }
+      }
+    }
+    for (size_t igv=0; igv<genvtx_ntks.size(); ++igv) {
+      if(genvtx_nseedvtx[igv]==0 && genvtx_nvtx[igv]>0 && genvtx_totnrobs[igv]==0) {
+        std::cout << "Unrobbed gen vtx " << igv << " in event " << event.id().run() << "," << event.id().luminosityBlock() << "," << event.id().event() << std::endl;
+      }
+      info->nseedvtx.push_back(genvtx_nseedvtx[igv]);
+      info->nmatchedtk.push_back(genvtx_ntks[igv]);
+      info->nrob.push_back(genvtx_nrobs[igv]);
+      info->nvtx.push_back(genvtx_nvtx[igv]);
+      info->ntotrob.push_back(genvtx_totnrobs[igv]);
+      h_genvtx_nseedvtx[0]->Fill(genvtx_nseedvtx[igv]);
+      h_genvtx_nrob[0]->Fill(genvtx_nrobs[igv]);
+      h_genvtx_nmatchedtk[0]->Fill(genvtx_ntks[igv]);
+      h_genvtx_nvtx[0]->Fill(genvtx_nvtx[igv]);
+      if (genvtx_ntks[igv]>1){
+        h_genvtx_nseedvtx[1]->Fill(genvtx_nseedvtx[igv]);
+        h_genvtx_nmatchedtk[1]->Fill(genvtx_ntks[igv]);
+        h_genvtx_nrob[1]->Fill(genvtx_nrobs[igv]);
+        h_genvtx_nvtx[1]->Fill(genvtx_nvtx[igv]);
+        if (genvtx_nseedvtx[igv]>0){
+          h_genvtx_nseedvtx[2]->Fill(genvtx_nseedvtx[igv]);
+          h_genvtx_nmatchedtk[2]->Fill(genvtx_ntks[igv]);
+          h_genvtx_nrob[2]->Fill(genvtx_nrobs[igv]);
+          h_genvtx_nvtx[2]->Fill(genvtx_nvtx[igv]);
+          if (genvtx_nvtx[igv]>0){
+            h_genvtx_nseedvtx[3]->Fill(genvtx_nseedvtx[igv]);
+            h_genvtx_nmatchedtk[3]->Fill(genvtx_ntks[igv]);
+            h_genvtx_nrob[3]->Fill(genvtx_nrobs[igv]);
+            h_genvtx_nvtx[3]->Fill(genvtx_nvtx[igv]);
+          }
+        }
+      }
+    }
+    genvtxTree->Fill();
   }
 
 
@@ -1579,7 +1979,7 @@ void MFVVertexer<Jet>::produce(edm::Event& event, const edm::EventSetup& setup) 
 
 // this function will only return false only if shared jets between the given vertex pair contribute multiple shared-jet tracks to 'both' vertices (not a special case we consider).   
 template <class Jet>
-std::pair<bool, std::vector<std::vector<size_t>>> MFVVertexer<Jet>::sharedjets(const size_t vtx0idx, const size_t vtx1idx, const std::vector < std::vector<size_t>>& sv_match_jetidx, const std::vector < std::vector<size_t>>& sv_match_trkidx) {
+std::pair<bool, std::vector<std::vector<size_t>>> MFVRecowithGen<Jet>::sharedjets(const size_t vtx0idx, const size_t vtx1idx, const std::vector < std::vector<size_t>>& sv_match_jetidx, const std::vector < std::vector<size_t>>& sv_match_trkidx) {
 
   bool shared_jet = hasCommonElement(sv_match_jetidx[vtx0idx], sv_match_jetidx[vtx1idx]);
 
@@ -1628,23 +2028,23 @@ std::pair<bool, std::vector<std::vector<size_t>>> MFVVertexer<Jet>::sharedjets(c
 }
 
 template <class Jet>
-bool MFVVertexer<Jet>::hasCommonElement(std::vector<size_t> vec0, std::vector<size_t> vec1) {
+bool MFVRecowithGen<Jet>::hasCommonElement(std::vector<size_t> vec0, std::vector<size_t> vec1) {
   return getFirstCommonElement(vec0, vec1) != vec0.end();
 }
 
 template <class Jet>
-std::vector<size_t>::iterator MFVVertexer<Jet>::getFirstCommonElement(std::vector<size_t>& vec0, std::vector<size_t>& vec1) {
+std::vector<size_t>::iterator MFVRecowithGen<Jet>::getFirstCommonElement(std::vector<size_t>& vec0, std::vector<size_t>& vec1) {
   return std::find_first_of(vec0.begin(), vec0.end(), vec1.begin(), vec1.end());
 }
 
 template <class Jet> template <typename T>
-void MFVVertexer<Jet>::eraseElement(std::vector<T>& vec, size_t idx) {
+void MFVRecowithGen<Jet>::eraseElement(std::vector<T>& vec, size_t idx) {
   vec.erase(std::remove(vec.begin(), vec.end(), idx), vec.end());
   return;
 }
 
 template <class Jet>
-void MFVVertexer<Jet>::createSetofSharedJetTracks(std::vector<std::vector<size_t>>& vec_sharedjet_track_idx, std::vector<size_t>& vec_special_sharedjet_track_idx, std::vector<size_t>& vec_all_track_idx, std::vector<size_t>& vec_sharedjet_idx, size_t sharedjet_idx){
+void MFVRecowithGen<Jet>::createSetofSharedJetTracks(std::vector<std::vector<size_t>>& vec_sharedjet_track_idx, std::vector<size_t>& vec_special_sharedjet_track_idx, std::vector<size_t>& vec_all_track_idx, std::vector<size_t>& vec_sharedjet_idx, size_t sharedjet_idx){
   std::vector<size_t> temp_match_trkidx_per_sharedjet_idx = {};
   for (size_t k = 0; k < vec_sharedjet_idx.size(); k++) // since sharedjet_idx and all_track_idx vectors correspond one-to-one, for each shared jet index we can create a temporary set of track idx matching to it 
     if (vec_sharedjet_idx[k] == sharedjet_idx) {temp_match_trkidx_per_sharedjet_idx.push_back(vec_all_track_idx[k]);}
@@ -1656,7 +2056,7 @@ void MFVVertexer<Jet>::createSetofSharedJetTracks(std::vector<std::vector<size_t
 }
 
 template <class Jet>
-bool MFVVertexer<Jet>::match_track_jet(const reco::Track& tk, const Jet& matchjet, const std::vector<Jet>& jets, const size_t& idx) {
+bool MFVRecowithGen<Jet>::match_track_jet(const reco::Track& tk, const Jet& matchjet, const std::vector<Jet>& jets, const size_t& idx) {
 
   if (verbose) {
     std::cout << "jet track matching..." << std::endl;
@@ -1706,7 +2106,7 @@ bool MFVVertexer<Jet>::match_track_jet(const reco::Track& tk, const Jet& matchje
 }
 
 template <class Jet>
-void MFVVertexer<Jet>::fillCommonOutputHists(std::unique_ptr<reco::VertexCollection>& vertices, const reco::Vertex& fake_bs_vtx, edm::ESHandle<TransientTrackBuilder>& tt_builder, size_t step) {
+void MFVRecowithGen<Jet>::fillCommonOutputHists(std::unique_ptr<reco::VertexCollection>& vertices, const reco::Vertex& fake_bs_vtx, edm::ESHandle<TransientTrackBuilder>& tt_builder, size_t step) {
 
   std::map<reco::TrackRef, int> track_use;
   int count_5trk_vertices = 0;
@@ -1785,4 +2185,4 @@ void MFVVertexer<Jet>::fillCommonOutputHists(std::unique_ptr<reco::VertexCollect
   hs_n_at_least_5trk_output_vertices[step]->Fill(count_5trk_vertices);
 }
 
-//DEFINE_FWK_MODULE(MFVVertexer);
+//DEFINE_FWK_MODULE(MFVRecowithGen);

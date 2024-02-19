@@ -14,7 +14,7 @@ SVTrackTable = cms.EDProducer("SVTrackTableProducer",
     svCut = cms.string(""),
 
     tkSrc = cms.InputTag("VertexTracksFilter","seed"),
-    tkName = cms.string('SDVTrack'),
+    tkName = cms.string('SDVRefitTrack'),
     tkbranchDoc = cms.string('Indices of secondary vertices associated with the tracks.'),
     tkbranchName = cms.string('SecVtxIdx'),
 

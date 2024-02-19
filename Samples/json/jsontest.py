@@ -3,6 +3,18 @@
 import json
 
 d = {
+  "AOD":{
+    "dataset":{
+    },
+    "dir":{
+      "stop_M600_588_ct200":"/eos/vbc/experiments/cms/store/user/felang/SignalProduction/samples/Stop/600_588_200/AODSIM/",
+      "stop_M600_585_ct20":"/eos/vbc/experiments/cms/store/user/felang/SignalProduction/samples/Stop/600_585_20/AODSIM/",
+      "stop_M600_580_ct2":"/eos/vbc/experiments/cms/store/user/felang/SignalProduction/samples/Stop/600_580_2/AODSIM/",
+      "stop_M1000_988_ct200":"/eos/vbc/experiments/cms/store/user/felang/SignalProduction/samples/Stop/1000_988_200/AODSIM/",
+      "stop_M1000_985_ct20":"/eos/vbc/experiments/cms/store/user/felang/SignalProduction/samples/Stop/1000_985_20/AODSIM/",
+      "stop_M1000_980_ct2":"/eos/vbc/experiments/cms/store/user/felang/SignalProduction/samples/Stop/1000_980_2/AODSIM/",
+    },
+  },
   "CustomMiniAODv1-1":{
     "dataset":{
       "zjetstonunuht0100_2018":"/ZJetsToNuNu_HT-100To200_TuneCP5_13TeV-madgraphMLM-pythia8/liko-ZJetToNuNu_HT-100To200_MC_UL18_CustomMiniAODv1-1-d89a5f51c8622d62b5accbd8b7f90262/USER",

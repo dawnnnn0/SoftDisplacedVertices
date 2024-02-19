@@ -4,7 +4,7 @@ from PhysicsTools.NanoAOD.common_cff import *
 isN2N3 = False
 useIVF = True
 
-def nanoAOD_customise_SoftDisplacedVertices(process):
+def nanoAOD_customise_SoftDisplacedVertices(process, isMC=None):
 
     process.load("SoftDisplacedVertices.VtxReco.VertexReco_cff")
     process.load("SoftDisplacedVertices.VtxReco.Vertexer_cfi")
@@ -29,15 +29,17 @@ def nanoAOD_customise_SoftDisplacedVertices(process):
       process.SVTrackTable.svSrc = cms.InputTag("MFVSecondaryVerticesSoftDV")
     
 #   have care when running on data
-    print(process.nanoSequenceMC)
-    process.nanoSequenceMC = cms.Sequence(process.nanoSequenceMC + process.recoTrackTable + process.vtxReco + process.SVTrackTable)
+    if isMC:
+      process.nanoSequenceMC = cms.Sequence(process.nanoSequenceMC + process.recoTrackTable + process.vtxReco + process.SVTrackTable)
+    else:
+      process.nanoSequence = cms.Sequence(process.nanoSequence + process.recoTrackTable + process.vtxReco + process.SVTrackTable)
     
     return process
 
 def nanoAOD_customise_SoftDisplacedVerticesMC(process):
 
-    process = nanoAOD_customise_SoftDisplacedVertices(process)
-    
+    process = nanoAOD_customise_SoftDisplacedVertices(process, "MC")
+
     process.finalGenParticlesWithStableCharged = process.finalGenParticles.clone(
         src = cms.InputTag("prunedGenParticles")
     )
@@ -67,4 +69,16 @@ def nanoAOD_customise_SoftDisplacedVerticesMC(process):
     
     return process
 
+def nanoAOD_filter_SoftDisplacedVertices(process):
+    process.load("SoftDisplacedVertices.CustomNanoAOD.LumiFilter_cfi")
+    process.passLumiFilter = cms.Path(process.LumiFilter)
+    process.schedule.insert(0,process.passLumiFilter)
 
+    if hasattr(process, 'NANOAODoutput'):
+        process.NANOAODoutput.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('passLumiFilter'))
+    elif hasattr(process, 'NANOAODSIMoutput'):
+        process.NANOAODSIMoutput.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('passLumiFilter'))
+    else:
+        print("WARNING: No NANOAOD[SIM]output definition")
+
+    return process
