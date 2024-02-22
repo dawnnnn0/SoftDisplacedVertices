@@ -607,7 +607,7 @@ void MFVRecowithGen<Jet>::produce(edm::Event& event, const edm::EventSetup& setu
       const auto matchres = SoftDV::matchtracks(idau, seed_track_refs, primary_vertex->position());
       if (matchres.first!=-1) {
         reco::TrackRef itk = reco::TrackRef(seed_track_refs, matchres.first);
-        if (seed_track_llp_map.find(itk)==seed_track_llp_map.end()){
+        if (seed_track_llp_map.find(itk)!=seed_track_llp_map.end()){
           seed_track_llp_map[itk].push_back(igvtx);
         }
         else{

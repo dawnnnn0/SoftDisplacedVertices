@@ -103,6 +103,9 @@ namespace SoftDV {
   SoftDV::Match matchchi2(const reco::GenParticle& gtk, const reco::TrackRef& rtk, const SoftDV::Point& refpoint);
 
   bool pass_gentk(const reco::GenParticle& gtk, const SoftDV::Point& refpoint);
+
+  std::map<int,std::pair<int,int>> VtxLLPMatch(const edm::Handle<reco::GenParticleCollection>& genPart, const edm::Handle<reco::VertexCollection>& vertices, const edm::Handle<reco::TrackCollection>& tracks, const SoftDV::Point& refpoint, std::vector<int> LLPid, int LSPid, bool debug);
+
 }
 double gen_dxy(const reco::GenParticle& gtk, const SoftDV::Point& refpoint); 
 double gen_dz(const reco::GenParticle& gtk, const SoftDV::Point& refpoint);

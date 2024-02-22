@@ -54,7 +54,10 @@ trackVertexArbitratorSoftDV.dRCut = cms.double(5.0) #new
 
 
 def VertexFilterSeq(process, name="vtxfilter", useMINIAOD=False, useIVF=False):
-    assert useIVF==True and useMINIAOD==False, "Check the code. Do you intend to use a different setup?"
+    """ 
+    FIXME: if needed, revise the code.
+    This part of the code is not usable... I am sad :(
+    """
 
     trackSeq = cms.Sequence(TrackFilter)
     # DVSeq    = cms.Sequence(inclusiveVertexFinderSoftDV *
@@ -70,14 +73,18 @@ def VertexFilterSeq(process, name="vtxfilter", useMINIAOD=False, useIVF=False):
 
 
 def VertexRecoSeq(process, name="vtxreco", useMINIAOD=False, useIVF=False):
-    assert useIVF==True and useMINIAOD==False, "Check the code. Do you intend to use a different setup?"
 
-
-    DVSeq = cms.Sequence(inclusiveVertexFinderSoftDV *
-                         vertexMergerSoftDV *
-                         trackVertexArbitratorSoftDV *
-                         IVFSecondaryVerticesSoftDV
-                         )
+    if useIVF: 
+      DVSeq = cms.Sequence(inclusiveVertexFinderSoftDV *
+                           vertexMergerSoftDV *
+                           trackVertexArbitratorSoftDV *
+                           IVFSecondaryVerticesSoftDV
+                           )
+    else:
+      process.MFVSecondaryVerticesSoftDV = process.mfvVerticesMINIAOD.clone()
+      DVSeq = cms.Sequence(
+          process.MFVSecondaryVerticesSoftDV
+          )
     
 
     VtxReco = cms.Sequence(DVSeq)
