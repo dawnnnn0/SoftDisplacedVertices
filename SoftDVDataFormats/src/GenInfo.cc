@@ -237,8 +237,13 @@ std::map<int,std::pair<int,int>> SoftDV::VtxLLPMatch(const edm::Handle<reco::Gen
     }
     if (debug)
       std::cout << std::endl;
-    int matchllp_idx = std::max_element(nmatchtk.begin(),nmatchtk.end())-nmatchtk.begin();
-    res[ivtx] = std::pair<int,int>(matchllp_idx,nmatchtk[matchllp_idx]);
+    if (nmatchtk.size()==0){
+      res[ivtx] = std::pair<int,int>(-1,0);
+    }
+    else{
+      int matchllp_idx = std::max_element(nmatchtk.begin(),nmatchtk.end())-nmatchtk.begin();
+      res[ivtx] = std::pair<int,int>(matchllp_idx,nmatchtk[matchllp_idx]);
+    }
   }
   return res;
 }

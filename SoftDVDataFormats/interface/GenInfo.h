@@ -95,7 +95,10 @@ namespace SoftDV {
 
   std::map<std::vector<double>,std::vector<int>> ClusterGenParts(const std::vector<int> parts, const edm::Handle<reco::GenParticleCollection>& gen_particles);
 
+  std::map<int,std::pair<int,int>> VtxLLPMatch(const edm::Handle<reco::GenParticleCollection>& genPart, const edm::Handle<reco::VertexCollection>& vertices, const edm::Handle<reco::TrackCollection>& tracks, const SoftDV::Point& refpoint, std::vector<int> LLPid, int LSPid, bool debug);
+
   SoftDV::MatchResult matchtracks(const reco::GenParticle& gtk, const edm::Handle<reco::TrackCollection>& tracks, const SoftDV::Point& refpoint);
+
 
   SoftDV::Match matchchi2(const reco::GenParticle& gtk, const reco::TrackRef& rtk, const SoftDV::Point& refpoint);
 

@@ -1,5 +1,13 @@
-<use name="FWCore/ParameterSet"/>
 <use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/Utilities"/>
+
+<use name="DataFormats/METReco"/>
+<use name="DataFormats/Candidate"/>
+<use name="DataFormats/TrackReco"/>
+
+<use name="PhysicsTools/IsolationAlgos"/>
+
 
 <flags EDM_PLUGIN="1"/>
 <export>

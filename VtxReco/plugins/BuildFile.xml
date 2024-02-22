@@ -1,18 +1,41 @@
 <use name="root"/>
-<use name="CommonTools/UtilAlgos"/>
+
 <use name="FWCore/Framework"/>
-<use name="FWCore/PluginManager"/>
 <use name="FWCore/ParameterSet"/>
+<use name="FWCore/Utilities"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/PluginManager"/>
+
+<use name="CommonTools/Utils"/>
+<use name="CommonTools/UtilAlgos"/>
+
+<use name="DataFormats/ParticleFlowCandidate"/>
+<use name="DataFormats/PatCandidates"/>
+<use name="DataFormats/Candidate"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/Math"/>
+<use name="DataFormats/JetReco"/>
 <use name="DataFormats/TrackReco"/>
 <use name="DataFormats/VertexReco"/>
-<use name="DataFormats/PatCandidates"/>
 <use name="DataFormats/METReco"/>
+
+
 <use name="RecoVertex/VertexTools"/>
 <use name="RecoVertex/KalmanVertexFit"/>
+<use name="RecoTracker/DeDx"/>
+
 <use name="TrackingTools/IPTools"/>
 <use name="TrackingTools/Records"/>
 <use name="TrackingTools/TransientTrack"/>
+<use name="TrackingTools/TrackAssociator"/>
+<use name="TrackingTools/TrajectoryState"/>
+
+<use name="CondFormats/HcalObjects"/>
+<use name="CondFormats/EcalObjects"/>
+<use name="CondFormats/DataRecord"/>
+
 <use name="SoftDisplacedVertices/SoftDVDataFormats"/>
+
+
+
 <flags EDM_PLUGIN="1"/>

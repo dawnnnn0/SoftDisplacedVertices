@@ -109,6 +109,7 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
   auto vertices = std::make_unique<std::vector<reco::Vertex>>();
   std::vector<float> x,y,z,dlen, dlenSig, pAngle, Lxy, LxySig, chi2, normalizedChi2;
+  std::vector<float> mass, energy, pt;
   std::vector<float> L_phi, L_eta, sum_tkW;
   std::vector<int> charge, sv_tracksSize, sv_nTracks, SecVtxIdx, TrackIdx;
   std::vector<float> ndof; 
@@ -156,6 +157,9 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
             PV0, VertexState(RecoVertex::convertPos(sv.position()), RecoVertex::convertError(sv.error())));
         Lxy.push_back(d2d.value());
         LxySig.push_back(d2d.significance());
+        mass.push_back(sv.p4().mass());
+        energy.push_back(sv.p4().E());
+        pt.push_back(sv.p4().pt());
         sv_tracksSize.push_back(sv.tracksSize());
         sv_nTracks.push_back(sv.nTracks());
         chi2.push_back(sv.chi2());
@@ -234,7 +238,7 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
         // Matches the track idx with the vertex idx.
         // ---------------------------------------------
-        // Compares the indices of recoTracks_VertexTracksFilter_seed and 
+        // Compares the indices of recoTracks_TrackFilter_seed and 
         // recoVertexs_IVFSecondaryVerticesSoftDV objects and pushes them in two different vectors in the correct order.
         for (const auto& tr : *trIn) {
           for (auto v_tk = sv.tracks_begin(), vtke = sv.tracks_end(); v_tk != vtke; ++v_tk){
@@ -269,6 +273,9 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
   svsTable->addColumn<float>("x", x, "x position in cm", nanoaod::FlatTable::FloatColumn, 10);
   svsTable->addColumn<float>("y", y, "y position in cm", nanoaod::FlatTable::FloatColumn, 10);
   svsTable->addColumn<float>("z", z, "z position in cm", nanoaod::FlatTable::FloatColumn, 10);
+  svsTable->addColumn<float>("mass", mass, "Reconstructed invariant mass at the vertex.", nanoaod::FlatTable::FloatColumn, 10);
+  svsTable->addColumn<float>("energy", energy, "Reconstructed energy at the vertex.", nanoaod::FlatTable::FloatColumn, 10);
+  svsTable->addColumn<float>("pt", pt, "Pt of 4-vector of vertex.", nanoaod::FlatTable::FloatColumn, 10);
   svsTable->addColumn<float>("dlen", dlen, "decay length in cm", nanoaod::FlatTable::FloatColumn, 10);
   svsTable->addColumn<float>("dlenSig", dlenSig, "decay length significance", nanoaod::FlatTable::FloatColumn, 10);
   svsTable->addColumn<float>("Lxy", Lxy, "2D decay length in cm", nanoaod::FlatTable::FloatColumn, 10);

@@ -28,17 +28,22 @@ znunu_2018 = [
     ]
 
 stop_2018 = [
-    Sample("stop_M600_588_ct200", xsec=1e-03),
-    Sample("stop_M600_585_ct20", xsec=1e-03),
-    Sample("stop_M600_580_ct2", xsec=1e-03),
-    Sample("stop_M1000_988_ct200", xsec=1e-03),
-    Sample("stop_M1000_985_ct20", xsec=1e-03),
-    Sample("stop_M1000_980_ct2", xsec=1e-03),
+    Sample("stop_M600_588_ct200_2018", xsec=1e-03),
+    Sample("stop_M600_585_ct20_2018", xsec=1e-03),
+    Sample("stop_M600_580_ct2_2018", xsec=1e-03),
+    Sample("stop_M1000_988_ct200_2018", xsec=1e-03),
+    Sample("stop_M1000_985_ct20_2018", xsec=1e-03),
+    Sample("stop_M1000_980_ct2_2018", xsec=1e-03),
+    ]
+
+c1n2_2018 = [
+    Sample("C1N2_M600_588_ct200_2018", xsec=1e-03),
     ]
 
 all_samples = [
     znunu_2018,
     stop_2018,
+    c1n2_2018,
 ]
 
 for samples in all_samples:

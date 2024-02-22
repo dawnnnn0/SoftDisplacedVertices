@@ -24,7 +24,7 @@ process = cms.Process('customNanoAOD',Run2_2018,run2_nanoAOD_106Xv2)
 # from FWCore.MessageService.MessageLogger_cfi import *
 # MessageLogger = cms.Service("MessageLogger")
 process.load('FWCore.MessageLogger.MessageLogger_cfi')
-process.MessageLogger.cerr.FwkReport.reportEvery = 10000
+process.MessageLogger.cerr.FwkReport.reportEvery = 1
 
 
 # import of standard configurations
@@ -44,6 +44,7 @@ process.load("SoftDisplacedVertices.VtxReco.VertexReco_cff")
 process.load("SoftDisplacedVertices.VtxReco.GenProducer_cfi")
 process.load("SoftDisplacedVertices.VtxReco.GenMatchedTracks_cfi")
 process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
+process.load("SoftDisplacedVertices.ML.VtxMLTableProducer_cfi")
 
 # Import custom table configurations
 
@@ -51,7 +52,7 @@ process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(10)
 )
 
 MessageLogger = cms.Service("MessageLogger")
@@ -59,8 +60,9 @@ MessageLogger = cms.Service("MessageLogger")
 
 # Input source
 process.source = cms.Source("PoolSource",
+    fileNames = cms.untracked.vstring('file:/scratch-cbe/users/ang.li/SoftDV/MiniAOD_vtxreco/Stop_600_588_200/MINIAODSIMoutput_0.root'),
     #fileNames = cms.untracked.vstring('file:/eos/vbc/experiments/cms/store/user/felang/SignalProduction/samples/Stop/600_585_20/CustomMiniAOD/MINIAODSIMoutput_0.root'),
-    fileNames = cms.untracked.vstring('file:/users/ang.li/public/SoftDV/CMSSW_10_6_30/src/SoftDisplacedVertices/CustomMiniAOD/test/MiniAOD.root'),
+    #fileNames = cms.untracked.vstring('file:/users/ang.li/public/SoftDV/CMSSW_10_6_30/src/SoftDisplacedVertices/CustomMiniAOD/test/MiniAOD.root'),
     #fileNames = cms.untracked.vstring('file:/eos/vbc/experiments/cms/store/user/liko/ZJetsToNuNu_HT-1200To2500_TuneCP5_13TeV-madgraphMLM-pythia8/ZJetsToNuNu_HT-1200To2500_MC_UL18_CustomMiniAODv1-1/231112_223113/0000/MiniAOD_1.root'),
     secondaryFileNames = cms.untracked.vstring()
 )
@@ -120,7 +122,7 @@ from SoftDisplacedVertices.CustomNanoAOD.nanoAOD_cff import nanoAOD_customise_So
 nanoAOD_customise_SoftDisplacedVerticesMC(process)
 
 
-process.nanoAOD_step = cms.Path(process.nanoSequenceMC)
+process.nanoAOD_step = cms.Path(process.nanoSequenceMC + process.VtxMLTableProducer)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.NANOAODSIMoutput_step = cms.EndPath(process.NANOAODSIMoutput)
 
