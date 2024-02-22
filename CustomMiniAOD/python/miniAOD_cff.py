@@ -63,7 +63,7 @@ def miniAOD_filter_SoftDisplacedVertices(process):
     process.pfMETSkim = cms.EDFilter(
         "METFilter",
         src = cms.InputTag("pfMet"),
-        minMET = cms.double(200.),
+        minMET = cms.double(140.),
     )
     process.Flag_pfMETSkim = cms.Path(process.pfMETSkim)
     process.schedule.append(process.Flag_pfMETSkim)
