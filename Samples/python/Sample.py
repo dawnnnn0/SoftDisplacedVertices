@@ -2,9 +2,10 @@
 import os
 
 class Sample:
-  def __init__(self, name, xsec):
+  def __init__(self, name, xsec, filter_eff=1):
     self.name = name
     self.xsec = xsec
+    self.filter_eff = filter_eff
     self.dirs = {}
     self.dataset = {}
     self.dataset_instance = {}
