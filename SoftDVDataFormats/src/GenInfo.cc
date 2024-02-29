@@ -186,12 +186,18 @@ bool SoftDV::pass_gentk(const reco::GenParticle& gtk, const SoftDV::Point& refpo
   return true;  
 }
 
+// The VtxLLPMatch function matches reco vertices with LLPs
+// A map is returned: 
+//   Key: vertex index
+//   Value: a std::pair of (matched LLP index, number of matched tracks)
 std::map<int,std::pair<int,int>> SoftDV::VtxLLPMatch(const edm::Handle<reco::GenParticleCollection>& genPart, const edm::Handle<reco::VertexCollection>& vertices, const edm::Handle<reco::TrackCollection>& tracks, const SoftDV::Point& refpoint, std::vector<int> LLPid, int LSPid, bool debug) {
   std::map<int,std::pair<int,int>> res;
+  // Get all LLPs
   std::vector<int> llp_idx = SoftDV::FindLLP(genPart, LLPid, LSPid, debug);
   std::map<int,std::vector<int>> tk_llp_map; // first element is track key; second element is a vector of indices of matched LLPs
   for (size_t illp=0; illp<llp_idx.size(); ++illp){
     std::vector<int> llp_daus = SoftDV::GetDaughters(llp_idx[illp], genPart, debug);
+    // Match Gen daughters with reco tracks
     for (int igen:llp_daus) {
       const reco::GenParticle& idau = genPart->at(igen);
       const auto matchres = SoftDV::matchtracks(idau, tracks, refpoint);
@@ -219,8 +225,10 @@ std::map<int,std::pair<int,int>> SoftDV::VtxLLPMatch(const edm::Handle<reco::Gen
       std::cout << std::endl;
     }
   }
+  // Now loop through vertices
   for (size_t ivtx=0; ivtx<vertices->size(); ++ivtx){
     const reco::Vertex& sv = vertices->at(ivtx);
+    // A vector that stores the number of matched tracks for each LLP
     std::vector<int> nmatchtk(llp_idx.size(),0);
     if (debug)
       std::cout << "vtx tks: ";
@@ -229,6 +237,7 @@ std::map<int,std::pair<int,int>> SoftDV::VtxLLPMatch(const edm::Handle<reco::Gen
       if (debug)
         std::cout << tkkey << ", ";
       const auto& otk = tracks->at(tkkey);
+      // If a track is matched with LLP, increment the corresponding number in the vector
       if (tk_llp_map.find(tkkey)!=tk_llp_map.end()) {
         for (auto& imllp:tk_llp_map[tkkey]){
           nmatchtk[imllp] += 1;
@@ -241,6 +250,7 @@ std::map<int,std::pair<int,int>> SoftDV::VtxLLPMatch(const edm::Handle<reco::Gen
       res[ivtx] = std::pair<int,int>(-1,0);
     }
     else{
+      // Pick the LLP that have most number of matched track with the vertex as matched LLP
       int matchllp_idx = std::max_element(nmatchtk.begin(),nmatchtk.end())-nmatchtk.begin();
       res[ivtx] = std::pair<int,int>(matchllp_idx,nmatchtk[matchllp_idx]);
     }
