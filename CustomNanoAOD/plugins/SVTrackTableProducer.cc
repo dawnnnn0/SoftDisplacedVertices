@@ -305,25 +305,25 @@ void SVTrackTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
   // Refitted track table
   //
   auto refittkTable = std::make_unique<nanoaod::FlatTable>(ntk_refit, tkName_, false);
-  refittkTable->addColumn<float>("normalizedChi2", tk_normalizedChi2, "normalizedChi2", nanoaod::FlatTable::FloatColumn, 10);
-  refittkTable->addColumn<float>("eta", tk_eta, "eta", nanoaod::FlatTable::FloatColumn, 10);
-  refittkTable->addColumn<float>("phi", tk_phi, "phi", nanoaod::FlatTable::FloatColumn, 10);
-  refittkTable->addColumn<float>("pt", tk_pt, "pt", nanoaod::FlatTable::FloatColumn, 10);
-  refittkTable->addColumn<float>("dxy", tk_dxy, "dxy", nanoaod::FlatTable::FloatColumn, 10);
-  refittkTable->addColumn<float>("dz", tk_dz, "dz", nanoaod::FlatTable::FloatColumn, 10);
-  refittkTable->addColumn<float>("etaError", tk_etaError, "etaError", nanoaod::FlatTable::FloatColumn, 10);
-  refittkTable->addColumn<float>("phiError", tk_phiError, "phiError", nanoaod::FlatTable::FloatColumn, 10);
-  refittkTable->addColumn<float>("ptError", tk_ptError, "ptError", nanoaod::FlatTable::FloatColumn, 10);
-  refittkTable->addColumn<float>("dxyError", tk_dxyError, "dxyError", nanoaod::FlatTable::FloatColumn, 10);
-  refittkTable->addColumn<float>("dzError", tk_dzError, "dzError", nanoaod::FlatTable::FloatColumn, 10);
-  refittkTable->addColumn<int>("charge", tk_charge, "Charge", nanoaod::FlatTable::IntColumn, 10);
-  refittkTable->addColumn<int>("isHighPurity", tk_isHighPurity, "Is High Purity", nanoaod::FlatTable::IntColumn);
-  refittkTable->addColumn<int>("numberOfValidHits", tk_numberOfValidHits, "Number of valid hits", nanoaod::FlatTable::IntColumn);
-  refittkTable->addColumn<int>("numberOfLostHits", tk_numberOfLostHits, "Number of cases with layers without hits", nanoaod::FlatTable::IntColumn);
-  refittkTable->addColumn<float>("validFraction", tk_validFraction, "Fraction of valid hits on track", nanoaod::FlatTable::FloatColumn, 10);
-  refittkTable->addColumn<int>("algo", tk_algo, "Algorithm of track reconstruction", nanoaod::FlatTable::IntColumn);
-  refittkTable->addColumn<int>("svIdx", tk_svIdx, "Index of displaced vertex the track is associated to", nanoaod::FlatTable::IntColumn);
-  refittkTable->addColumn<int>("tkIdx", tk_tkIdx, "Index of original track that the refitted track corresponds to", nanoaod::FlatTable::IntColumn);
+  refittkTable->addColumn<float>("normalizedChi2", tk_normalizedChi2, "normalizedChi2", 10);
+  refittkTable->addColumn<float>("eta", tk_eta, "eta", 10);
+  refittkTable->addColumn<float>("phi", tk_phi, "phi", 10);
+  refittkTable->addColumn<float>("pt", tk_pt, "pt", 10);
+  refittkTable->addColumn<float>("dxy", tk_dxy, "dxy", 10);
+  refittkTable->addColumn<float>("dz", tk_dz, "dz", 10);
+  refittkTable->addColumn<float>("etaError", tk_etaError, "etaError", 10);
+  refittkTable->addColumn<float>("phiError", tk_phiError, "phiError", 10);
+  refittkTable->addColumn<float>("ptError", tk_ptError, "ptError", 10);
+  refittkTable->addColumn<float>("dxyError", tk_dxyError, "dxyError", 10);
+  refittkTable->addColumn<float>("dzError", tk_dzError, "dzError", 10);
+  refittkTable->addColumn<int16_t>("charge", tk_charge, "Charge", 10);
+  refittkTable->addColumn<int16_t>("isHighPurity", tk_isHighPurity, "Is High Purity", 10);
+  refittkTable->addColumn<int16_t>("numberOfValidHits", tk_numberOfValidHits, "Number of valid hits", 10);
+  refittkTable->addColumn<int16_t>("numberOfLostHits", tk_numberOfLostHits, "Number of cases with layers without hits", 10);
+  refittkTable->addColumn<float>("validFraction", tk_validFraction, "Fraction of valid hits on track", 10);
+  refittkTable->addColumn<int16_t>("algo", tk_algo, "Algorithm of track reconstruction", 10);
+  refittkTable->addColumn<int16_t>("svIdx", tk_svIdx, "Index of displaced vertex the track is associated to", 10);
+  refittkTable->addColumn<int16_t>("tkIdx", tk_tkIdx, "Index of original track that the refitted track corresponds to", 10);
 
 
   //This part used to generate the index mapping between reco vertex and reco tracks, a bette way (LUT) is used now so this part is commented out
