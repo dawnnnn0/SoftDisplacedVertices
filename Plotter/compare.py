@@ -11,6 +11,8 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('--input', type=str, nargs='+',
                     help='files to compare')
+parser.add_argument('--output', type=str,
+                    help='output dir')
 parser.add_argument('--dirs', type=str, nargs='+',
                     help='directories to compare')
 parser.add_argument('--nice', type=str, nargs='+',
@@ -19,6 +21,7 @@ parser.add_argument('--scale', action='store_true', default=False,
                     help='Whether to scale the plot')
 args = parser.parse_args()
 
+colors_global = [ROOT.kBlue,ROOT.kRed+1,ROOT.kGreen+1,ROOT.kYellow+1,ROOT.kMagenta+1,ROOT.kCyan+1]
 
 def AddHists(hs,ws):
   assert len(hs)==len(ws)
@@ -40,6 +43,8 @@ def StackHists(hs,ws):
 
 
 def comparehists(name,hs,legend,colors=None,scale=False):
+  if colors is None:
+    colors = colors_global[:len(hs)]
   c = ROOT.TCanvas("c"+name,"c"+name,600,600)
   l = ROOT.TLegend(0.6,0.7,0.9,0.9)
   y_max = 0
@@ -48,8 +53,7 @@ def comparehists(name,hs,legend,colors=None,scale=False):
     if scale:
       hs[i].Scale(1./hs[i].Integral())
     hs[i].SetLineWidth(2)
-    if colors is not None:
-      hs[i].SetLineColor(colors[i])
+    hs[i].SetLineColor(colors[i])
     y_max = max(y_max,hs[i].GetMaximum())
     y_min = min(y_min,hs[i].GetMinimum())
 
@@ -57,37 +61,80 @@ def comparehists(name,hs,legend,colors=None,scale=False):
     if i==0:
       hs[i].SetMaximum(10*y_max)
       #hs[i].SetMinimum(0.5*y_min)
-      hs[i].DrawClone("PLC PMC")
+      hs[i].DrawClone()
     else:
-      hs[i].DrawClone("same PLC PMC")
+      hs[i].DrawClone("same")
     l.AddEntry(hs[i],legend[i])
 
   l.Draw()
   c.Update()
   c.SetLogy()
-  c.SaveAs("{}.pdf".format(name))
+  c.SaveAs("{}.pdf".format(args.output+'/'+name))
+  c.SaveAs("{}.png".format(args.output+'/'+name))
 
-assert((len(args.input)>1) + (len(args.dirs)>1) == 1 )
-fs = [ROOT.TFile.Open(fn) for fn in args.input]
-plots = [p.GetName() for p in fs[0].GetListOfKeys()]
-
-for plt in plots:
-  h_compare = []
-  for f in fs:
-    try:
+def compareDiffFiles(fns,legend,colors,scale):
+  fs = [ROOT.TFile.Open(fn) for fn in fns]
+  plots = [p.GetName() for p in fs[0].GetListOfKeys()]
+  
+  for plt in plots:
+    h_compare = []
+    for f in fs:
       h = f.Get(plt)
-    except:
-      print("{} not in f.".format(plt))
+      h.SetDirectory(0)
+      h_compare.append(h)
+  
+    comparehists(plt,h_compare,legend=legend,colors=colors,scale=scale)
+  
+  for f in fs:
+    f.Close()
+
+def compareDiffFilesSpecial(fns,legend,colors,scale):
+  fs = [ROOT.TFile.Open(fn) for fn in fns]
+  plots = [p.GetName() for p in fs[0].GetListOfKeys()]
+  
+  for plt in plots:
+    if not 'untag' in plt:
       continue
-    h_compare.append(h.Clone())
+    h_compare = []
+    for f in fs:
+      if 'stop' in f.GetName():
+        h = f.Get(plt.replace('untag','genmatchtag'))
+      else:
+        h = f.Get(plt.replace('untag','tag'))
+      h.SetDirectory(0)
+      h_compare.append(h)
+  
+    comparehists(plt,h_compare,legend=legend,colors=colors,scale=scale)
+  
+  for f in fs:
+    f.Close()
 
-  comparehists(plt,h_compare,legend=args.nice,scale=args.scale)
+def compareSameFile(fn,plots_a,plots_b,legend,colors,scale):
+  f = ROOT.TFile.Open(fn)
+  assert(len(plots_a)==len(plots_b))
 
-for f in fs:
+  for plta,pltb in zip(plots_a,plots_b):
+    plta_ = f.Get(plta)
+    plta_.SetDirectory(0)
+    pltb_ = f.Get(pltb)
+    pltb_.SetDirectory(0)
+    h_compare = [plta_,pltb_]
+    comparehists(plt,h_compare,legend=legend,colors=colors,scale=scale)
+
   f.Close()
 
-
-
+if __name__ == "__main__":
+  if not os.path.exists(args.output):
+    os.makedirs(args.output)
+  if len(args.input)==1:
+    plots_a = []
+    plots_b = []
+    compareSameFile(args.input[0],plots_a,plots_b,args.nice,None,args.scale)
+  else:
+    print("start")
+    print(args.input)
+    #compareDiffFiles(args.input,args.nice,None,args.scale)
+    compareDiffFilesSpecial(args.input,args.nice,None,args.scale)
 
 #f1 = ROOT.TFile.Open("/users/ang.li/public/SoftDV/CMSSW_13_3_0/src/SoftDisplacedVertices/Plotter/plots_ML_METSlice/bkg_2018_MLNanoAODv0_hist.root")
 #f2 = ROOT.TFile.Open("/users/ang.li/public/SoftDV/CMSSW_13_3_0/src/SoftDisplacedVertices/Plotter/plots_ML_METSlice/stop_M600_588_ct200_2018_MLNanoAODv0_hist.root")
