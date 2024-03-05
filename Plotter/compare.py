@@ -1,3 +1,15 @@
+### Example usage:
+### 
+### Compare histograms for different directories in different files
+### python3 compare.py --input /eos/vbc/group/cms/ang.li/MLhists/MLNanoAODv2/stop_M600_588_ct200_2018_hist.root /eos/vbc/group/cms/ang.li/MLhists/MLNanoAODv2/stop_M600_580_ct2_2018_hist.root --dirs histtag histuntag  --nice 588 580 --scale --output /groups/hephy/cms/ang.li/plots/plots_test
+###
+### Compare histograms for the same directory in different files
+### python3 compare.py --input /eos/vbc/group/cms/ang.li/MLhists/MLNanoAODv2/stop_M600_588_ct200_2018_hist.root /eos/vbc/group/cms/ang.li/MLhists/MLNanoAODv2/stop_M600_580_ct2_2018_hist.root --dirs histtag  --nice 588 580 --scale --output /groups/hephy/cms/ang.li/plots/plots_test
+###
+### Compare histograms for different directories in the same file
+### python3 compare.py --input /eos/vbc/group/cms/ang.li/MLhists/MLNanoAODv2/stop_M600_588_ct200_2018_hist.root --dirs histtag histuntag  --nice tag untag --scale --output /groups/hephy/cms/ang.li/plots/plots_test
+
+
 import os
 import ROOT
 import SoftDisplacedVertices.Samples.Samples as s
@@ -74,12 +86,28 @@ def comparehists(name,hs,legend,colors=None,scale=False):
 
 def compareDiffFiles(fns,legend,colors,scale):
   fs = [ROOT.TFile.Open(fn) for fn in fns]
-  plots = [p.GetName() for p in fs[0].GetListOfKeys()]
+  dirs = []
+  if len(args.dirs)==0:
+    dirs = ['']*len(fs)
+    plots = [p.GetName() for p in fs[0].GetListOfKeys()]
+  else:
+    dirs = args.dirs
+    if len(dirs)==1:
+      dirs = [args.dirs[0]]*len(fs)
+    fdir = fs[0].Get(args.dirs[0])
+    if not fdir:
+      print("{} not available in {}!".format(args.dirs[0],fs[0].GetName()))
+    plots = [p.GetName() for p in fdir.GetListOfKeys()]
   
+  assert(len(dirs)==len(fs))
   for plt in plots:
     h_compare = []
-    for f in fs:
-      h = f.Get(plt)
+    for f,d in zip(fs,dirs):
+      try:
+        h = f.Get(d+'/'+plt)
+      except:
+        print('{} is not available in {}!'.format(d+'/'+plt,f.GetName()))
+        continue
       h.SetDirectory(0)
       h_compare.append(h)
   
@@ -109,128 +137,36 @@ def compareDiffFilesSpecial(fns,legend,colors,scale):
   for f in fs:
     f.Close()
 
-def compareSameFile(fn,plots_a,plots_b,legend,colors,scale):
+def compareSameFile(fn,legend,colors,scale):
   f = ROOT.TFile.Open(fn)
-  assert(len(plots_a)==len(plots_b))
 
-  for plta,pltb in zip(plots_a,plots_b):
-    plta_ = f.Get(plta)
-    plta_.SetDirectory(0)
-    pltb_ = f.Get(pltb)
-    pltb_.SetDirectory(0)
-    h_compare = [plta_,pltb_]
+  fdir = f.Get(args.dirs[0])
+  if not fdir:
+    print("{} not available in {}!".format(args.dirs[0],f.GetName()))
+  plots = [p.GetName() for p in fdir.GetListOfKeys()]
+  
+  for plt in plots:
+    h_compare = []
+    for d in args.dirs:
+      try:
+        h = f.Get(d+'/'+plt)
+      except:
+        print('{} is not available in {}!'.format(d+'/'+plt,f.GetName()))
+        continue
+      h.SetDirectory(0)
+      h_compare.append(h)
+  
     comparehists(plt,h_compare,legend=legend,colors=colors,scale=scale)
-
+  
   f.Close()
 
 if __name__ == "__main__":
   if not os.path.exists(args.output):
     os.makedirs(args.output)
   if len(args.input)==1:
-    plots_a = []
-    plots_b = []
-    compareSameFile(args.input[0],plots_a,plots_b,args.nice,None,args.scale)
+    assert(len(args.dirs)>1)
+    compareSameFile(args.input[0],args.nice,None,args.scale)
   else:
-    print("start")
-    print(args.input)
-    #compareDiffFiles(args.input,args.nice,None,args.scale)
-    compareDiffFilesSpecial(args.input,args.nice,None,args.scale)
-
-#f1 = ROOT.TFile.Open("/users/ang.li/public/SoftDV/CMSSW_13_3_0/src/SoftDisplacedVertices/Plotter/plots_ML_METSlice/bkg_2018_MLNanoAODv0_hist.root")
-#f2 = ROOT.TFile.Open("/users/ang.li/public/SoftDV/CMSSW_13_3_0/src/SoftDisplacedVertices/Plotter/plots_ML_METSlice/stop_M600_588_ct200_2018_MLNanoAODv0_hist.root")
-#f3 = ROOT.TFile.Open("/users/ang.li/public/SoftDV/CMSSW_13_3_0/src/SoftDisplacedVertices/Plotter/plots_ML_METSlice/stop_M600_585_ct20_2018_MLNanoAODv0_hist.root")
-#f8 = ROOT.TFile.Open("/users/ang.li/public/SoftDV/CMSSW_13_3_0/src/SoftDisplacedVertices/Plotter/plots_ML_METSlice/stop_M600_580_ct2_2018_MLNanoAODv0_hist.root")
-#f4 = ROOT.TFile.Open("/users/ang.li/public/SoftDV/CMSSW_13_3_0/src/SoftDisplacedVertices/Plotter/plots_ML_METSlice/stop_M600_580_ct2_2018_MLNanoAODv0_hist.root")
-
-#legends = ['bkg',"stop_600_588_200"]
-#color = [ROOT.kBlue, ROOT.kRed]
-#legends = ["background",'stop_600_588_200','stop_600_585_20',"stop_600_580_2"]
-#color = [ROOT.kBlack,ROOT.kBlue,ROOT.kRed,ROOT.kGreen+3]
-#
-#plots = [p.GetName() for p in f1.GetListOfKeys()]
-#
-#
-#for plt in plots:
-#  h_compare = []
-#  for f in [f1,f2,f3,f8]:
-#    try:
-#      h = f.Get(plt)
-#    except:
-#      print("{} not in f.".format(plt))
-#      continue
-#    if ('SDVSecVtx_dlenSig' in plt) or ('SDVSecVtx_LxySig' in plt):
-#      h = h.Rebin(5)
-#    if ('MET_pt' in plt):
-#      h = h.Rebin(5)
-#    print(h.Integral())
-#    h_compare.append(h.Clone())
-#
-#  comparehists(plt,h_compare,legend=legends,colors=color,scale=False)
-#  comparehists(plt+'scale',h_compare,legend=legends,colors=color,scale=True)
-#
-#plots_sf = ['nSDVSecVtx_{0}sel','MET_pt{0}','SDVSecVtx_LxySig_{0}sel_max{0}']
-#
-#legends_sf = ['CC',"ML"]
-#for plt in plots_sf:
-#  h1 = f1.Get(plt.format(legends_sf[0]))
-#  h2 = f1.Get(plt.format(legends_sf[1]))
-#  #if ('MET' in plt):
-#  #  h1 = h1.Rebin(5)
-#  #  h2 = h2.Rebin(5)
-#
-#  h_compare = [h1,h2]
-#  comparehists(plt.format("compbkg"),h_compare,legend=legends_sf,colors=color,scale=False)
-#
-#  h1 = f2.Get(plt.format(legends_sf[0]))
-#  h2 = f2.Get(plt.format(legends_sf[1]))
-#  #if ('MET' in plt):
-#  #  h1 = h1.Rebin(5)
-#  #  h2 = h2.Rebin(5)
-#
-#  h_compare = [h1,h2]
-#  comparehists(plt.format("compsig"),h_compare,legend=legends_sf,colors=color,scale=False)
-#
-#legends = ["tag","untag"]
-#for plt in plots:
-#  if not "untag" in plt:
-#    continue
-#  plt_untag = plt
-#  plt_tag = plt.replace('untag','tag')
-#  h_sig_tag = f2.Get(plt_tag)
-#  h_sig_untag = f2.Get(plt_untag)
-#  h_bkg_tag = f1.Get(plt_tag)
-#  h_bkg_untag = f1.Get(plt_untag)
-#  h_comp = [h_sig_tag, h_sig_untag]
-#  comparehists(plt.replace('untag','')+"tagcompsig",h_comp,legend=legends,colors=color,scale=True)
-#  h_comp = [h_bkg_tag, h_bkg_untag]
-#  comparehists(plt.replace('untag','')+"tagcompbkg",h_comp,legend=legends,colors=color,scale=True)
-#
-#plots_ML = ['SDVSecVtx_nGoodTracklowMET','SDVSecVtx_nGoodTrackmidMET','SDVSecVtx_nGoodTrackhighMET']
-##plots_ML = ['SDVSecVtx_ParTScore']
-#legends = ["background",'stop_600_588_200','stop_600_585_20',"stop_600_580_2"]
-#color = [ROOT.kBlack,ROOT.kBlue,ROOT.kRed,ROOT.kGreen+3]
-#for plt in plots_ML:
-#  h1 = f1.Get(plt)
-#  h2 = f2.Get(plt)
-#  h3 = f3.Get(plt)
-#  h4 = f8.Get(plt)
-#  h_comp = [h1,h2,h3,h4]
-#  comparehists(plt+"MLcomp",h_comp,legend=legends,colors=color,scale=True)
-
-#plots_ML = ['SDVSecVtx_nGoodTracktaglowMET','SDVSecVtx_nGoodTracktagmidMET','SDVSecVtx_nGoodTracktaghighMET']
-##plots_ML = ['SDVSecVtx_ParTScore']
-#legends = ["200<MET<400",'400<MET<600','600<MET']
-#color = [ROOT.kBlue,ROOT.kRed,ROOT.kGreen+3]
-#h_comp = []
-#for plt in plots_ML:
-#  h = f1.Get(plt)
-#  h_comp.append(h.Clone())
-#comparehists(plt+"METslice",h_comp,legend=legends,colors=color,scale=True)
-#
-#
-#f1.Close()
-#f2.Close()
-#f3.Close()
-#f4.Close()
-#f8.Close()
+    compareDiffFiles(args.input,args.nice,None,args.scale)
+    #compareDiffFilesSpecial(args.input,args.nice,None,args.scale)
 
