@@ -87,7 +87,7 @@ def comparehists(name,hs,legend,colors=None,scale=False):
 def compareDiffFiles(fns,legend,colors,scale):
   fs = [ROOT.TFile.Open(fn) for fn in fns]
   dirs = []
-  if len(args.dirs)==0:
+  if (args.dirs is None) or (len(args.dirs)==0):
     dirs = ['']*len(fs)
     plots = [p.GetName() for p in fs[0].GetListOfKeys()]
   else:
@@ -104,31 +104,16 @@ def compareDiffFiles(fns,legend,colors,scale):
     h_compare = []
     for f,d in zip(fs,dirs):
       try:
-        h = f.Get(d+'/'+plt)
+        if d=='':
+          h = f.Get(plt)
+        else:
+          h = f.Get(d+'/'+plt)
       except:
         print('{} is not available in {}!'.format(d+'/'+plt,f.GetName()))
         continue
-      h.SetDirectory(0)
-      h_compare.append(h)
-  
-    comparehists(plt,h_compare,legend=legend,colors=colors,scale=scale)
-  
-  for f in fs:
-    f.Close()
-
-def compareDiffFilesSpecial(fns,legend,colors,scale):
-  fs = [ROOT.TFile.Open(fn) for fn in fns]
-  plots = [p.GetName() for p in fs[0].GetListOfKeys()]
-  
-  for plt in plots:
-    if not 'untag' in plt:
-      continue
-    h_compare = []
-    for f in fs:
-      if 'stop' in f.GetName():
-        h = f.Get(plt.replace('untag','genmatchtag'))
-      else:
-        h = f.Get(plt.replace('untag','tag'))
+      if h is None:
+        print('{} is not available in {}!'.format(d+'/'+plt,f.GetName()))
+        continue
       h.SetDirectory(0)
       h_compare.append(h)
   
@@ -153,6 +138,9 @@ def compareSameFile(fn,legend,colors,scale):
       except:
         print('{} is not available in {}!'.format(d+'/'+plt,f.GetName()))
         continue
+      if h is None:
+        print('{} is not available in {}!'.format(d+'/'+plt,f.GetName()))
+        continue
       h.SetDirectory(0)
       h_compare.append(h)
   
@@ -168,5 +156,4 @@ if __name__ == "__main__":
     compareSameFile(args.input[0],args.nice,None,args.scale)
   else:
     compareDiffFiles(args.input,args.nice,None,args.scale)
-    #compareDiffFilesSpecial(args.input,args.nice,None,args.scale)
 

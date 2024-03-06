@@ -1,0 +1,51 @@
+presel: MET_pt>200&&HLT_PFMET120_PFMHT120_IDTight && Jet_pt[0]>100 && !nMuon && !nPhoton
+  && !nTau && !nElectron && Flag_METFilters && Jet_chHEF[0]>0.1 && Jet_neHEF[0]<0.8
+new_variables:
+  #SDVSecVtx_dphi_L_MET: acos(cos(SDVSecVtx_L_phi-MET_phi))
+regions:
+  All: 
+  CCSR: nSDVSecVtx_CCsel>0
+  MLSR: nSDVSecVtx_MLsel>0
+event_variables:
+- nSDVSecVtx_CCsel
+- nSDVSecVtx_MLsel
+- SDVSecVtx_LxySig_CCsel_max
+- SDVSecVtx_LxySig_MLsel_max
+- MET_pt
+event_2d_plots:
+- [MET_pt,SDVSecVtx_LxySig_MLsel_max]
+objects:
+  SDVSecVtx:
+    selections:
+      genmatch: SDVSecVtx_matchedLLPnDau_bydau>1
+      genmatchtag: SDVSecVtx_matchedLLPnDau_bydau>1 && SDVSecVtx_ParTScore>0.98
+      tag: SDVSecVtx_ParTScore>0.98
+      untag: SDVSecVtx_ParTScore<0.98
+    variables:
+    - SDVSecVtx_nTracks
+    - SDVSecVtx_pAngle
+    - SDVSecVtx_nGoodTrack
+    - SDVSecVtx_dlen
+    - SDVSecVtx_dlenSig
+    - SDVSecVtx_dlen_err
+    - SDVSecVtx_Lxy
+    - SDVSecVtx_LxySig
+    - SDVSecVtx_Lxy_err
+    - SDVSecVtx_chi2
+    - SDVSecVtx_normalizedChi2
+    - SDVSecVtx_ndof
+    - SDVSecVtx_L_eta_abs
+    - SDVSecVtx_matchedLLPIdx_bydau
+    - SDVSecVtx_matchedLLPnDau_bydau
+    - SDVSecVtx_TkMaxdphi
+    - SDVSecVtx_TkMindphi
+    - SDVSecVtx_TkMaxdeta
+    - SDVSecVtx_TkMindeta
+    - SDVSecVtx_TkMaxdR
+    - SDVSecVtx_TkMindR
+    - SDVSecVtx_dphi_L_MET
+    - SDVSecVtx_dphi_L_jet0
+    2d_plots:
+    - [SDVSecVtx_Lxy,SDVSecVtx_pAngle]
+    
+

@@ -10,16 +10,31 @@ ROOT.TH1.SetDefaultSumw2(True)
 ROOT.gStyle.SetOptStat(0)
 
 class Plotter:
-  def __init__(self,s=None,datalabel="",lumi=1,presel="",info_path="",input_json="",d_addvar=dict(),d_varsel=dict(),dplots=dict()):
+  def __init__(self,s=None,datalabel="",outputDir="./",lumi=1,info_path="",input_json="",config=""):
     self.s = None
     self.datalabel = datalabel
+    self.outputDir = outputDir
     self.lumi = lumi
-    self.presel = presel
     self.info_path = info_path
     self.input_json = input_json
-    self.dAddVar = d_addvar
-    self.d_varsel = d_varsel
-    self.dplots = dplots
+    with open(config, "r") as f_cfg:
+      cfg = yaml.load(f_cfg, Loader=yaml.FullLoader)
+    self.cfg = cfg
+
+
+
+  #def __init__(self,s=None,datalabel="",outputDir="./",lumi=1,presel="",info_path="",input_json="",d_addvar=dict(),d_varsel=dict(),dplots=dict(),dregion=dict()):
+  #  self.s = None
+  #  self.datalabel = datalabel
+  #  self.outputDir = outputDir
+  #  self.lumi = lumi
+  #  self.presel = presel
+  #  self.info_path = info_path
+  #  self.input_json = input_json
+  #  self.dAddVar = d_addvar
+  #  self.d_varsel = d_varsel
+  #  self.dplots = dplots
+  #  self.dregion = dregion
 
   def setLumi(self,lumi):
     self.lumi = lumi
@@ -33,7 +48,7 @@ class Plotter:
     return True
 
   def setPresel(self,presel):
-    self.presel = presel
+    self.config['presel'] = presel
   def setSampleInfo(self,info_path):
     self.info_path = info_path
 
@@ -59,6 +74,14 @@ class Plotter:
     """
     self.dplots = dplots
 
+  def defineRegions(self,dregion):
+    """
+    dregion = {
+      region_name:"selections"
+    }
+    """
+    self.dregion = dregion
+
   def getSumWeight(self):
     with open(self.info_path,'r') as f_sample_info:
       sample_info = yaml.safe_load(f_sample_info)
@@ -66,7 +89,7 @@ class Plotter:
       if not self.s.name in i:
         continue
       return sample_info[i]['totalsumWeights']
-    assert(False,"no record found for sum weights!")
+    print("No sum weight record found for {}!".format(self.s.name))
     return -1
   
   def AddVars(self,d):
@@ -92,21 +115,23 @@ class Plotter:
       d = d.Define("SDVSecVtx_TkMindeta","SDV_TkMindphi(SDVIdxLUT_TrackIdx, SDVIdxLUT_SecVtxIdx, nSDVSecVtx, SDVTrack_eta)")
       d = d.Define("SDVSecVtx_TkMaxdR","SDV_TkMaxdR(SDVIdxLUT_TrackIdx, SDVIdxLUT_SecVtxIdx, nSDVSecVtx, SDVTrack_eta, SDVTrack_phi)")
       d = d.Define("SDVSecVtx_TkMindR","SDV_TkMindR(SDVIdxLUT_TrackIdx, SDVIdxLUT_SecVtxIdx, nSDVSecVtx, SDVTrack_eta, SDVTrack_phi)")
-      for newvar in self.dAddVar:
-        d = d.Define(newvar,self.dAddVar[newvar])
+      if self.cfg['new_variables'] is not None:
+        for newvar in self.cfg['new_variables']:
+          d = d.Define(newvar,self.cfg['new_variables'][newvar])
       return d
   
   def AddVarsWithSelection(self,d):
-    for label in self.d_varsel:
-      variables = self.d_varsel[label][0]
-      selection = self.d_varsel[label][1]
-      for v in variables:
-        d = d.Define(v+label,"{0}[{1}]".format(v,selection))
+    for obj in self.cfg['objects']:
+      selections = self.cfg['objects'][obj]['selections']
+      variables  = self.cfg['objects'][obj]['variables']
+      for sel in selections:
+        for v in variables:
+          d = d.Define(v+sel,"{0}[{1}]".format(v,selections[sel]))
     return d
   
   def FilterEvents(self,d):
-    d = d.Filter(self.presel)
-    return d
+    d_filter = d.Filter(self.presel)
+    return d_filter
 
   def AddWeights(self,d,weight):
       d = d.Define("evt_weight","Generator_weight*{0}".format(weight))
@@ -123,13 +148,19 @@ class Plotter:
     d = ROOT.RDataFrame("Events",fns)
     d = self.AddVars(d)
     d = self.AddVarsWithSelection(d)
-    d = self.FilterEvents(d)
+    if self.cfg['presel'] is not None:
+      d = d.Filter(self.cfg['presel'])
     nevt = self.getSumWeight()
+    if nevt==-1:
+      print("No sum weight record, using total events in NanoAOD...")
+      dw = ROOT.RDataFrame("Runs",fns)
+      nevt = dw.Sum("genEventSumw")
+      nevt = nevt.GetValue()
     xsec_weights = self.lumi*self.s.xsec/(nevt)
     d = self.AddWeights(d,xsec_weights)
     return d,xsec_weights
 
-  def getplots(self,d,weight):
+  def getplotsOld(self,d,weight):
     dhs = dict()
     for varlabel in self.dplots:
       hs = []
@@ -161,46 +192,68 @@ class Plotter:
   
     return dhs
   
-  def makeHistFiles(self,postfix):
-      fout = ROOT.TFile("{}_{}_hist.root".format(self.s.name,postfix),"RECREATE")
-      d,w = self.getRDF()
-      dhs = self.getplots(d,"evt_weight")
-      for l in dhs:
-        newd = fout.mkdir("hist_{}".format(l))
-        newd.cd()
-        for h in dhs[l]:
-          h.Write()
-      #CCsel = "nSDVSecVtx_CCsel>0"
-      #MLsel = "nSDVSecVtx_MLsel>0"
-      #dCC = d.Filter(CCsel)
-      #dML = d.Filter(MLsel)
-      #for di,n in zip([dCC,dML],["CC","ML"]):
-      #  hs = getplots(di,plots_div,plots_2d,"evt_weight",postfix=n)
-      #  for h in hs:
-      #    h.Write()
-      fout.Close()
+  def getplots(self,d,weight,plots_1d,plots_2d,varlabel):
+    hs = []
+    if plots_1d is None:
+      plots_1d = []
+    if plots_2d is None:
+      plots_2d = []
+
+    for plt in plots_1d:
+      h = d.Histo1D(ps.plots[plt],plt+varlabel,weight)
+      hs.append(h)
   
-  #def makeHistFiles_METSlice(samples,input_json,label):
-  #  s.loadData(samples,os.path.join(os.environ['CMSSW_BASE'],'src/SoftDisplacedVertices/Samples/json/{}'.format(input_json)),label)
-  #  
-  #  for samp in samples:
-  #    fout = ROOT.TFile("{}_{}_hist.root".format(samp.name,label),"RECREATE")
-  #    d,w = getRDF(samp)
-  #    hs = getplots(d,plots,plots_2d,"evt_weight",postfix="")
-  #    for h in hs:
-  #      h.Write()
-  #    MET_sel = {
-  #        'lowMET':  "MET_pt<400 && MET_pt>200",
-  #        'midMET':  "MET_pt<600 && MET_pt>400",
-  #        'highMET': "MET_pt>600",
-  #        }
-  #    for metsel in MET_sel:
-  #      dsel = d.Filter(MET_sel[metsel])
-  #      hs = getplots(dsel,plots,plots_2d,"evt_weight",postfix=metsel)
-  #      for h in hs:
-  #        h.Write()
-  #
-  #    fout.Close()
+    for x,y in plots_2d:
+        xax = ps.plots[x]
+        yax = ps.plots[y]
+        xtitle_idx0 = xax[1].find(';')
+        xtitle_idx1 = xax[1].find(';',xtitle_idx0+1)
+        xtitle = xax[1][xtitle_idx0+1:xtitle_idx1]
+        ytitle_idx0 = yax[1].find(';')
+        ytitle_idx1 = yax[1].find(';',ytitle_idx0+1)
+        ytitle = yax[1][ytitle_idx0+1:ytitle_idx1]
+        hset = (xax[0]+'_vs_'+yax[0],";{0};{1}".format(xtitle,ytitle),xax[2],xax[3],xax[4],yax[2],yax[3],yax[4])
+        h = d.Histo2D(hset,x+varlabel,y+varlabel,weight)
+        hs.append(h)
+  
+    for i in range(len(hs)):
+      hs[i] = hs[i].Clone()
+      hs[i].SetName(hs[i].GetName())
+
+    return hs
+
+  def writeplots(self,rootdir,d,weight,plots_1d,plots_2d,varlabel):
+    hs = self.getplots(d,weight,plots_1d,plots_2d,varlabel)
+    rootdir.cd()
+    for h in hs:
+      h.Write()
+
+  def makeHistFiles(self):
+      if not os.path.exists(self.outputDir):
+          os.makedirs(self.outputDir)
+      fout = ROOT.TFile("{}/{}_hist.root".format(self.outputDir,self.s.name),"RECREATE")
+      d,w = self.getRDF()
+
+      for sr in self.cfg['regions']:
+        d_sr = d
+        if self.cfg['regions'][sr] is not None:
+          d_sr = d_sr.Filter(self.cfg['regions'][sr])
+        newd_evt = fout.mkdir("{}_evt".format(sr))
+        hs = self.getplots(d_sr,weight="evt_weight",plots_1d=self.cfg['event_variables'],plots_2d=self.cfg['event_2d_plots'],varlabel="")
+        newd_evt.cd()
+        for h in hs:
+          h.Write()
+        #self.writeplots(newd_evt,d=d_sr,weight="evt_weight",plots_1d=self.cfg['event_variables'],plots_2d=self.cfg['event_2d_plots'],varlabel="")
+        for obj in self.cfg['objects']:
+          for sels in self.cfg['objects'][obj]['selections']:
+            newd = fout.mkdir("{}_{}_{}".format(sr,obj,sels))
+            hs = self.getplots(d=d_sr,weight="evt_weight",plots_1d=self.cfg['objects'][obj]['variables'],plots_2d=self.cfg['objects'][obj]['2d_plots'],varlabel=sels)
+            newd.cd()
+            for h in hs:
+              h.Write()
+            #self.writeplots(newd,d=d_sr,weight="evt_weight",plots_1d=self.cfg['objects'][obj]['variables'],plots_2d=self.cfg['objects'][obj]['2d_plots'],varlabel=sels)
+
+      fout.Close()
   
   
 def AddHists(hs,ws):
