@@ -4,7 +4,22 @@ A plotter is developed to make plots in a flexible way.
 
 ## Script description:
 
-To ba added.
+- autoplotter.py
+This script generates root files that include histograms. Histograms will be organized in different directories based on search region definition and object selections.
+Parameters:
+`--sample`: input samples to make histograms. It has to be defined in the [Samples module](https://github.com/HephyAnalysisSW/SoftDisplacedVertices/blob/new_CMSSW/Samples/python/Samples.py) and can be a single sample (such as `wjetstolnuht0600_2018`) or a list of samples (`wlnu_2018`). For a list of samples, the script will generate one root file for each sample.
+
+`--output`: directory of output.
+
+`--config`: configure file that defines event selections and what variables to plot. [Example config](https://github.com/HephyAnalysisSW/SoftDisplacedVertices/blob/new_CMSSW/Plotter/configs/plotconfig_sig.yaml) is provided. When new variables are added, please add a new entry in the [plot\_setting module](https://github.com/HephyAnalysisSW/SoftDisplacedVertices/blob/new_CMSSW/Plotter/python/plot_setting.py) to set the plot binning and title.
+
+`--lumi`: luminosity to normalise the MC, unit in `pb-1`.
+
+`--json`: Name of the json file that records the file path of the samples. The default path is under `SoftDisplacedVertices/Samples/json`.
+
+`--metadata`: Name of the yaml file that records the GenSumWeight of MC samples. The default path is under `SoftDisplacedVertices/Samples/json`.
+
+`--datalabel`: Lable of the dataset used for making histogram. It should be consistent with what is available in the json file.
 
 ## Prerequisites:
 
