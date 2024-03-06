@@ -16,17 +16,17 @@ To ba added.
 For the first time to run the code, set up CMSSW 13 or above:
 
 ```
-cmsrel CMSSW\_13\_0\_0
-cd CMSSW\_13\_3\_0/src
+cmsrel CMSSW_13_0_0
+cd CMSSW_13_3_0/src
 git clone git@github.com:HephyAnalysisSW/SoftDisplacedVertices.git
-git checkout new\_CMSSW
+git checkout new_CMSSW
 scram b -j 8
 cmsenv
 ```
 
 The above setup has to be done only once. If already set up, just do:
 ```
-cd CMSSW\_13\_3\_0/src
+cd CMSSW_13_3_0/src
 cmsenv
 ```
 
@@ -38,10 +38,17 @@ python3 getMCInfo.py --sample_version CustomMiniAOD_v3 --json CustomMiniAOD_v3 -
 ```
 
 Then generate the histograms:
+
+To run interactively:
 ```
 python3 autoplotter.py --sample stop_M600_580_ct2_2018 --output ./ --config /users/ang.li/public/SoftDV/CMSSW_13_3_0/src/SoftDisplacedVertices/Plotter/plotconfig_sig.yaml --lumi 59683. --json MLNanoAOD.json --metadata metadata_CustomMiniAOD_v3.yaml --datalabel MLNanoAODv2
-
 ```
+
+To submit jobs:
+```
+python3 autoplotter.py --sample stop_2018 --output /eos/vbc/group/cms/ang.li/MLhists/MLNanoAODv2_submit/ --config /users/ang.li/public/SoftDV/CMSSW_13_3_0/src/SoftDisplacedVertices/Plotter/configs/plotconfig_sig.yaml --submit
+```
+
 
 To compare histograms, do:
 ```
