@@ -2,7 +2,6 @@ import os
 import yaml
 import ROOT
 import SoftDisplacedVertices.Samples.Samples as s
-import SoftDisplacedVertices.Plotter.plot_setting as ps
 ROOT.gInterpreter.Declare('#include "{}/src/SoftDisplacedVertices/Plotter/RDFHelper.h"'.format(os.environ['CMSSW_BASE']))
 ROOT.EnableImplicitMT(4)
 ROOT.gROOT.SetBatch(ROOT.kTRUE)
@@ -22,20 +21,6 @@ class Plotter:
     self.cfg = cfg
 
 
-
-  #def __init__(self,s=None,datalabel="",outputDir="./",lumi=1,presel="",info_path="",input_json="",d_addvar=dict(),d_varsel=dict(),dplots=dict(),dregion=dict()):
-  #  self.s = None
-  #  self.datalabel = datalabel
-  #  self.outputDir = outputDir
-  #  self.lumi = lumi
-  #  self.presel = presel
-  #  self.info_path = info_path
-  #  self.input_json = input_json
-  #  self.dAddVar = d_addvar
-  #  self.d_varsel = d_varsel
-  #  self.dplots = dplots
-  #  self.dregion = dregion
-
   def setLumi(self,lumi):
     self.lumi = lumi
 
@@ -47,40 +32,11 @@ class Plotter:
       return False
     return True
 
-  def setPresel(self,presel):
-    self.config['presel'] = presel
   def setSampleInfo(self,info_path):
     self.info_path = info_path
 
   def setJson(self,input_json):
     self.input_json = input_json
-
-  def setAddVar(self,d_addvar):
-    self.dAddVar = d_addvar
-
-  def setVarWithSelection(self,d_varsel):
-    """
-    d_varsel = {
-      label:(variables,selection)
-    }
-    """
-    self.d_varsel = d_varsel
-
-  def setdPlots(self,dplots):
-    """
-    dplots = {
-      label:(plots,plots2d)
-    }
-    """
-    self.dplots = dplots
-
-  def defineRegions(self,dregion):
-    """
-    dregion = {
-      region_name:"selections"
-    }
-    """
-    self.dregion = dregion
 
   def getSumWeight(self):
     with open(self.info_path,'r') as f_sample_info:
@@ -93,18 +49,9 @@ class Plotter:
     return -1
   
   def AddVars(self,d):
-      d = d.Define("SDVTrack_isGoodTrack","( (abs(SDVTrack_dxy)/SDVTrack_dxyError)>4 ) && (SDVTrack_normalizedChi2 < 5) && (abs(SDVTrack_dz)<4.) && (SDVTrack_numberOfValidHits>13) && ( (SDVTrack_ptError/SDVTrack_pt)<0.015 ) && ( acos(cos(SDVTrack_phi-Jet_phi[0]))>1 ) && ( acos(cos(SDVTrack_phi-MET_phi))<1.5 )")
-      d = d.Define("SDVSecVtx_nGoodTrack","SDVSecVtx_nGoodTrack(SDVIdxLUT_SecVtxIdx,SDVIdxLUT_TrackIdx,SDVTrack_isGoodTrack,nSDVSecVtx)")
-      vtx_sel_CC = "( acos(cos(SDVSecVtx_L_phi-MET_phi))<1.5 )&&(SDVSecVtx_LxySig>=20.)&&(SDVSecVtx_pAngle>0.2)&&(SDVSecVtx_nGoodTrack>=2)&&( acos(cos(SDVSecVtx_L_phi-Jet_phi[0]))>1 ) && (SDVSecVtx_ndof>1)"
-      vtx_sel_ML = "( acos(cos(SDVSecVtx_L_phi-MET_phi))<1.5 ) && (SDVSecVtx_ParTScore>0.98) && ( acos(cos(SDVSecVtx_L_phi-Jet_phi[0]))>1 )"
-      d = d.Define("nSDVSecVtx_CCsel","Sum({})".format(vtx_sel_CC))
-      d = d.Define("nSDVSecVtx_MLsel","Sum({})".format(vtx_sel_ML))
-  
       d = d.Define("SDVSecVtx_dphi_L_MET","acos(cos(SDVSecVtx_L_phi-MET_phi))")
       d = d.Define("SDVSecVtx_dphi_L_jet0","acos(cos(SDVSecVtx_L_phi-Jet_phi[0]))")
   
-      d = d.Define("SDVSecVtx_LxySig_CCsel_max","Max(SDVSecVtx_LxySig[{}])".format(vtx_sel_CC))
-      d = d.Define("SDVSecVtx_LxySig_MLsel_max","Max(SDVSecVtx_LxySig[{}])".format(vtx_sel_ML))
       d = d.Define("SDVSecVtx_Lxy_err","SDVSecVtx_Lxy/SDVSecVtx_LxySig")
       d = d.Define("SDVSecVtx_dlen_err","SDVSecVtx_dlen/SDVSecVtx_dlenSig")
       d = d.Define("SDVSecVtx_L_eta_abs","abs(SDVSecVtx_L_eta)")
@@ -117,7 +64,12 @@ class Plotter:
       d = d.Define("SDVSecVtx_TkMindR","SDV_TkMindR(SDVIdxLUT_TrackIdx, SDVIdxLUT_SecVtxIdx, nSDVSecVtx, SDVTrack_eta, SDVTrack_phi)")
       if self.cfg['new_variables'] is not None:
         for newvar in self.cfg['new_variables']:
-          d = d.Define(newvar,self.cfg['new_variables'][newvar])
+          if isinstance(self.cfg['new_variables'][newvar],list):
+            formatstr = [self.cfg[self.cfg['new_variables'][newvar][i]] for i in range(1,len(self.cfg['new_variables'][newvar]))]
+            var_define = self.cfg['new_variables'][newvar][0].format(*formatstr)
+          elif isinstance(self.cfg['new_variables'][newvar],str):
+            var_define = self.cfg['new_variables'][newvar]
+          d = d.Define(newvar,var_define)
       return d
   
   def AddVarsWithSelection(self,d):
@@ -167,13 +119,13 @@ class Plotter:
       plots = self.dplots[varlabel][0]
       plots_2d = self.dplots[varlabel][1]
       for plt in plots:
-        h = d.Histo1D(ps.plots[plt],plt+varlabel,weight)
+        h = d.Histo1D(tuple(self.cfg['plot_setting'][plt]),plt+varlabel,weight)
         hs.append(h)
   
       for x in plots_2d:
         for y in plots_2d[x]:
-          xax = ps.plots[x]
-          yax = ps.plots[y]
+          xax = tuple(self.cfg['plot_setting'][x])
+          yax = tuple(self.cfg['plot_setting'][y])
           xtitle_idx0 = xax[1].find(';')
           xtitle_idx1 = xax[1].find(';',xtitle_idx0+1)
           xtitle = xax[1][xtitle_idx0+1:xtitle_idx1]
@@ -200,12 +152,12 @@ class Plotter:
       plots_2d = []
 
     for plt in plots_1d:
-      h = d.Histo1D(ps.plots[plt],plt+varlabel,weight)
+      h = d.Histo1D(tuple(self.cfg['plot_setting'][plt]),plt+varlabel,weight)
       hs.append(h)
   
     for x,y in plots_2d:
-        xax = ps.plots[x]
-        yax = ps.plots[y]
+        xax = tuple(self.cfg['plot_setting'][x])
+        yax = tuple(self.cfg['plot_setting'][y])
         xtitle_idx0 = xax[1].find(';')
         xtitle_idx1 = xax[1].find(';',xtitle_idx0+1)
         xtitle = xax[1][xtitle_idx0+1:xtitle_idx1]

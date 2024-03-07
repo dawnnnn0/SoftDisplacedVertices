@@ -29,10 +29,5 @@ plots = {
     'SDVSecVtx_TkMaxdR':('SDVSecVtx_TkMaxdR',";vertex track max(dR);A.U.",100,0,5),
     'SDVSecVtx_TkMindR':('SDVSecVtx_TkMindR',";vertex track min(dR);A.U.",100,0,5),
     'MET_pt':('MET_pt',";MET (GeV);A.U.",100,0,1000),
-
-    }
-
-plots_2d = {
-    #'SDVSecVtx_dlen':['SDVSecVtx_Lxy','SDVSecVtx_Lxy_err','SDVSecVtx_LxySig','SDVSecVtx_pAngle','SDVSecVtx_dlen_err','SDVSecVtx_dlenSig','SDVSecVtx_nTracks','SDVSecVtx_ngoodTrack','SDVSecVtx_chi2','SDVSecVtx_normalizedChi2','SDVSecVtx_ndof','SDVSecVtx_L_eta_abs'],
-    #'SDVSecVtx_Lxy':['SDVSecVtx_L_eta_abs','SDVSecVtx_dlen']
+    'LHE_HT':('LHE_HT',";LHE HT (GeV);A.U.",500,0,5000)
     }
