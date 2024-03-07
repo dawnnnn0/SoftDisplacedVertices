@@ -31,6 +31,8 @@ parser.add_argument('--nice', type=str, nargs='+',
                     help='legend names')
 parser.add_argument('--scale', action='store_true', default=False,
                     help='Whether to scale the plot')
+parser.add_argument('--commands', type=str, nargs='+',
+                    help="Additional commands, such as rebinning or set range etc.")
 args = parser.parse_args()
 
 colors_global = [ROOT.kBlue,ROOT.kRed+1,ROOT.kGreen+1,ROOT.kYellow+1,ROOT.kMagenta+1,ROOT.kCyan+1]
@@ -53,6 +55,12 @@ def StackHists(hs,ws):
     h.Add(hs[i])
   return h
 
+def h_command(h):
+  if args.commands is None:
+    return
+  for c in args.commands:
+    exec(c)
+    return
 
 def comparehists(name,hs,legend,colors=None,scale=False):
   if colors is None:
@@ -115,6 +123,7 @@ def compareDiffFiles(fns,legend,colors,scale):
         print('{} is not available in {}!'.format(d+'/'+plt,f.GetName()))
         continue
       h.SetDirectory(0)
+      h_command(h)
       h_compare.append(h)
   
     comparehists(plt,h_compare,legend=legend,colors=colors,scale=scale)
