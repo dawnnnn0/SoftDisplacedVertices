@@ -10,11 +10,21 @@ def loadData(samples, json_path, label):
   assert label in d
 
   for s in samples:
-    if s.name in d[label]["dataset"]:
+    setable = False
+    if ("xs" in d) and (s.name in d['xs']):
+      s.setxsec(d['xs'][s.name])
+    if ('totalsumWeights' in d[label]) and (s.name in d[label]['totalsumWeights']):
+      s.setNEvents(label,d[label]['totalsumWeights'][s.name])
+    if ("dataset" in d[label]) and (s.name in d[label]["dataset"]):
       s.setDataset(label=label,dataset=d[label]["dataset"][s.name],instance='phys03')
-    elif s.name in d[label]["dir"]:
+      setable = True
+    if ("dir" in d[label]) and (s.name in d[label]["dir"]):
       s.setDirs(label=label,dirs=d[label]["dir"][s.name])
-    else:
+      setable = True
+    if ("logical_dir" in d[label]) and (s.name in d[label]["logical_dir"]):
+      s.setEOSDirs(label=label,dirs=d[label]["logical_dir"][s.name])
+      setable = True
+    if not setable:
       print("Sample {} has no records!".format(b.name))
 
 znunu_2018 = [
