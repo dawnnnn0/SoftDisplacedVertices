@@ -3,6 +3,7 @@
 
 import os
 import uuid
+import shutil
 import SoftDisplacedVertices.Plotter.plotter as p
 import SoftDisplacedVertices.Plotter.plot_setting as ps
 import SoftDisplacedVertices.Samples.Samples as s
@@ -20,7 +21,7 @@ parser.add_argument('--lumi', type=float, default=59683.,
                         help='luminosity to normalise MC samples')
 parser.add_argument('--json', type=str, 
                         help='json for file paths') 
-parser.add_argument('--metadata', type=str, 
+parser.add_argument('--metadata', type=str,default='',
                         help='metadata for sum gen weights of MC samples') 
 parser.add_argument('--datalabel', type=str,
                         help='datalabel to use in json file') 
@@ -40,13 +41,25 @@ if __name__=="__main__":
       all_samples.append(s_samp)
 
   if args.submit:
+    assert (not os.path.exists(args.output)),"Path {} already exists!".format(args.output)
+    os.makedirs(args.output)
+    inputdir = args.output+'/input'
+    os.makedirs(inputdir)
+    shutil.copy2(args.config,inputdir)
+    shutil.copy2(os.path.join(os.getcwd(),'autoplotter.py'),inputdir)
     jobf = open('jobs.sh',"w")
     for samp in all_samples:
       uuid_ =  str(uuid.uuid4())
       command = "mkdir /tmp/%s;" % (uuid_)
       command += "cd /tmp/%s;" %(uuid_)
-      command += "cp %s /tmp/%s/.;" %(os.path.join(os.environ['CMSSW_BASE'],'src/SoftDisplacedVertices/Plotter/autoplotter.py'),uuid_)
-      command += "python3 autoplotter.py --sample {} --output {} --config {};".format(samp.name,args.output,args.config)
+      command += "cp %s /tmp/%s/.;" %(inputdir+'/*',uuid_)
+      #command += "cp %s /tmp/%s/.;" %(os.path.join(os.environ['CMSSW_BASE'],'src/SoftDisplacedVertices/Plotter/autoplotter.py'),uuid_)
+      #command += "python3 autoplotter.py --sample {} --output ./ --config {};".format(samp.name,args.config)
+      if args.metadata=='':
+        command += "python3 autoplotter.py --sample {} --output ./ --config ./{} --lumi {} --json {} --datalabel {};".format(samp.name,os.path.basename(args.config),args.lumi,args.json,args.datalabel)
+      else:
+        command += "python3 autoplotter.py --sample {} --output ./ --config ./{} --lumi {} --json {} --metadata {} --datalabel {};".format(samp.name,os.path.basename(args.config),args.lumi,args.json,args.metadata,args.datalabel)
+      command += "cp ./*.root {}/.;".format(args.output)
       command += "\n"
       jobf.write(command)
     jobf.close()

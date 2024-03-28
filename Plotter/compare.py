@@ -20,6 +20,78 @@ ROOT.gStyle.SetOptStat(0)
 
 import argparse
 
+## This part copied from https://github.com/Ang-Li-95/cmssw-usercode/blob/UL/Tools/python/ROOTTools.py#L27C1-L37C34
+class TH1EntriesProtector(object):
+    """SetBinContent increments fEntries, making a hist's stats hard
+    to understand afterward, as in e.g. move_above/below_into_bin
+    calls. This saves and resets fEntries when done."""
+    def __init__(self, h):
+        self.h = h
+    def __enter__(self):
+        self.n = self.h.GetEntries()
+    def __exit__(self, *args):
+        self.h.ResetStats() # JMTBAD probably not necessary?
+        self.h.SetEntries(self.n)
+
+def move_below_into_bin(h,a):
+    """Given the TH1 h, add the contents of the bins below the one
+    corresponding to a into that bin, and zero the bins below."""
+    assert(h.Class().GetName().startswith('TH1')) # i bet there's a better way to do this...
+    with TH1EntriesProtector(h) as _:
+        b = h.FindBin(a)
+        bc = h.GetBinContent(b)
+        bcv = h.GetBinError(b)**2
+        for nb in range(0, b):
+            bc += h.GetBinContent(nb)
+            bcv += h.GetBinError(nb)**2
+            h.SetBinContent(nb, 0)
+            h.SetBinError(nb, 0)
+        h.SetBinContent(b, bc)
+        h.SetBinError(b, bcv**0.5)
+
+def move_above_into_bin(h,a,minus_one=False):
+    """Given the TH1 h, add the contents of the bins above the one
+    corresponding to a into that bin, and zero the bins above."""
+    assert(h.Class().GetName().startswith('TH1')) # i bet there's a better way to do this...
+    with TH1EntriesProtector(h) as _:
+        b = h.FindBin(a)
+        if minus_one:
+            b -= 1
+        bc = h.GetBinContent(b)
+        bcv = h.GetBinError(b)**2
+        for nb in range(b+1, h.GetNbinsX()+2):
+            bc += h.GetBinContent(nb)
+            bcv += h.GetBinError(nb)**2
+            h.SetBinContent(nb, 0)
+            h.SetBinError(nb, 0)
+        h.SetBinContent(b, bc)
+        h.SetBinError(b, bcv**0.5)
+
+def move_overflow_into_last_bin(h):
+    """Given the TH1 h, Add the contents of the overflow bin into the
+    last bin, and zero the overflow bin."""
+    assert(h.Class().GetName().startswith('TH1')) # i bet there's a better way to do this...
+    with TH1EntriesProtector(h) as _:
+        nb = h.GetNbinsX()
+        h.SetBinContent(nb, h.GetBinContent(nb) + h.GetBinContent(nb+1))
+        h.SetBinError(nb, (h.GetBinError(nb)**2 + h.GetBinError(nb+1)**2)**0.5)
+        h.SetBinContent(nb+1, 0)
+        h.SetBinError(nb+1, 0)
+
+def move_overflows_into_visible_bins(h, opt='under over'):
+    """Combination of move_above/below_into_bin and
+    move_overflow_into_last_bin, except automatic in the range. Have
+    to already have SetRangeUser."""
+    if not h.Class().GetName().startswith('TH1'):
+      return
+    if type(opt) != str:
+        opt = 'under over' if opt else ''
+    opt = opt.strip().lower()
+    if 'under' in opt:
+        move_below_into_bin(h, h.GetBinLowEdge(h.GetXaxis().GetFirst()))
+    if 'over' in opt:
+        move_above_into_bin(h, h.GetBinLowEdge(h.GetXaxis().GetLast()))
+
 parser = argparse.ArgumentParser()
 parser.add_argument('--input', type=str, nargs='+',
                     help='files to compare')
@@ -35,7 +107,7 @@ parser.add_argument('--commands', type=str, nargs='+',
                     help="Additional commands, such as rebinning or set range etc.")
 args = parser.parse_args()
 
-colors_global = [ROOT.kBlue,ROOT.kRed+1,ROOT.kGreen+1,ROOT.kYellow+1,ROOT.kMagenta+1,ROOT.kCyan+1]
+colors_global = [ROOT.kBlue,ROOT.kRed+1,ROOT.kGreen+1,ROOT.kYellow+1,ROOT.kMagenta+1,ROOT.kCyan+1,ROOT.kOrange+1]
 
 def AddHists(hs,ws):
   assert len(hs)==len(ws)
@@ -70,10 +142,12 @@ def comparehists(name,hs,legend,colors=None,scale=False):
   y_max = 0
   y_min = 1
   for i in range(len(hs)):
-    if scale:
-      hs[i].Scale(1./hs[i].Integral())
+    hs[i].SetName(legend[i])
     hs[i].SetLineWidth(2)
     hs[i].SetLineColor(colors[i])
+    move_overflows_into_visible_bins(hs[i])
+    if scale and hs[i].Integral()!=0:
+      hs[i].Scale(1./hs[i].Integral())
     y_max = max(y_max,hs[i].GetMaximum())
     y_min = min(y_min,hs[i].GetMinimum())
 
@@ -86,9 +160,11 @@ def comparehists(name,hs,legend,colors=None,scale=False):
       hs[i].DrawClone("same")
     l.AddEntry(hs[i],legend[i])
 
-  l.Draw()
+  #l.Draw()
   c.Update()
   c.SetLogy()
+  c.BuildLegend(x1=0.58,y1=0.8,x2=0.88,y2=1.0)
+  c.Update()
   c.SaveAs("{}.pdf".format(args.output+'/'+name))
   c.SaveAs("{}.png".format(args.output+'/'+name))
 
@@ -119,7 +195,7 @@ def compareDiffFiles(fns,legend,colors,scale):
       except:
         print('{} is not available in {}!'.format(d+'/'+plt,f.GetName()))
         continue
-      if h is None:
+      if not h:
         print('{} is not available in {}!'.format(d+'/'+plt,f.GetName()))
         continue
       h.SetDirectory(0)
@@ -147,10 +223,11 @@ def compareSameFile(fn,legend,colors,scale):
       except:
         print('{} is not available in {}!'.format(d+'/'+plt,f.GetName()))
         continue
-      if h is None:
+      if not h:
         print('{} is not available in {}!'.format(d+'/'+plt,f.GetName()))
         continue
       h.SetDirectory(0)
+      h_command(h)
       h_compare.append(h)
   
     comparehists(plt,h_compare,legend=legend,colors=colors,scale=scale)

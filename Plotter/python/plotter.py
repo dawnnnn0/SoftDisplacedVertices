@@ -39,6 +39,9 @@ class Plotter:
     self.input_json = input_json
 
   def getSumWeight(self):
+    nevt = self.s.getNEvents(self.datalabel)
+    if nevt != -1:
+      return nevt
     with open(self.info_path,'r') as f_sample_info:
       sample_info = yaml.safe_load(f_sample_info)
     for i in sample_info:
@@ -73,12 +76,33 @@ class Plotter:
       return d
   
   def AddVarsWithSelection(self,d):
+    if not self.cfg['objects']:
+      return d
     for obj in self.cfg['objects']:
       selections = self.cfg['objects'][obj]['selections']
       variables  = self.cfg['objects'][obj]['variables']
       for sel in selections:
         for v in variables:
-          d = d.Define(v+sel,"{0}[{1}]".format(v,selections[sel]))
+          if selections[sel]:
+            d = d.Define(v+sel,"{0}[{1}]".format(v,selections[sel]))
+          else:
+            d = d.Define(v+sel,"{0}".format(v))
+        if ('nm1' in self.cfg['objects'][obj]) and (self.cfg['objects'][obj]['nm1']):
+          nm1s = self.cfg['objects'][obj]['nm1']
+          cutstr_objsel = ""
+          if selections[sel]:
+            cutstr_objsel = "({}) && ".format(selections[sel])
+          for i in range(len(nm1s)):
+            cutstrs = []
+            for j in range(len(nm1s)):
+              if j==i:
+                continue
+              cutstrs.append("({})".format(''.join(nm1s[j])))
+            cutstr = "&&".join(cutstrs)
+            cutstr = cutstr_objsel + "({})".format(cutstr)
+            d = d.Define(nm1s[i][0]+sel+'_nm1',"{0}[{1}]".format(nm1s[i][0],cutstr))
+            #print("define {}: {}".format(nm1s[i][0]+sel+'_nm1',"{0}[{1}]".format(nm1s[i][0],cutstr)))
+
     return d
   
   def FilterEvents(self,d):
@@ -108,7 +132,9 @@ class Plotter:
       dw = ROOT.RDataFrame("Runs",fns)
       nevt = dw.Sum("genEventSumw")
       nevt = nevt.GetValue()
+      print("Total events in NanoAOD {}".format(nevt))
     xsec_weights = self.lumi*self.s.xsec/(nevt)
+    print("Total gen events {}, xsec {}, weight {}".format(nevt,self.s.xsec,xsec_weights))
     d = self.AddWeights(d,xsec_weights)
     return d,xsec_weights
 
@@ -144,15 +170,24 @@ class Plotter:
   
     return dhs
   
-  def getplots(self,d,weight,plots_1d,plots_2d,varlabel):
+  def getplots(self,d,weight,plots_1d,plots_2d,plots_nm1,varlabel):
     hs = []
     if plots_1d is None:
       plots_1d = []
     if plots_2d is None:
       plots_2d = []
+    if plots_nm1 is None:
+      plots_nm1 = []
 
     for plt in plots_1d:
       h = d.Histo1D(tuple(self.cfg['plot_setting'][plt]),plt+varlabel,weight)
+      hs.append(h)
+
+    for plt in plots_nm1:
+      nm1_setting = (self.cfg['plot_setting'][plt[0]]).copy()
+      nm1_setting[0] += 'nm1'
+      nm1_setting = tuple(nm1_setting)
+      h = d.Histo1D(nm1_setting,plt[0]+varlabel+'_nm1',weight)
       hs.append(h)
   
     for x,y in plots_2d:
@@ -165,7 +200,16 @@ class Plotter:
         ytitle_idx1 = yax[1].find(';',ytitle_idx0+1)
         ytitle = yax[1][ytitle_idx0+1:ytitle_idx1]
         hset = (xax[0]+'_vs_'+yax[0],";{0};{1}".format(xtitle,ytitle),xax[2],xax[3],xax[4],yax[2],yax[3],yax[4])
-        h = d.Histo2D(hset,x+varlabel,y+varlabel,weight)
+        x2d = x+varlabel
+        if x not in plots_1d:
+          print("Warning! Variable {} not registered in this level!".format(x))
+          x2d = x
+        y2d = y+varlabel
+        if y not in plots_1d:
+          print("Warning! Variable {} not registered in this level!".format(y))
+          y2d = y
+        #h = d.Histo2D(hset,x+varlabel,y+varlabel,weight)
+        h = d.Histo2D(hset,x2d,y2d,weight)
         hs.append(h)
   
     for i in range(len(hs)):
@@ -191,19 +235,20 @@ class Plotter:
         if self.cfg['regions'][sr] is not None:
           d_sr = d_sr.Filter(self.cfg['regions'][sr])
         newd_evt = fout.mkdir("{}_evt".format(sr))
-        hs = self.getplots(d_sr,weight="evt_weight",plots_1d=self.cfg['event_variables'],plots_2d=self.cfg['event_2d_plots'],varlabel="")
+        hs = self.getplots(d_sr,weight="evt_weight",plots_1d=self.cfg['event_variables'],plots_2d=self.cfg['event_2d_plots'],plots_nm1=self.cfg.get('event_nm1'),varlabel="")
         newd_evt.cd()
         for h in hs:
           h.Write()
         #self.writeplots(newd_evt,d=d_sr,weight="evt_weight",plots_1d=self.cfg['event_variables'],plots_2d=self.cfg['event_2d_plots'],varlabel="")
-        for obj in self.cfg['objects']:
-          for sels in self.cfg['objects'][obj]['selections']:
-            newd = fout.mkdir("{}_{}_{}".format(sr,obj,sels))
-            hs = self.getplots(d=d_sr,weight="evt_weight",plots_1d=self.cfg['objects'][obj]['variables'],plots_2d=self.cfg['objects'][obj]['2d_plots'],varlabel=sels)
-            newd.cd()
-            for h in hs:
-              h.Write()
-            #self.writeplots(newd,d=d_sr,weight="evt_weight",plots_1d=self.cfg['objects'][obj]['variables'],plots_2d=self.cfg['objects'][obj]['2d_plots'],varlabel=sels)
+        if self.cfg['objects']:
+          for obj in self.cfg['objects']:
+            for sels in self.cfg['objects'][obj]['selections']:
+              newd = fout.mkdir("{}_{}_{}".format(sr,obj,sels))
+              hs = self.getplots(d=d_sr,weight="evt_weight",plots_1d=self.cfg['objects'][obj]['variables'],plots_2d=self.cfg['objects'][obj]['2d_plots'],plots_nm1=self.cfg['objects'][obj].get('nm1'),varlabel=sels)
+              newd.cd()
+              for h in hs:
+                h.Write()
+              #self.writeplots(newd,d=d_sr,weight="evt_weight",plots_1d=self.cfg['objects'][obj]['variables'],plots_2d=self.cfg['objects'][obj]['2d_plots'],varlabel=sels)
 
       fout.Close()
   
