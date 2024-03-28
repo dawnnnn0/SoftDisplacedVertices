@@ -376,3 +376,20 @@ stop_M600_588_ct200_2018:
     sumWeights: 6365.0
   totalsumPassWeights: 37426.0
   totalsumWeights: 128483.0
+# Below are ZJetToNuNu samples generated using MiniAODV1-1 (NanoAODv1)
+zjetstonunuht0100_2018:
+  totalsumWeights: 29096905.0
+zjetstonunuht0200_2018:
+  totalsumWeights: 23296379.0
+zjetstonunuht0400_2018:
+  totalsumWeights: 672353.0
+#  totalsumWeights: 20718934.0
+zjetstonunuht0600_2018:
+  totalsumWeights: 5341798.0
+zjetstonunuht0800_2018:
+  totalsumWeights: 2144959.0
+zjetstonunuht1200_2018:
+  totalsumWeights: 381695.0
+zjetstonunuht2500_2018:
+  totalsumWeights: 268224.0
+

@@ -102,5 +102,72 @@
             "stop_M1000_980_ct2_2018":   "/scratch-cbe/users/ang.li/SoftDV/NanoAOD_MLNano_v2/stop_M1000_980_ct2_2018/"
         },
         "dataset": {}
-    }
+    },
+    "MLNanoAODv3":{
+        "dir": {
+            "wjetstolnuht0100_2018": "/scratch-cbe/users/ang.li/SoftDV/NanoAOD_MLNano_v3/wjetstolnuht0100_2018/", 
+            "wjetstolnuht0200_2018": "/scratch-cbe/users/ang.li/SoftDV/NanoAOD_MLNano_v3/wjetstolnuht0200_2018/",
+            "wjetstolnuht0400_2018": "/scratch-cbe/users/ang.li/SoftDV/NanoAOD_MLNano_v3/wjetstolnuht0400_2018/",
+            "wjetstolnuht0600_2018": "/scratch-cbe/users/ang.li/SoftDV/NanoAOD_MLNano_v3/wjetstolnuht0600_2018/",
+            "wjetstolnuht0800_2018": "/scratch-cbe/users/ang.li/SoftDV/NanoAOD_MLNano_v3/wjetstolnuht0800_2018/",
+            "wjetstolnuht1200_2018": "/scratch-cbe/users/ang.li/SoftDV/NanoAOD_MLNano_v3/wjetstolnuht1200_2018/",
+            "wjetstolnuht2500_2018": "/scratch-cbe/users/ang.li/SoftDV/NanoAOD_MLNano_v3/wjetstolnuht2500_2018/",
+            
+            "zjetstonunuht0100_2018": "/scratch-cbe/users/ang.li/SoftDV/NanoAOD_MLNano_v3/zjetstonunuht0100_2018/", 
+            "zjetstonunuht0200_2018": "/scratch-cbe/users/ang.li/SoftDV/NanoAOD_MLNano_v3/zjetstonunuht0200_2018/",
+            "zjetstonunuht0400_2018": "/scratch-cbe/users/ang.li/SoftDV/NanoAOD_MLNano_v3/zjetstonunuht0400_2018/",
+            "zjetstonunuht0600_2018": "/scratch-cbe/users/ang.li/SoftDV/NanoAOD_MLNano_v3/zjetstonunuht0600_2018/",
+            "zjetstonunuht0800_2018": "/scratch-cbe/users/ang.li/SoftDV/NanoAOD_MLNano_v3/zjetstonunuht0800_2018/",
+            "zjetstonunuht1200_2018": "/scratch-cbe/users/ang.li/SoftDV/NanoAOD_MLNano_v3/zjetstonunuht1200_2018/",
+            "zjetstonunuht2500_2018": "/scratch-cbe/users/ang.li/SoftDV/NanoAOD_MLNano_v3/zjetstonunuht2500_2018/",
+            "stop_M600_588_ct200_2018":  "/scratch-cbe/users/ang.li/SoftDV/NanoAOD_MLNano_v2/stop_M600_588_ct200_2018/", 
+            "stop_M600_585_ct20_2018":   "/scratch-cbe/users/ang.li/SoftDV/NanoAOD_MLNano_v2/stop_M600_585_ct20_2018/",
+            "stop_M600_580_ct2_2018":    "/scratch-cbe/users/ang.li/SoftDV/NanoAOD_MLNano_v2/stop_M600_580_ct2_2018/",
+            "stop_M1000_988_ct200_2018": "/scratch-cbe/users/ang.li/SoftDV/NanoAOD_MLNano_v2/stop_M1000_988_ct200_2018/",
+            "stop_M1000_985_ct20_2018":  "/scratch-cbe/users/ang.li/SoftDV/NanoAOD_MLNano_v2/stop_M1000_985_ct20_2018/",
+            "stop_M1000_980_ct2_2018":   "/scratch-cbe/users/ang.li/SoftDV/NanoAOD_MLNano_v2/stop_M1000_980_ct2_2018/"
+        },
+        "dataset": {},
+        "totalsumWeights": {
+            "wjetstolnuht0070_2018" : 66949006,
+            "wjetstolnuht0100_2018" : 57843857,
+            "wjetstolnuht0200_2018" : 58617083,
+            "wjetstolnuht0400_2018" : 5506806,
+            "wjetstolnuht0600_2018" : 7291105,
+            "wjetstolnuht0800_2018" : 5954351,
+            "wjetstolnuht1200_2018" : 6462258,
+            "wjetstolnuht2500_2018" : 1861593,
+    
+            "zjetstonunuht0100_2018" : 29096905,
+            "zjetstonunuht0200_2018" : 23428602,
+            "zjetstonunuht0400_2018" : 20718934,
+            "zjetstonunuht0600_2018" : 5955476,
+            "zjetstonunuht0800_2018" : 2114464,
+            "zjetstonunuht1200_2018" : 381695,
+            "zjetstonunuht2500_2018" : 268224,
+            "stop_M1000_980_ct2_2018": 104080.0,
+            "stop_M1000_985_ct20_2018": 121057.0,
+            "stop_M1000_988_ct200_2018": 119827.0,
+            "stop_M600_580_ct2_2018" : 129364.0,
+            "stop_M600_585_ct20_2018": 127533.0,
+            "stop_M600_588_ct200_2018": 128483.0 
+            }
+    },
+    "xs": {
+        "wjetstolnuht0070_2018" : 1578.09,
+        "wjetstolnuht0100_2018" : 1530.0,
+        "wjetstolnuht0200_2018" : 405.96,
+        "wjetstolnuht0400_2018" : 54.75,
+        "wjetstolnuht0600_2018" : 13.27,
+        "wjetstolnuht0800_2018" : 5.97,
+        "wjetstolnuht1200_2018" : 1.40,
+        "wjetstolnuht2500_2018" : 0.03255,
+
+        "zjetstonunuht0100_2018" : 344.83,
+        "zjetstonunuht0200_2018" : 95.53,
+        "zjetstonunuht0400_2018" : 13.20,
+        "zjetstonunuht0600_2018" : 3.148,
+        "zjetstonunuht0800_2018" : 1.451,
+        "zjetstonunuht1200_2018" : 0.355,
+        "zjetstonunuht2500_2018" : 0.00855}
 }
