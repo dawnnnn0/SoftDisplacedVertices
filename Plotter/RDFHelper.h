@@ -16,10 +16,51 @@ void printVec(ROOT::RVecI v) {
     return;
 }
 
+//This functino removes duplicated elements in a vector
+template<typename T>
+T removeDuplicate(T v) {
+    //printVec(v);
+    v = ROOT::VecOps::Sort(v);
+    v.erase( std::unique( v.begin(), v.end() ), v.end() );
+    //printVec(v);
+    
+    return v;
+}
+
+// This function returns a list with the length of nTracks, each element labels whether the track is included in a SV or not
+ROOT::VecOps::RVec<int> Track_isInSV(ROOT::RVecI SDVIdxLUT_TrackIdx, int nTracks){
+  ROOT::RVecI isInSV(nTracks,0);
+  for (auto& idx : SDVIdxLUT_TrackIdx){
+    isInSV[idx] = 1;
+  }
+  return isInSV;
+}
+
+// This function returns a list with the length of nTracks, each element shows the weight of the track in the SV fit
+ROOT::VecOps::RVec<float> Track_WeightInSV(ROOT::RVecI SDVIdxLUT_TrackIdx, ROOT::RVecF SDVIdxLUT_TrackWeight, int nTracks){
+  ROOT::RVecF tkweight(nTracks,-1);
+  for (int i=0; i<SDVIdxLUT_TrackIdx.size(); ++i){
+    tkweight[SDVIdxLUT_TrackIdx[i]] = SDVIdxLUT_TrackWeight[i];
+  }
+  return tkweight;
+}
+
 //This function helps to get the list of track indices that are included in the SDV (using LUT)
 ROOT::VecOps::RVec<int> TracksinSDV(ROOT::RVecI SDVIdxLUT_SecVtxIdx, ROOT::RVecI SDVIdxLUT_TrackIdx, int iSDV)
 {
     return SDVIdxLUT_TrackIdx[SDVIdxLUT_SecVtxIdx==iSDV];
+}
+
+ROOT::VecOps::RVec<int> GetTracksinSDVs(ROOT::RVecI SDVIdxLUT_SecVtxIdx, ROOT::RVecI SDVIdxLUT_TrackIdx, ROOT::RVecB SDVSecVtx_selected)
+{
+    ROOT::RVecI alltks;
+    for (int i=0; i<SDVSecVtx_selected.size(); ++i){
+        if (SDVSecVtx_selected[i]) {
+            ROOT::RVecI tks = TracksinSDV(SDVIdxLUT_SecVtxIdx,SDVIdxLUT_TrackIdx,i);
+            alltks = ROOT::VecOps::Concatenate(alltks,tks);
+        }
+    }
+    return alltks;
 }
 
 //This function returns the number of good tracks in SDV
@@ -32,6 +73,16 @@ ROOT::VecOps::RVec<int> SDVSecVtx_nGoodTrack(ROOT::RVecI SDVIdxLUT_SecVtxIdx, RO
         auto SDVTrack_isGoodTrack_filtered = ROOT::VecOps::Take(SDVTrack_isGoodTrack,tkIdx);
         auto SDVTrack_isGoodTrack_GoodTrack = SDVTrack_isGoodTrack_filtered[SDVTrack_isGoodTrack_filtered==1];
         nGoodTracks.push_back(SDVTrack_isGoodTrack_GoodTrack.size());
+    }
+    return nGoodTracks;
+}
+
+ROOT::VecOps::RVec<int> SDVSecVtx_nGoodRefitTrack(ROOT::RVecI SDVRefitTrack_svIdx, ROOT::RVecI SDVRefitTrack_isGoodTrack, int nSDV)
+{
+    ROOT::VecOps::RVec<int> nGoodTracks;
+    for (int i=0; i<nSDV; ++i){
+        auto ntk = ROOT::VecOps::Sum(SDVRefitTrack_isGoodTrack[SDVRefitTrack_svIdx==i]);
+        nGoodTracks.push_back(ntk);
     }
     return nGoodTracks;
 }
