@@ -16,8 +16,6 @@ wdir = home + "/drivers"
 
 ########## options
 
-### USED FOR STOP ###
-
 opts, args = getopt.getopt(sys.argv[1:], "m:l:c:n:", ["llpmass=", "lspmass=", "ctau=", "nevents="])
 
 llpmass = 600.
@@ -83,7 +81,6 @@ os.system('sed -i "s|CTAUVALUE|' + str(ctau) + '|g" ' + fragmentfile)
 os.system('sed -i "s|EVENTCOUNT|' + str(nevents) + '|g" ' + fragmentfile)
 os.system('sed -i "s|GRIDPACKFILE|' + str(fnamegridpack) + '|g" ' + fragmentfile)
 
-########## submit jobs
+########## run job
 
-if not dryrun:
-    os.system("sbatch job.sh")
+os.system("bash setup.sh")
