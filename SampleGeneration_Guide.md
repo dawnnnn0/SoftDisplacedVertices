@@ -10,11 +10,24 @@ There are two python scripts which are used to operate the signal generation pro
 
 The driver.py file is a wrapper to create the config files needed for cmsRun, while the role of
 submit.py is to submit the job file that executes all the cmsRun commands. There are multiple parameters that can be used:
-(- stopmass (s): mass of the stop, default is 600, this has now been replaced by n2n3mass for our generation purposes)
-- n2n3mass (m): mass of n2n3, default is 600
+- llpmass (m): mass of the llp, default is 600
 - lspmass (l): mass of the lsp, default is 588
 - ctau (c): lifetime of the stop, default is 200
 - nevents (n): number of simulated events, default is 5000
+
+**Make sure that your grid certificate is active when running the commands.**
+
+**Currently, the production is set to produce stop samples, this can be changed by editing the following parameters:**
+in driver.py:
+- dirgridpacks
+- fnamegridpack_t
+- fnamegridpack
+- thiswdir
+- fragmentfile_t
+
+in submit.py:
+- drivers_t
+- fragmentfile_t
 
 Before submitting the job with the submit.py script one should create the drivers with the desired parameters like this:
 
