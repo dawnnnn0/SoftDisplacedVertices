@@ -14,7 +14,6 @@ if [ ! -r CMSSW_10_6_30/src ]; then
 fi
 cd CMSSW_10_6_30/src
 mkdir -p Configuration/GenProduction/python/
-cp $HOME/fragment.py Configuration/GenProduction/python/fragment.py
 cp $HOME/random.py Configuration/GenProduction/python/random.py
 eval `scram runtime -sh`
 scram b
