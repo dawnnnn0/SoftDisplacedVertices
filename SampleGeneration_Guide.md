@@ -18,6 +18,7 @@ submit.py is to submit the job file that executes all the cmsRun commands. There
 **Make sure that your grid certificate is active when running the commands.**
 
 **Currently, the production is set to produce stop samples, this can be changed by editing the following parameters:**
+
 in driver.py:
 - dirgridpacks
 - fnamegridpack_t
