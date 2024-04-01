@@ -83,13 +83,13 @@ DECAY   1000023     %WCHI2%   # neutralino2 decays
     0.00000000E+00    3     1000022   5   -5  # Dummy decay
     0.50000000E+00    2     1000022   25      # BR(N2 -> N1 + H)
     0.500000000E+00   2     1000022   23      # BR(N2 -> N1 + Z)
-DECAY   1000024     0.00000000E+00   # chargino1+ decays
+DECAY   1000024     1.00000000E-01   # chargino1+ decays
     0.00000000E+00    3     1000022   5   -5  # Dummy decay 
     1.00000000E+00    2     1000022   24      # BR(N3 -> N1 + W)
 DECAY   1000025     0.00000000E+00   # neutralino3 decays
 DECAY   1000035     0.00000000E+00   # neutralino4 decays
 DECAY   1000037     0.00000000E+00   # chargino2+ decays
-""".replace('%MLSP%','%e' % mLSP).replace('%MC1N2%','%e' % mC1N2)
+""".replace('%MLSP%','%e' % mLSP).replace('%MC1N2%','%e' % mC1N2).replace('%WCHI2%','%e' % WCHI2)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -120,7 +120,7 @@ generator = cms.EDFilter("Pythia8ConcurrentHadronizerFilter",
             'JetMatching:etaJetMax = 5.',
             'JetMatching:coneRadius = 1.',
             'JetMatching:slowJetPower = 1',
-            'JetMatching:qCut = 76.', #this is the actual merging scale 
+            'JetMatching:qCut = 76.', #this is the actual merging scale
             'JetMatching:nQmatch = 5', #4 corresponds to 4-flavour scheme (no matching of b-quarks), 5 for 5-flavour scheme
             'JetMatching:nJetMax = 2', #number of partons in born matrix element for highest multiplicity
             'JetMatching:doShowerKt = off', #off for MLM matching, turn on for shower-kT matching
@@ -141,7 +141,6 @@ generator = cms.EDFilter("Pythia8ConcurrentHadronizerFilter",
 )
 
 #ProductionFilterSequence = cms.Sequence(generator)
-
 
 #     Filter setup
 # ------------------------
@@ -240,15 +239,8 @@ src = cms.InputTag("genMETfilter1"),
 minNumber = cms.uint32(1),
 )
 
-'''
 ProductionFilterSequence = cms.Sequence(generator*
                                     tmpGenParticles * tmpGenParticlesForJetsNoNu *
                                     tmpAk4GenJetsNoNu * genHTFilter *
                                     tmpGenMetTrue * genMETfilter1 * genMETfilter2
-)
-'''
-ProductionFilterSequence = cms.Sequence(generator*
-                                    tmpGenParticles * tmpGenParticlesForJetsNoNu *
-                                    tmpAk4GenJetsNoNu * genHTFilter *
-                                    tmpGenMetTrue * genMETfilter1
 )
