@@ -252,7 +252,9 @@ std::map<int,std::pair<int,int>> SoftDV::VtxLLPMatch(const edm::Handle<reco::Gen
     else{
       // Pick the LLP that have most number of matched track with the vertex as matched LLP
       int matchllp_idx = std::max_element(nmatchtk.begin(),nmatchtk.end())-nmatchtk.begin();
-      res[ivtx] = std::pair<int,int>(matchllp_idx,nmatchtk[matchllp_idx]);
+      if (nmatchtk[matchllp_idx]>0){
+        res[ivtx] = std::pair<int,int>(matchllp_idx,nmatchtk[matchllp_idx]);
+      }
     }
   }
   return res;
