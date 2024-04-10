@@ -1,6 +1,6 @@
 ---
-name: Data_UL18_CustomMiniAODv1-1
-CMSSW: CMSSW_10_6_27
+name: Data_UL18_CustomMiniAOD
+CMSSW: CMSSW_10_6_28
 config: SoftDisplacedVertices/CustomMiniAOD/configuration/Data_UL18_CustomMiniAOD.py
 datasets:
    MET:

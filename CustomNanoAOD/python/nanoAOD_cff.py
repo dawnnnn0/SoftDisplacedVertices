@@ -25,6 +25,10 @@ def nanoAOD_customise_SoftDisplacedVertices(process, isMC=None):
     process.load("SoftDisplacedVertices.CustomNanoAOD.SVTrackTable_cfi")
     process.load("SoftDisplacedVertices.CustomNanoAOD.RecoTrackTableProducer_cfi")
 
+    process.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi")
+    process.load("SoftDisplacedVertices.CustomNanoAOD.TrackExtrapolator_cfi")
+    
+
     if not useIVF:
       process.SVTrackTable.svSrc = cms.InputTag("MFVSecondaryVerticesSoftDV")
     
@@ -33,6 +37,8 @@ def nanoAOD_customise_SoftDisplacedVertices(process, isMC=None):
       process.nanoSequenceMC = cms.Sequence(process.nanoSequenceMC + process.recoTrackTable + process.vtxReco + process.SVTrackTable)
     else:
       process.nanoSequence = cms.Sequence(process.nanoSequence + process.recoTrackTable + process.vtxReco + process.SVTrackTable)
+
+    process.nanoSequenceMC = cms.Sequence(process.nanoSequenceMC + process.TrackExtrapolator)
     
     return process
 

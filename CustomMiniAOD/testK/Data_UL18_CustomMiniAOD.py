@@ -31,14 +31,27 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 # Input source
+
+import FWCore.PythonUtilities.LumiList as LumiList
+
+
 process.source = cms.Source("PoolSource",
+    # fileNames = cms.untracked.vstring(*[x[:-1] for x in open(options.inputFiles[0]).readlines()]),
     fileNames = cms.untracked.vstring(options.inputFiles),
-    secondaryFileNames = cms.untracked.vstring()
+    secondaryFileNames = cms.untracked.vstring(),
+    lumisToProcess = LumiList.LumiList(filename = "/users/alikaan.gueven/COPY/CMSSW_10_6_28/src/SoftDisplacedVertices/CustomMiniAOD/testK/crab_projects/crab_20240222_191722/results/notPublishedLumis.json").getVLuminosityBlockRange()
 )
 
 process.options = cms.untracked.PSet(
 
 )
+
+#Setup FWK for multithreaded
+process.options.numberOfThreads=cms.untracked.uint32(4)
+process.options.numberOfStreams=cms.untracked.uint32(0)
+process.options.numberOfConcurrentLuminosityBlocks=cms.untracked.uint32(1)
+
+
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(

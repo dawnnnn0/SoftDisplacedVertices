@@ -4,6 +4,7 @@
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
 # with command line options: NANO -s NANO --python_filename Data_UL18_CustomNanoAOD.py --filein file:MiniAOD.root --fileout NanoAOD.root --data --conditions 106X_dataRun2_v35 --era Run2_2018,run2_nanoAOD_106Xv2 --eventcontent NANOAOD --datatier NANOAOD --customise_commands=process.add_(cms.Service('InitRootHandlers', EnableIMT = cms.untracked.bool(False)));process.MessageLogger.cerr.FwkReport.reportEvery=1000 --customise SoftDisplacedVertices/CustomNanoAOD/nanoAOD_cff.nanoAOD_customise_SoftDisplacedVertices -n -1 --no_exec --nThreads 4
 import FWCore.ParameterSet.Config as cms
+from FWCore.ParameterSet.VarParsing import VarParsing
 
 from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
 from Configuration.Eras.Modifier_run2_nanoAOD_106Xv2_cff import run2_nanoAOD_106Xv2
@@ -21,14 +22,20 @@ process.load('PhysicsTools.NanoAOD.nano_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
+options = VarParsing ('analysis')
+options.parseArguments()
+
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(options.maxEvents)
 )
+
+import FWCore.PythonUtilities.LumiList as LumiList
 
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:MiniAOD.root'),
-    secondaryFileNames = cms.untracked.vstring()
+    fileNames = cms.untracked.vstring(options.inputFiles),
+    secondaryFileNames = cms.untracked.vstring(),
+    lumisToProcess = LumiList.LumiList(filename = '/users/alikaan.gueven/COPY/CMSSW_10_6_28/src/SoftDisplacedVertices/CustomNanoAOD/configuration/Cert_314472-325175_13TeV_Legacy2018_Collisions18_JSON.txt').getVLuminosityBlockRange()
 )
 
 process.options = cms.untracked.PSet(
@@ -51,7 +58,7 @@ process.NANOAODoutput = cms.OutputModule("NanoAODOutputModule",
         dataTier = cms.untracked.string('NANOAOD'),
         filterName = cms.untracked.string('')
     ),
-    fileName = cms.untracked.string('NanoAOD.root'),
+    fileName = cms.untracked.string(options.outputFile),
     outputCommands = process.NANOAODEventContent.outputCommands
 )
 
@@ -94,7 +101,7 @@ process = nanoAOD_customise_SoftDisplacedVertices(process)
 
 # Customisation from command line
 
-process.add_(cms.Service('InitRootHandlers', EnableIMT = cms.untracked.bool(False)));process.MessageLogger.cerr.FwkReport.reportEvery=1000
+# process.add_(cms.Service('InitRootHandlers', EnableIMT = cms.untracked.bool(False)));process.MessageLogger.cerr.FwkReport.reportEvery=1000
 # Add early deletion of temporary data products to reduce peak memory need
 from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEarlyDelete
 process = customiseEarlyDelete(process)
