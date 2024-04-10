@@ -1,0 +1,13 @@
+---
+- name: MC_UL18_CustomMiniAODv1
+  CMSSW: CMSSW_10_6_27
+  config: SoftDisplacedVertices/CustomMiniAOD/configuration/MC_UL18_CustomMiniAOD.py
+  datasets:
+    StopCompressed:
+      SMS-T2tt_genMET-100_genHT200_mStop-500_mLSP-420: /SMS-T2tt_genMET-100_genHT200_mStop-500_mLSP-420_TuneCP5_13TeV-madgraphMLM-pythia8/RunIISummer20UL16RECO-106X_mcRun2_asymptotic_v13-v2/AODSIM                                                       
+      SMS-T2tt_genMET-100_genHT200_mStop-500_mLSP-450: /SMS-T2tt_genMET-100_genHT200_mStop-500_mLSP-450_TuneCP5_13TeV-madgraphMLM-pythia8/RunIISummer20UL16RECO-106X_mcRun2_asymptotic_v13-v2/AODSIM
+      SMS-T2tt_genMET-100_genHT200_mStop-500_mLSP-470: /SMS-T2tt_genMET-100_genHT200_mStop-500_mLSP-470_TuneCP5_13TeV-madgraphMLM-pythia8/RunIISummer20UL16RECO-106X_mcRun2_asymptotic_v13-v2/AODSIM
+      SMS-T2tt-4bd_genMET-100_genHT200_mStop-300_mLSP-290: /SMS-T2tt-4bd_genMET-100_genHT200_mStop-300_mLSP-290_TuneCP5_LLStop_13TeV-madgraphMLM-pythia8/RunIISummer20UL18RECO-106X_upgrade2018_realistic_v11_L1v1-v1/AODSIM
+      SMS-T2tt-4bd_genMET-100_genHT200_mStop-350_mLSP-335: /SMS-T2tt-4bd_genMET-100_genHT200_mStop-350_mLSP-335_TuneCP5_LLStop_13TeV-madgraphMLM-pythia8/RunIISummer20UL18RECO-106X_upgrade2018_realistic_v11_L1v1-v1/AODSIM
+      SMS-T2tt-4bd_genMET-100_genHT200_mStop-400_mLSP-380: /SMS-T2tt-4bd_genMET-100_genHT200_mStop-400_mLSP-380_TuneCP5_LLStop_13TeV-madgraphMLM-pythia8/RunIISummer20UL18RECO-106X_upgrade2018_realistic_v11_L1v1-v1/AODSIM
+
