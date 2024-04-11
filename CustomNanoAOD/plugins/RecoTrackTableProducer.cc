@@ -31,6 +31,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 #include "DataFormats/NanoAOD/interface/FlatTable.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -60,11 +61,17 @@ private:
     edm::EDGetTokenT<std::vector<SoftDV::PFIsolation>> isoDR03Token_;
     edm::InputTag dr03TkSumPt_;
     edm::EDGetTokenT<edm::ValueMap<float>> dr03TkSumPtToken_;
+    //const edm::EDGetTokenT<pat::PackedCandidateCollection>    pc_;
+    edm::InputTag pcAsso_;
+    edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection>>  ft2pc_;
     const std::string recoTrackName_;
     const std::string recoTrackDoc_;
     const bool skipNonExistingSrc_;
     float pfRelIso03_all_;
     float pfRelIso03_chg_;
+    float pfRelIso03_neu_;
+    float pfRelIso03_pho_;
+    float pfRelIso03_pu_;
 
 };
 
@@ -80,6 +87,9 @@ RecoTrackTableProducer::RecoTrackTableProducer(const edm::ParameterSet &pset)
       isoDR03Token_(consumes<std::vector<SoftDV::PFIsolation>>(isoDR03_)),
       dr03TkSumPt_(pset.getParameter<edm::InputTag>("dr03TkSumPt")),
       dr03TkSumPtToken_(consumes<edm::ValueMap<float>>(dr03TkSumPt_)),
+      //pc_(consumes<pat::PackedCandidateCollection>(cfg.getParameter<edm::InputTag>("PC"))),
+      pcAsso_(pset.getParameter<edm::InputTag>("ft2pctag")),
+      ft2pc_(consumes<edm::Association<pat::PackedCandidateCollection>>(pcAsso_)),
       recoTrackName_(pset.getParameter<std::string>("recoTrackName")),
       recoTrackDoc_(pset.getParameter<std::string>("recoTrackDoc")),
       skipNonExistingSrc_(pset.getParameter<bool>("skipNonExistingSrc"))
@@ -98,13 +108,15 @@ void RecoTrackTableProducer::produce(edm::Event &iEvent, const edm::EventSetup &
     edm::Handle<std::vector<SoftDV::PFIsolation>> recoTracks_isoDR03;
     edm::Handle<edm::ValueMap<float>> recoTracks_dr03TkSumPt;
     edm::Handle<reco::VertexCollection> recoVertices;
+    edm::Handle<edm::Association<pat::PackedCandidateCollection> > ft2pc;
+    iEvent.getByToken(ft2pc_, ft2pc);
 
     std::vector<float> eta, phi, dxy, dz, pt, dxyError, dzError, ptError, phiError, etaError, validFraction;
     std::vector<float> normalizedChi2;
     std::vector<int> charge, numberOfValidHits, numberOfLostHits;
     std::vector<int> isHighPurity;
-    std::vector<int> algo;
-    std::vector<float> pfRelIso03_all, pfRelIso03_chg;
+    std::vector<int> algo, fromPV;
+    std::vector<float> pfRelIso03_all, pfRelIso03_chg, pfRelIso03_neu, pfRelIso03_pho, pfRelIso03_pu;
     std::vector<float> dr03TkSumPt;
     int nEntries = 0;
     try
@@ -122,6 +134,13 @@ void RecoTrackTableProducer::produce(edm::Event &iEvent, const edm::EventSetup &
             SoftDV::PFIsolation isoDR03 = (*recoTracks_isoDR03)[track_id];
             reco::TrackRef t_ref(recoTracks, track_id);
             dr03TkSumPt.push_back((*recoTracks_dr03TkSumPt)[t_ref]);
+            pat::PackedCandidateRef pcref = (*ft2pc)[t_ref];
+            int fPV = -1;
+            if (pcref.isNonnull()){
+              std::cout << "tk pt " << track->pt() << " eta " << track->eta() << " phi " << track->phi() << std::endl;
+              std::cout << "pc pt " << pcref->pt() << " eta " << pcref->eta() << " phi " << pcref->phi() << std::endl;
+              fPV = pcref->fromPV();
+            }
 
 
             pfRelIso03_all_ = (isoDR03.chargedHadronIso() +
@@ -131,11 +150,20 @@ void RecoTrackTableProducer::produce(edm::Event &iEvent, const edm::EventSetup &
                                 / track->pt();
                 
             pfRelIso03_chg_  = isoDR03.chargedHadronIso()/track->pt();
+
+            pfRelIso03_neu_ = isoDR03.neutralHadronIso()/track->pt();
+
+            pfRelIso03_pho_ = isoDR03.photonIso()/track->pt();
+            pfRelIso03_pu_ = isoDR03.puChargedHadronIso()/track->pt();
             //////////////////////////////////////////////////
 
             // ISOLATION
             pfRelIso03_all.push_back(pfRelIso03_all_);
             pfRelIso03_chg.push_back(pfRelIso03_chg_);
+            pfRelIso03_neu.push_back(pfRelIso03_neu_);
+            pfRelIso03_pho.push_back(pfRelIso03_pho_);
+            pfRelIso03_pu.push_back(pfRelIso03_pu_);
+
             ////////////////////
 
             normalizedChi2.push_back(track->normalizedChi2());
@@ -157,6 +185,7 @@ void RecoTrackTableProducer::produce(edm::Event &iEvent, const edm::EventSetup &
             numberOfLostHits.push_back(track->numberOfLostHits());
             validFraction.push_back(track->validFraction());
             algo.push_back(track->algo());
+            fromPV.push_back(fPV);
         }
         nEntries = recoTracks->size();
     }
@@ -177,11 +206,17 @@ void RecoTrackTableProducer::produce(edm::Event &iEvent, const edm::EventSetup &
         // if (!(skipNonExistingSrc_ && e.category() != "ProductNotFound")){throw e;}
     }
 
+    std::cout << "dr03TkSumPt " << dr03TkSumPt.size() << std::endl;
+    std::cout << "pfRelIso03_all " << pfRelIso03_all.size() << std::endl;
+
     auto recoTrackTable = std::make_unique<nanoaod::FlatTable>(nEntries, recoTrackName_, false);
     recoTrackTable->setDoc(recoTrackDoc_);
 
     recoTrackTable->addColumn<float>("pfRelIso03_all", pfRelIso03_all, "PF relative isolation dR=0.3, total (deltaBeta corrections)", nanoaod::FlatTable::FloatColumn, 10);
     recoTrackTable->addColumn<float>("pfRelIso03_chg", pfRelIso03_chg, "PF relative isolation dR=0.3, charged component", nanoaod::FlatTable::FloatColumn, 10);
+    recoTrackTable->addColumn<float>("pfRelIso03_neu", pfRelIso03_neu, "PF relative isolation dR=0.3, neutral hadron component", nanoaod::FlatTable::FloatColumn, 10);
+    recoTrackTable->addColumn<float>("pfRelIso03_pho", pfRelIso03_pho, "PF relative isolation dR=0.3, photon component", nanoaod::FlatTable::FloatColumn, 10);
+    recoTrackTable->addColumn<float>("pfRelIso03_pu", pfRelIso03_pu, "PF relative isolation dR=0.3, PU component", nanoaod::FlatTable::FloatColumn, 10);
     recoTrackTable->addColumn<float>("dr03TkSumPt", dr03TkSumPt, "Non-PF track isolation between a delta R cone of 0.3 and 0.015 with pt > 0.5 GeV", nanoaod::FlatTable::FloatColumn, 10);
 
     recoTrackTable->addColumn<float>("normalizedChi2", normalizedChi2, "normalizedChi2", nanoaod::FlatTable::FloatColumn, 10);
@@ -201,6 +236,7 @@ void RecoTrackTableProducer::produce(edm::Event &iEvent, const edm::EventSetup &
     recoTrackTable->addColumn<int>("numberOfLostHits", numberOfLostHits, "Number of cases with layers without hits", nanoaod::FlatTable::IntColumn);
     recoTrackTable->addColumn<float>("validFraction", validFraction, "Fraction of valid hits on track", nanoaod::FlatTable::FloatColumn, 10);
     recoTrackTable->addColumn<int>("algo", algo, "Algorithm of track reconstruction", nanoaod::FlatTable::IntColumn);
+    recoTrackTable->addColumn<int>("fromPV", fromPV, "Whether the track is from PV", nanoaod::FlatTable::IntColumn);
     iEvent.put(std::move(recoTrackTable), "");
 }
 
@@ -218,6 +254,7 @@ void RecoTrackTableProducer::fillDescriptions(edm::ConfigurationDescriptions &de
     desc.add<edm::InputTag>("src")->setComment("track collection");
     desc.add<edm::InputTag>("isoDR03")->setComment("PFIsolationDR03 collection");
     desc.add<edm::InputTag>("dr03TkSumPt")->setComment("sum of tk pt in between to cocentric cones with deltaR 0.015 and 0.3");
+    desc.add<edm::InputTag>("ft2pctag")->setComment("association");
     desc.add<edm::InputTag>("vtx")->setComment("vertex collection");
     desc.add<std::string>("recoTrackName")->setComment("name of the flat table to be produced");
     desc.add<std::string>("recoTrackDoc")->setComment("a few words about the documentation");

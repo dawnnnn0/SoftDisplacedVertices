@@ -135,6 +135,8 @@ TrackFilter::TrackFilter(const edm::ParameterSet& cfg)
   produces<std::vector<reco::TrackRef>>("seed");
   produces<reco::TrackCollection>("seed");
   produces<std::vector<SoftDV::PFIsolation>>("isolationDR03");
+  produces<std::vector<pat::PackedCandidate>>("seedtkPC");
+  produces<edm::Association<pat::PackedCandidateCollection>>();
 
 
   if (histos){
@@ -159,6 +161,9 @@ bool TrackFilter::filter(edm::Event& event, const edm::EventSetup& setup) {
   std::unique_ptr<std::vector<reco::TrackRef>> seed_tracks(new std::vector<reco::TrackRef>);
   std::unique_ptr<reco::TrackCollection> seed_tracks_copy(new reco::TrackCollection);
   std::unique_ptr<std::vector<SoftDV::PFIsolation>> track_isolationDR03(new std::vector<SoftDV::PFIsolation>);
+  std::unique_ptr<std::vector<pat::PackedCandidate>> output_Cands(new std::vector<pat::PackedCandidate>);
+
+  std::cout << "create the output" << std::endl;
 
 
   // BeamSpot
@@ -192,6 +197,8 @@ bool TrackFilter::filter(edm::Event& event, const edm::EventSetup& setup) {
 
 
 
+  std::vector<int> mapping;
+  int savedCandIndx = 0;
   for (size_t i=0; i<gt_h->size(); ++i){
     const reco::Track &gentk = (*gt_h)[i];
     reco::TrackRef tkref(gt_h, i);
@@ -273,6 +280,14 @@ bool TrackFilter::filter(edm::Event& event, const edm::EventSetup& setup) {
       seed_tracks->push_back(tkref);
       seed_tracks_copy->push_back(*tkref);
       track_isolationDR03->push_back(SoftDV::PFIsolation(isolationDR03));
+      if(isInPackedCands) {
+        output_Cands->push_back(*pcref);
+        mapping.push_back(savedCandIndx);
+        ++savedCandIndx;
+      }
+      else {
+        mapping.push_back(-1);
+      }
       if (histos) {
         const double vars[N_TRACK_VARS] = {pt, tkref->eta(), tkref->phi(), dxybs, dxyerr, nsigmadxybs, nhits, normchi2, dz, sigmapt, sigmapt_ratio};
         for (int ivar=0; ivar<N_TRACK_VARS; ++ivar){
@@ -286,8 +301,17 @@ bool TrackFilter::filter(edm::Event& event, const edm::EventSetup& setup) {
 
   event.put(std::move(all_tracks), "all");
   event.put(std::move(seed_tracks), "seed");
-  event.put(std::move(seed_tracks_copy), "seed");
+  //event.put(std::move(seed_tracks_copy), "seed");
   event.put(std::move(track_isolationDR03), "isolationDR03");
+  //event.put(std::move(output_Cands), "seedtkPC");
+
+  edm::OrphanHandle<pat::PackedCandidateCollection> oh = event.put(std::move(output_Cands),"seedtkPC");
+  edm::OrphanHandle<reco::TrackCollection> ohtk = event.put(std::move(seed_tracks_copy),"seed");
+  auto tk2pc = std::make_unique<edm::Association<pat::PackedCandidateCollection>>(oh);
+  edm::Association<pat::PackedCandidateCollection>::Filler tk2pcFiller(*tk2pc);
+  tk2pcFiller.insert(ohtk, mapping.begin(), mapping.end());
+  tk2pcFiller.fill();
+  event.put(std::move(tk2pc));
   
 
   return pass_min_n_seed_tracks;

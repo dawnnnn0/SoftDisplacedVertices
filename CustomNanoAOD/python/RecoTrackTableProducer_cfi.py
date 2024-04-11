@@ -5,7 +5,9 @@ recoTrackTable = cms.EDProducer("RecoTrackTableProducer",
     isoDR03 = cms.InputTag("TrackFilter", "isolationDR03"),
     dr03TkSumPt = cms.InputTag("TrackPtIsolation"),
     vtx = cms.InputTag("offlineSlimmedPrimaryVertices"),
+    #PC = cms.InputTag(""),
+    ft2pctag = cms.InputTag("TrackFilter"),
     recoTrackName = cms.string("SDVTrack"),
     recoTrackDoc = cms.string("Filtered reco Tracks"),
-    skipNonExistingSrc = cms.bool(True)
+    skipNonExistingSrc = cms.bool(False)
 )
