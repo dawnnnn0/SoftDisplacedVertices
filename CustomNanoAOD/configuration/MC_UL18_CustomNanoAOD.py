@@ -30,10 +30,17 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(options.maxEvents)
 )
+import os
+if os.path.isfile(options.inputFiles[0]) and not options.inputFiles[0].endswith(".root"):
+    with open(os.path.abspath(options.inputFiles[0])) as f:
+        cmsfileNames = cms.untracked.vstring(f.readlines())
+else:
+    cmsfileNames = cms.untracked.vstring(options.inputFiles)
+
 
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(options.inputFiles),
+    fileNames = cmsfileNames,
     secondaryFileNames = cms.untracked.vstring()
 )
 
@@ -78,7 +85,7 @@ from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
 associatePatAlgosToolsTask(process)
 
 #Setup FWK for multithreaded
-process.options.numberOfThreads=cms.untracked.uint32(4)
+process.options.numberOfThreads=cms.untracked.uint32(20)
 process.options.numberOfStreams=cms.untracked.uint32(0)
 process.options.numberOfConcurrentLuminosityBlocks=cms.untracked.uint32(1)
 

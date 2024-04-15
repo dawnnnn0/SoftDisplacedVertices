@@ -27,6 +27,7 @@ def nanoAOD_customise_SoftDisplacedVertices(process, isMC=None):
 
     process.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi")
     process.load("SoftDisplacedVertices.CustomNanoAOD.TrackExtrapolator_cfi")
+    process.load("SoftDisplacedVertices.CustomNanoAOD.RefitTrackCopyProducer_cfi")
     
 
     if not useIVF:
@@ -34,15 +35,18 @@ def nanoAOD_customise_SoftDisplacedVertices(process, isMC=None):
     
 #   have care when running on data
     if isMC:
-      process.nanoSequenceMC = cms.Sequence(process.nanoSequenceMC + process.recoTrackTable + process.vtxReco + process.SVTrackTable)
+      process.nanoSequenceMC = cms.Sequence(process.nanoSequenceMC + process.recoTrackTable + process.vtxReco + process.SVTrackTable + process.TrackExtrapolationTable)
     else:
-      process.nanoSequence = cms.Sequence(process.nanoSequence + process.recoTrackTable + process.vtxReco + process.SVTrackTable)
+      process.nanoSequence = cms.Sequence(process.nanoSequence + process.recoTrackTable + process.vtxReco + process.SVTrackTable + process.TrackExtrapolationTable)
 
-    process.nanoSequenceMC = cms.Sequence(process.nanoSequenceMC + process.TrackExtrapolator)
+    
     
     return process
 
 def nanoAOD_customise_SoftDisplacedVerticesMC(process):
+    # # EventContentAnalyzer
+    # process.load('Configuration.EventContent.EventContent_cff')
+    # process.myEventContent = cms.EDAnalyzer("EventContentAnalyzer")
 
     process = nanoAOD_customise_SoftDisplacedVertices(process, "MC")
 
@@ -70,6 +74,7 @@ def nanoAOD_customise_SoftDisplacedVerticesMC(process):
         + process.genParticleForSDVTable
         + process.genSecondaryVertexTable
         + process.LLPTable
+        # + process.myEventContent
     )
     process.nanoSequenceMC = cms.Sequence(process.nanoSequenceMC + process.sdvSequence)  
     
