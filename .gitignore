@@ -6,6 +6,8 @@ __init__.py
 *TestRun*
 *.log
 *Report.xml
-*.xml
 *.html
 *.ipynb_checkpoints*
+*.out
+*.log
+*.tar.gz
