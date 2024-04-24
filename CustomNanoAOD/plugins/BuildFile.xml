@@ -3,9 +3,11 @@
 <use name="DataFormats/VertexReco"/>
 <use name="DataFormats/PatCandidates"/>
 <use name="DataFormats/Common"/>
+<use name="DataFormats/Math"/>
 <use name="DataFormats/NanoAOD"/>
 <use name="DataFormats/Candidate"/>
 <use name="RecoVertex/VertexTools"/>
+<use name="DataFormats/GeometryCommonDetAlgo"/>
 <use name="RecoVertex/VertexPrimitives"/>
 
 <use name="FWCore/ParameterSet"/>
@@ -13,6 +15,15 @@
 <use name="FWCore/MessageLogger"/>
 <use name="CommonTools/Utils"/>
 <use name="SoftDisplacedVertices/SoftDVDataFormats"/>
+
+<use name="TrackingTools/Records"/>
+<use name="TrackingTools/TrajectoryState"/>
+<use name="TrackingTools/TrajectoryParametrization"/>
+<use name="TrackingTools/IPTools"/>
+<use name="TrackingTools/GeomPropagators"/>
+<use name="MagneticField/Engine"/>
+<use name="MagneticField/Records"/>
+
 
 <flags EDM_PLUGIN="1"/>
 <export>
