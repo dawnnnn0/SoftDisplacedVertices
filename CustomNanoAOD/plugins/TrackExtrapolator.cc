@@ -128,8 +128,8 @@ void TrackExtrapolator::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   iEvent.getByToken(tkSrc_, tksIn);
 
   // auto temporaryOutput = std::make_unique<std::vector<float>>();
-  std::vector<float> oTk_dxy, oTk_dxyErr, oTk_dxyByHand, oTk_extPV0_dxyByHand, oTk_absolutedxy, oTk_absolutedxyErr, oTk_extSV_pAngle;
-  std::vector<float>                                     rTk_extPV0_dxyByHand, rTk_absolutedxy, rTk_absolutedxyErr, rTk_pAngle;
+  std::vector<float> oTk_dxy, oTk_dxyErr, oTk_dxyByHand, oTk_extPV0_dxyByHand, oTk_absolutedxy, oTk_absolutedxyErr, oTk_extSV_mass, oTk_extSV_pAngle;
+  std::vector<float>                                     rTk_extPV0_dxyByHand, rTk_absolutedxy, rTk_absolutedxyErr, rTk_mass, rTk_pAngle;
   std::vector<int> svIdx, tkIdx;
   std::vector<float> charge;
   std::vector<float> oTk_vx, oTk_vy, oTk_vz;
@@ -146,6 +146,8 @@ void TrackExtrapolator::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   std::vector<reco::TrackBase::Vector> oTk_extSV_vec;
 
   for (const auto& sv : *svsIn) {
+    math::XYZTLorentzVectorD vecSum, vecSum2;
+    
     for(auto trkBegin = sv.tracks_begin(), trkEnd = sv.tracks_end(), itrk = trkBegin;
        itrk != trkEnd;
        ++itrk){
@@ -154,6 +156,26 @@ void TrackExtrapolator::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         reco::TrackBase::Vector oTk_extSV_Mom, oTk_extPV0_Mom, rTk_extPV0_Mom;
         propagateTrackToPCA(sv, **itrk, *field_h, *propagator_h, oTk_extSV_Pos, oTk_extSV_Mom);
         oTk_extSV_vec.push_back(oTk_extSV_Mom);
+
+        // oTk_extSV_pAngle computation
+        ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<double> > vec;
+        if(sv.trackWeight(*itrk)>=0.5){
+          vec.SetPx(oTk_extSV_Mom.X());
+          vec.SetPy(oTk_extSV_Mom.Y());
+          vec.SetPz(oTk_extSV_Mom.Z());
+          vec.SetM(0.13957018);
+          vecSum += vec;
+        }
+
+        // rTk_pAngle computation
+        ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<double> > vec2;
+        if(sv.trackWeight(*itrk)>=0.5){
+          vec2.SetPx(sv.refittedTrack(*itrk).px());
+          vec2.SetPy(sv.refittedTrack(*itrk).py());
+          vec2.SetPz(sv.refittedTrack(*itrk).pz());
+          vec2.SetM(0.13957018);
+          vecSum2 += vec2;
+        }
 
         propagateTrackToPCA(PV0, **itrk, *field_h, *propagator_h, oTk_extPV0_Pos, oTk_extPV0_Mom);
 
@@ -237,47 +259,27 @@ void TrackExtrapolator::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
 
     }
-    math::XYZTLorentzVectorD vecSum;
-    ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<double> > vec;
-
-    for (std::vector<reco::TrackBase::Vector>::const_iterator iter = oTk_extSV_vec.begin(); iter != oTk_extSV_vec.end(); ++iter) {
-      vec.SetPx(iter->X());
-      vec.SetPy(iter->Y());
-      vec.SetPz(iter->Z());
-      vec.SetM(0.13957018);
-      vecSum += vec;
-    }
+    
     double dx = (sv.x() - PV0.x());
     double dy = (sv.y() - PV0.y());
     double dz = (sv.z() - PV0.z());
+
+    double oTk_extSV_m = vecSum.mass();
     double oTk_extSV_pdotv = (dx * vecSum.Px() + dy * vecSum.Py() + dz * vecSum.Pz()) /
                                                                     sqrt(vecSum.P2()) / 
                                                                     sqrt(dx*dx + dy*dy + dz*dz);
+    double rTk_m = vecSum2.mass();
+    double rTk_pdotv = (dx * vecSum2.Px() + dy * vecSum2.Py() + dz * vecSum2.Pz()) /
+                                                                sqrt(vecSum2.P2()) / 
+                                                                sqrt(dx*dx + dy*dy + dz*dz);
+    
+
+    oTk_extSV_mass.push_back(oTk_extSV_m);
     oTk_extSV_pAngle.push_back(std::acos(oTk_extSV_pdotv));
 
-    //////////////////
-    vecSum = math::XYZTLorentzVectorD();
-    vec = ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<double>>();
-
-    for (size_t i=0; i<rTk_px.size(); i++) {
-      vec.SetPx(rTk_px[i]);
-      vec.SetPy(rTk_py[i]);
-      vec.SetPz(rTk_pz[i]);
-      vec.SetM(0.13957018);
-      vecSum += vec;
-    }
-    dx = (sv.x() - PV0.x());
-    dy = (sv.y() - PV0.y());
-    dz = (sv.z() - PV0.z());
-    double rTk_pdotv = (dx * vecSum.Px() + dy * vecSum.Py() + dz * vecSum.Pz()) /
-                                                              sqrt(vecSum.P2()) / 
-                                                              sqrt(dx*dx + dy*dy + dz*dz);
+    rTk_mass.push_back(rTk_m);
     rTk_pAngle.push_back(std::acos(rTk_pdotv));
-    //////////////////
-
-
-
-  }  
+  }
 
   int nEntriesTk = oTk_dxy.size();
   int nEntriesSv = oTk_extSV_pAngle.size();
@@ -337,8 +339,15 @@ void TrackExtrapolator::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   extrapTkTable->addColumn<float>("rTk_extPV0_py", rTk_extPV0_py, "rTk_extPV0_py", nanoaod::FlatTable::FloatColumn, 10);
   extrapTkTable->addColumn<float>("rTk_extPV0_pz", rTk_extPV0_pz, "rTk_extPV0_pz", nanoaod::FlatTable::FloatColumn, 10);
 
-  extrapSvTable->addColumn<float>("rTk_pAngle", rTk_pAngle, "rTk_pAngle", nanoaod::FlatTable::FloatColumn, 10);
+
+  extrapSvTable->addColumn<float>("oTk_extSV_mass", oTk_extSV_mass, "oTk_extSV_mass", nanoaod::FlatTable::FloatColumn, 10);
   extrapSvTable->addColumn<float>("oTk_extSV_pAngle", oTk_extSV_pAngle, "oTk_extSV_pAngle", nanoaod::FlatTable::FloatColumn, 10);
+
+  extrapSvTable->addColumn<float>("rTk_mass", rTk_mass, "rTk_mass", nanoaod::FlatTable::FloatColumn, 10);
+  extrapSvTable->addColumn<float>("rTk_pAngle", rTk_pAngle, "rTk_pAngle", nanoaod::FlatTable::FloatColumn, 10);
+  
+  
+  
 
   iEvent.put(std::move(extrapTkTable), extrapTkOut_);
   iEvent.put(std::move(extrapSvTable), extrapSvOut_);
