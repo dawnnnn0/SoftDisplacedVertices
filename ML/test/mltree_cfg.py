@@ -74,7 +74,9 @@ VertexRecoSeq(process, 'vtxReco', useMINIAOD=False, useIVF=True)
 #process.NANOAODSIMoutput = output_mod
 
 # Defining globally acessible service object that does not affect physics results.
-process.TFileService = cms.Service("TFileService", fileName = cms.string("/scratch-cbe/users/alikaan.gueven/mltree.root") )
+import os
+USER = os.getlogin()
+process.TFileService = cms.Service("TFileService", fileName = cms.string("/scratch-cbe/users/{0}/mltree.root".format(USER)))
 
 process.reco_step = cms.Path(process.vtxReco + process.MLTree)
 process.endjob_step = cms.EndPath(process.endOfProcess)
