@@ -75,7 +75,7 @@ VertexRecoSeq(process, 'vtxReco', useMINIAOD=False, useIVF=True)
 
 # Defining globally acessible service object that does not affect physics results.
 import os
-USER = os.getlogin()
+USER = os.environ.get('USER')
 process.TFileService = cms.Service("TFileService", fileName = cms.string("/scratch-cbe/users/{0}/mltree.root".format(USER)))
 
 process.reco_step = cms.Path(process.vtxReco + process.MLTree)
