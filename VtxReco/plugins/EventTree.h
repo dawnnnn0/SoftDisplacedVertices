@@ -12,7 +12,7 @@
 #include "DataFormats/METReco/interface/PFMETFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -72,7 +72,7 @@ struct eventInfo
 };
 
 template <class Jet, class MET>
-class EventTree : public edm::EDAnalyzer {
+class EventTree : public edm::one::EDAnalyzer<edm::one::SharedResources> {
   public:
     explicit EventTree(const edm::ParameterSet&);
     void analyze(const edm::Event&, const edm::EventSetup&);
@@ -110,6 +110,8 @@ EventTree<Jet, MET>::EventTree(const edm::ParameterSet& cfg)
     gen_matched_track_token(consumes<std::vector<std::vector<reco::Track>>>(cfg.getParameter<edm::InputTag>("gen_matched_track_token"))),
     debug(cfg.getParameter<bool>("debug"))
 {
+  usesResource("TFileService");
+
   evInfo = new eventInfo;
 }
 

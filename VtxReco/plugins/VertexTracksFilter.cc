@@ -6,7 +6,7 @@ KEPT TEMPORARILY AS REFERENCE
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/one/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -14,7 +14,7 @@ KEPT TEMPORARILY AS REFERENCE
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 
-class VertexTracksFilter : public edm::EDFilter {
+class VertexTracksFilter : public edm::one::EDFilter<edm::one::SharedResources>{
 public:
   VertexTracksFilter(const edm::ParameterSet&);
   virtual bool filter(edm::Event&, const edm::EventSetup&);
@@ -58,6 +58,7 @@ VertexTracksFilter::VertexTracksFilter(const edm::ParameterSet& cfg)
     max_track_sigmapt_ratio(cfg.getParameter<double>("max_track_sigmapt_ratio")),
     histos(cfg.getParameter<bool>("histos"))
 {
+  usesResource("TFileService");
   produces<std::vector<reco::TrackRef>>("all");
   produces<std::vector<reco::TrackRef>>("seed");
   produces<reco::TrackCollection>("seed");

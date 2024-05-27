@@ -11,7 +11,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -44,7 +44,7 @@ unsigned char uint2uchar_clamp(unsigned x) {
 }
 
 template <class Jet>
-class MFVVertexer : public edm::EDProducer {
+class MFVVertexer : public edm::one::EDProducer<edm::one::SharedResources> {
   public:
     MFVVertexer(const edm::ParameterSet&);
     virtual void produce(edm::Event&, const edm::EventSetup&);
@@ -159,6 +159,7 @@ class MFVVertexer : public edm::EDProducer {
     const edm::EDGetTokenT<std::vector<Jet>> shared_jet_token;
     const edm::EDGetTokenT<reco::BeamSpot> beamspot_token;
     const edm::EDGetTokenT<std::vector<reco::Track>> seed_tracks_token;
+    const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> tt_builder_token_;
     const int n_tracks_per_seed_vertex;
     const double max_seed_vertex_chi2;
     const bool use_2d_vertex_dist;
@@ -280,6 +281,7 @@ MFVVertexer<Jet>::MFVVertexer(const edm::ParameterSet& cfg)
     shared_jet_token(resolve_shared_jets ? consumes<std::vector<Jet>>(cfg.getParameter<edm::InputTag>("resolve_shared_jets_src")) : edm::EDGetTokenT<std::vector<Jet>>()),
     beamspot_token(consumes<reco::BeamSpot>(cfg.getParameter<edm::InputTag>("beamspot_src"))),
     seed_tracks_token(consumes<std::vector<reco::Track>>(cfg.getParameter<edm::InputTag>("seed_tracks_src"))),
+    tt_builder_token_(esConsumes<TransientTrackBuilder, TransientTrackRecord>(edm::ESInputTag("", "TransientTrackBuilder"))),
     n_tracks_per_seed_vertex(cfg.getParameter<int>("n_tracks_per_seed_vertex")),
     max_seed_vertex_chi2(cfg.getParameter<double>("max_seed_vertex_chi2")),
     use_2d_vertex_dist(cfg.getParameter<bool>("use_2d_vertex_dist")),
@@ -305,6 +307,7 @@ MFVVertexer<Jet>::MFVVertexer(const edm::ParameterSet& cfg)
     verbose(cfg.getUntrackedParameter<bool>("verbose", false)),
     module_label(cfg.getParameter<std::string>("@module_label"))
 {
+  usesResource("TFileService");
   if (n_tracks_per_seed_vertex < 2 || n_tracks_per_seed_vertex > 5)
     throw cms::Exception("MFVVertexer", "n_tracks_per_seed_vertex must be one of 2,3,4,5");
 
@@ -479,8 +482,10 @@ void MFVVertexer<Jet>::produce(edm::Event& event, const edm::EventSetup& setup) 
   const double bsz = beamspot->position().z();
   const reco::Vertex fake_bs_vtx(beamspot->position(), beamspot->covariance3D());
 
-  edm::ESHandle<TransientTrackBuilder> tt_builder;
-  setup.get<TransientTrackRecord>().get("TransientTrackBuilder", tt_builder);
+  // FIXME: check whether this works 
+  //edm::ESHandle<TransientTrackBuilder> tt_builder;
+  //setup.get<TransientTrackRecord>().get("TransientTrackBuilder", tt_builder);
+  edm::ESHandle<TransientTrackBuilder> tt_builder = setup.getHandle(tt_builder_token_);
 
   edm::Handle<std::vector<reco::Track>> seed_track_refs;
   event.getByToken(seed_tracks_token, seed_track_refs);

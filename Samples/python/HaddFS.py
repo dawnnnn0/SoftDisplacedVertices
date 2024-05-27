@@ -25,7 +25,7 @@ for s in os.listdir(args.dir):
   else:
     valid = True
   if not valid:
-    print "Sample {} not registered.".format(s)
+    print ("Sample {} not registered.".format(s))
   with open(os.path.join(args.dir,s,"log/jobinfo.json"),'r') as fj:
     info = json.load(fj)
   jobd = info["jobdir"]

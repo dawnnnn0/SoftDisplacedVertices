@@ -7,7 +7,7 @@
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -60,7 +60,7 @@ struct gentkInfo
 };
 
 
-class GenMatchedTracks : public edm::EDProducer {
+class GenMatchedTracks : public edm::one::EDProducer<edm::one::SharedResources> {
   typedef std::pair<double,std::vector<double>> Match; //the first element is chi2 and the second element is dr
   typedef std::pair<int, Match> MatchResult; //the first element is the index of matched track and the second element is Match
 
@@ -108,6 +108,7 @@ GenMatchedTracks::GenMatchedTracks(const edm::ParameterSet& cfg)
     histos(cfg.getParameter<bool>("histos")),
     debug(cfg.getParameter<bool>("debug"))
 {
+  usesResource("TFileService");
   gtInfo = new gentkInfo;
 
   produces<std::vector<std::vector<reco::Track>>>();

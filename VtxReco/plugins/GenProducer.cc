@@ -1,5 +1,5 @@
 #include <queue>
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -14,7 +14,7 @@
 #include "SoftDisplacedVertices/SoftDVDataFormats/interface/GenInfo.h"
 
 
-class GenProducer : public edm::EDProducer {
+class GenProducer : public edm::one::EDProducer<edm::one::SharedResources> {
   public:
     explicit GenProducer(const edm::ParameterSet&);
   private:
@@ -64,6 +64,7 @@ GenProducer::GenProducer(const edm::ParameterSet& cfg)
     match_by_daughter(cfg.getParameter<bool>("match_by_daughter")),
     debug(cfg.getParameter<bool>("debug"))
 {
+  usesResource();
   if (match_by_dist + match_by_daughter != 1)
     throw cms::Exception("GenProducer", "Only one of match_by_dist and match_by_daughter should be true.");
   produces<std::vector<SoftDV::LLP>>();

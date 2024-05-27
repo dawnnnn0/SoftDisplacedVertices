@@ -180,27 +180,28 @@ void RecoTrackTableProducer::produce(edm::Event &iEvent, const edm::EventSetup &
     auto recoTrackTable = std::make_unique<nanoaod::FlatTable>(nEntries, recoTrackName_, false);
     recoTrackTable->setDoc(recoTrackDoc_);
 
-    recoTrackTable->addColumn<float>("pfRelIso03_all", pfRelIso03_all, "PF relative isolation dR=0.3, total (deltaBeta corrections)", nanoaod::FlatTable::FloatColumn, 10);
-    recoTrackTable->addColumn<float>("pfRelIso03_chg", pfRelIso03_chg, "PF relative isolation dR=0.3, charged component", nanoaod::FlatTable::FloatColumn, 10);
-    recoTrackTable->addColumn<float>("dr03TkSumPt", dr03TkSumPt, "Non-PF track isolation between a delta R cone of 0.3 and 0.015 with pt > 0.5 GeV", nanoaod::FlatTable::FloatColumn, 10);
+    recoTrackTable->addColumn<float>("pfRelIso03_all", pfRelIso03_all, "PF relative isolation dR=0.3, total (deltaBeta corrections)", 10);
+    recoTrackTable->addColumn<float>("pfRelIso03_chg", pfRelIso03_chg, "PF relative isolation dR=0.3, charged component", 10);
+    recoTrackTable->addColumn<float>("dr03TkSumPt", dr03TkSumPt, "Non-PF track isolation between a delta R cone of 0.3 and 0.015 with pt > 0.5 GeV", 10);
 
-    recoTrackTable->addColumn<float>("normalizedChi2", normalizedChi2, "normalizedChi2", nanoaod::FlatTable::FloatColumn, 10);
-    recoTrackTable->addColumn<float>("eta", eta, "eta", nanoaod::FlatTable::FloatColumn, 10);
-    recoTrackTable->addColumn<float>("phi", phi, "phi", nanoaod::FlatTable::FloatColumn, 10);
-    recoTrackTable->addColumn<float>("pt", pt, "pt", nanoaod::FlatTable::FloatColumn, 10);
-    recoTrackTable->addColumn<float>("dxy", dxy, "dxy", nanoaod::FlatTable::FloatColumn, 10);
-    recoTrackTable->addColumn<float>("dz", dz, "dz", nanoaod::FlatTable::FloatColumn, 10);
-    recoTrackTable->addColumn<float>("etaError", etaError, "etaError", nanoaod::FlatTable::FloatColumn, 10);
-    recoTrackTable->addColumn<float>("phiError", phiError, "phiError", nanoaod::FlatTable::FloatColumn, 10);
-    recoTrackTable->addColumn<float>("ptError", ptError, "ptError", nanoaod::FlatTable::FloatColumn, 10);
-    recoTrackTable->addColumn<float>("dxyError", dxyError, "dxyError", nanoaod::FlatTable::FloatColumn, 10);
-    recoTrackTable->addColumn<float>("dzError", dzError, "dzError", nanoaod::FlatTable::FloatColumn, 10);
-    recoTrackTable->addColumn<int>("charge", charge, "Charge", nanoaod::FlatTable::IntColumn, 10);
-    recoTrackTable->addColumn<int>("isHighPurity", isHighPurity, "Is High Purity", nanoaod::FlatTable::IntColumn);
-    recoTrackTable->addColumn<int>("numberOfValidHits", numberOfValidHits, "Number of valid hits", nanoaod::FlatTable::IntColumn);
-    recoTrackTable->addColumn<int>("numberOfLostHits", numberOfLostHits, "Number of cases with layers without hits", nanoaod::FlatTable::IntColumn);
-    recoTrackTable->addColumn<float>("validFraction", validFraction, "Fraction of valid hits on track", nanoaod::FlatTable::FloatColumn, 10);
-    recoTrackTable->addColumn<int>("algo", algo, "Algorithm of track reconstruction", nanoaod::FlatTable::IntColumn);
+    recoTrackTable->addColumn<float>("normalizedChi2", normalizedChi2, "normalizedChi2", 10);
+    recoTrackTable->addColumn<float>("eta", eta, "eta", 10);
+    recoTrackTable->addColumn<float>("phi", phi, "phi", 10);
+    recoTrackTable->addColumn<float>("pt", pt, "pt", 10);
+    recoTrackTable->addColumn<float>("dxy", dxy, "dxy", 10);
+    recoTrackTable->addColumn<float>("dz", dz, "dz", 10);
+    recoTrackTable->addColumn<float>("etaError", etaError, "etaError", 10);
+    recoTrackTable->addColumn<float>("phiError", phiError, "phiError", 10);
+    recoTrackTable->addColumn<float>("ptError", ptError, "ptError", 10);
+    recoTrackTable->addColumn<float>("dxyError", dxyError, "dxyError", 10);
+    recoTrackTable->addColumn<float>("dzError", dzError, "dzError", 10);
+    recoTrackTable->addColumn<int16_t>("charge", charge, "Charge", 10);
+    recoTrackTable->addColumn<int16_t>("isHighPurity", isHighPurity, "Is High Purity", 10);
+    recoTrackTable->addColumn<int16_t>("numberOfValidHits", numberOfValidHits, "Number of valid hits", 10);
+    recoTrackTable->addColumn<int16_t>("numberOfLostHits", numberOfLostHits, "Number of cases with layers without hits", 10);
+    recoTrackTable->addColumn<float>("validFraction", validFraction, "Fraction of valid hits on track", 10);
+    recoTrackTable->addColumn<int16_t>("algo", algo, "Algorithm of track reconstruction", 10);
+
     iEvent.put(std::move(recoTrackTable), "");
 }
 

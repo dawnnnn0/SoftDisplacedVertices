@@ -9,7 +9,7 @@
 #include "DataFormats/METReco/interface/PFMETFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -40,7 +40,7 @@ struct trackInfo
   std::vector<double> track_drjet;
 };
 
-class TrackTree : public edm::EDAnalyzer {
+class TrackTree : public edm::one::EDAnalyzer<edm::one::SharedResources> {
   public:
     explicit TrackTree(const edm::ParameterSet&);
     void analyze(const edm::Event&, const edm::EventSetup&);
@@ -72,6 +72,7 @@ TrackTree::TrackTree(const edm::ParameterSet& cfg)
     jet_token(consumes<reco::PFJetCollection>(cfg.getParameter<edm::InputTag>("jet_token"))),
     met_token(consumes<reco::PFMETCollection>(cfg.getParameter<edm::InputTag>("met_token")))
 {
+  usesResource("TFileService");
   tkInfo = new trackInfo;
 }
 
