@@ -1,7 +1,7 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/one/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -58,7 +58,7 @@
 
 
 
-class TrackFilter : public edm::EDFilter {
+class TrackFilter : public edm::one::EDFilter<edm::one::SharedResources> {
 public:
   TrackFilter(const edm::ParameterSet&);
   virtual bool filter(edm::Event&, const edm::EventSetup&);

@@ -42,9 +42,9 @@ process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring()
 )
 
-process.options = cms.untracked.PSet(
-    SkipEvent= cms.untracked.vstring("ProductNotFound"),
-)
+#process.options = cms.untracked.PSet(
+#    SkipEvent= cms.untracked.vstring("ProductNotFound"),
+#)
 
 SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",ignoreTotal = cms.untracked.int32(1) )
 
