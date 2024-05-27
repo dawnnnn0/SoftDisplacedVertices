@@ -47,6 +47,16 @@ wlnu_2018 = [
     Sample("wjetstolnuht2500_2018",xsec=0.03255),
     ]
 
+wlnu_2018 = [
+    Sample("wjetstolnuht0100_2018",xsec=1.255e+03),
+    Sample("wjetstolnuht0200_2018", xsec=3.364e+02),
+    Sample("wjetstolnuht0400_2018", xsec=4.526e+01),
+    Sample("wjetstolnuht0600_2018", xsec=1.099e+01),
+    Sample("wjetstolnuht0800_2018", xsec=4.924),
+    Sample("wjetstolnuht1200_2018",xsec=1.157),
+    Sample("wjetstolnuht2500_2018",xsec=2.623e-02),
+    ]
+
 stop_2018 = [
     Sample("stop_M600_588_ct200_2018", xsec=0.205, filter_eff=0.294),
     Sample("stop_M600_585_ct20_2018", xsec=0.205, filter_eff=0.292),

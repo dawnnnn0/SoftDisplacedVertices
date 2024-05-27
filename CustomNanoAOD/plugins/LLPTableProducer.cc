@@ -179,35 +179,25 @@ void LLPTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   std::vector<float> SDV_match_bydist_dist(secondary_vertices->size(), -1);
 
   // Match LLP and reco vertices by daughter
+  //
+  std::map<int,std::pair<int,int>> vtxllpmatch = SoftDV::VtxLLPMatch( genParticles, secondary_vertices, tracks, primary_vertex->position(), LLPid_, LSPid_, debug);
   for (size_t ivtx=0; ivtx<secondary_vertices->size(); ++ivtx) {
-    std::vector<int> match_bydau_ntk(llp_idx.size(), 0);
-    const reco::Vertex& sv = secondary_vertices->at(ivtx);
-    //FIXME: there should be a more elegent way to refer the track in vertex in the reco track collection using TrackRef :) 
-    for (auto v_tk = sv.tracks_begin(), vtke = sv.tracks_end(); v_tk != vtke; ++v_tk){
-      for (size_t itk=0; itk<tracks->size(); ++itk) {
-        const reco::Track& tk = tracks->at(itk);
-        if (&tk == &(**v_tk)) {
-            const int llp_matched_idx = tk_llpidx[itk];
-            if (llp_matched_idx!=-1){
-                llp_match_bydau[llp_matched_idx] = ivtx;
-                //llp_match_bydau_ntk[llp_matched_idx] += 1;
-                match_bydau_ntk[llp_matched_idx] += 1;
-                SDV_match_bydau[ivtx] = llp_matched_idx;
-                SDV_match_bydau_ntk[ivtx] += 1;
-                math::XYZPoint llp_decay = math::XYZPoint(llp_decay_x[llp_matched_idx], llp_decay_y[llp_matched_idx], llp_decay_z[llp_matched_idx]);
-                const auto d_gen = gen_dist(sv,llp_decay,true);
-                llp_match_bydau_dist[llp_matched_idx] = fabs(d_gen.significance());
-            }
-            break;
-        }
-      }
-    }
-    for(size_t iillp=0; iillp<llp_idx.size(); ++iillp){
-      if (llp_match_bydau_ntk[iillp] < match_bydau_ntk[iillp]) {
-        llp_match_bydau_ntk[iillp] = match_bydau_ntk[iillp];
+    if (vtxllpmatch.find(ivtx) != vtxllpmatch.end()){
+      int llp_matched_idx = vtxllpmatch[ivtx].first;
+      int match_ntk = vtxllpmatch[ivtx].second;
+      SDV_match_bydau[ivtx] = llp_matched_idx;
+      SDV_match_bydau_ntk[ivtx] = match_ntk;
+      math::XYZPoint llp_decay = math::XYZPoint(llp_decay_x[llp_matched_idx], llp_decay_y[llp_matched_idx], llp_decay_z[llp_matched_idx]);
+      if (llp_match_bydau_ntk[llp_matched_idx] < match_ntk) {
+        llp_match_bydau_ntk[llp_matched_idx] = match_ntk;
+        llp_match_bydau[llp_matched_idx] = ivtx;
+        const reco::Vertex& sv = secondary_vertices->at(ivtx);
+        const auto d_gen = gen_dist(sv,llp_decay,true);
+        llp_match_bydau_dist[llp_matched_idx] = fabs(d_gen.significance());
       }
     }
   }
+  //
 
   // Match LLP and reco vertices by distance
   for (size_t illp=0; illp<llp_idx.size(); ++illp){

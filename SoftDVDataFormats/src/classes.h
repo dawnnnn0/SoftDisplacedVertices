@@ -4,3 +4,5 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "SoftDisplacedVertices/SoftDVDataFormats/interface/GenInfo.h"
 
+#include "DataFormats/PatCandidates/interface/PFIsolation.h"
+#include "SoftDisplacedVertices/SoftDVDataFormats/interface/PFIsolation.h"
