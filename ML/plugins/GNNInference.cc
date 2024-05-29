@@ -9,6 +9,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "SoftDisplacedVertices/SoftDVDataFormats/interface/PFIsolation.h"
 
 #include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
 
@@ -28,17 +31,29 @@ class GNNInference : public edm::stream::EDProducer<edm::GlobalCache<NNArray>> {
     void endJob();
 
     float edge_dist(std::vector<float> v1, std::vector<float> v2);
+    std::vector<float> track_input(reco::TrackRef tk, const reco::Vertex* pv, SoftDV::PFIsolation isoDR03);
 
     std::vector<std::string> input_names_emb_;
     std::vector<std::string> input_names_gnn_;
     std::vector<std::vector<int64_t>> input_shapes_;
+    const edm::EDGetTokenT<reco::VertexCollection> primary_vertex_token;
+    const edm::EDGetTokenT<reco::TrackCollection> tracks_token;
+    edm::EDGetTokenT<std::vector<SoftDV::PFIsolation>> isoDR03Token_;
     //FloatArrays data_; // each stream hosts its own data
+    //
+    float edge_dist_cut_;
+    float edge_gnn_cut_;
 };
 
 GNNInference::GNNInference(const edm::ParameterSet &iConfig, const NNArray *cache)
   : input_names_emb_(iConfig.getParameter<std::vector<std::string>>("input_names_emb")),
     input_names_gnn_(iConfig.getParameter<std::vector<std::string>>("input_names_gnn")),
-    input_shapes_() {
+    input_shapes_(),
+    primary_vertex_token(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("primary_vertex_token"))),
+    tracks_token(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"))),
+    isoDR03Token_(consumes<std::vector<SoftDV::PFIsolation>>(iConfig.getParameter<edm::InputTag>("isoDR03"))),
+    edge_dist_cut_(iConfig.getParameter<float>("edge_dist_cut")),
+    edge_gnn_cut_(iConfig.getParameter<float>("edge_gnn_cut")){
     //data_.emplace_back(10,0);
     produces<std::vector<std::vector<reco::Track>>>();
     }
@@ -58,27 +73,37 @@ void GNNInference::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
 
   std::unique_ptr<std::vector<std::vector<reco::Track>>> results(new std::vector<std::vector<reco::Track>>);
   //std::unique_ptr<std::vector<std::vector<float>>> results (new std::vector<std::vector<float>>);
+  //
+  edm::Handle<reco::TrackCollection> tracks;
+  iEvent.getByToken(tracks_token, tracks);
 
-  int ntks = 10;
-  int n_features = 11;
+  edm::Handle<reco::VertexCollection> primary_vertices;
+  iEvent.getByToken(primary_vertex_token, primary_vertices);
+  const reco::Vertex* primary_vertex = &primary_vertices->at(0);
+  if (primary_vertices->size()==0)
+    throw cms::Exception("GNNInterface") << "No Primary Vertices available!";
+
+  edm::Handle<std::vector<SoftDV::PFIsolation>> tracks_isoDR03;
+  iEvent.getByToken(isoDR03Token_, tracks_isoDR03);
+  if (tracks->size() != tracks_isoDR03->size())
+    throw cms::Exception("GNNInference") << "Tracks mismatch with track IsoDR03!";
+
+  int ntks = tracks->size();
+  int n_features = 0;
   FloatArrays inputdata;
-  std::vector<float> tk_vars;
+  std::vector<float> tks_vars;
   for (int i=0; i<ntks; ++i){
-    for (int j=0; j<n_features; ++j){
-      tk_vars.push_back(float(i+0.1*j));
-    }
+    SoftDV::PFIsolation isoDR03 = (*tracks_isoDR03)[i];
+    reco::TrackRef tk(tracks, i);
+    std::vector<float> tk_vars = track_input(tk,primary_vertex,isoDR03);
+    n_features = tk_vars.size();
+    tks_vars.insert(tks_vars.end(),tk_vars.begin(),tk_vars.end());
   }
-  inputdata.push_back(tk_vars);
+  inputdata.push_back(tks_vars);
 
-  std::vector<std::vector<int64_t>> ishape = {{ntks,n_features}};
+  std::vector<std::vector<int64_t>> tk_shape = {{ntks,n_features}};
 
-  std::vector<float> emb = globalCache()->at(0)->run(input_names_emb_, inputdata, ishape, {}, ntks)[0];
-
-  std::cout << "EMB Output " << std::endl;
-  for (auto &e : emb){
-      std::cout << e << " ";
-  }
-  std::cout << std::endl;
+  std::vector<float> emb = globalCache()->at(0)->run(input_names_emb_, inputdata, tk_shape, {}, ntks)[0];
 
   std::vector<int> sender_idx;
   std::vector<int> receiver_idx;
@@ -97,38 +122,42 @@ void GNNInference::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
       }
     }
   }
-  std::cout << "Edge built." << std::endl;
 
   FloatArrays input_GNN;
   std::vector<std::vector<int64_t>> input_shape_GNN;
-  input_GNN.push_back(tk_vars);
+  input_GNN.push_back(tks_vars);
   input_shape_GNN.push_back({1,ntks,n_features});
   std::vector<float> edge_idx;
   int64_t n_edges = sender_idx.size();
   edge_idx.insert(edge_idx.end(),sender_idx.begin(),sender_idx.end());
   edge_idx.insert(edge_idx.end(),receiver_idx.begin(),receiver_idx.end());
-  //input_GNN.push_back(edge_idx);
-  //input_shape_GNN.push_back({1,2,n_edges});
-  input_GNN.push_back(distance);
-  input_shape_GNN.push_back({1,n_edges});
+  input_GNN.push_back(edge_idx);
+  input_shape_GNN.push_back({1,2,n_edges});
 
-  std::cout << "GNN input ready." << std::endl;
-  std::cout << n_edges << std::endl;
-  for (auto& e : input_GNN[1]){
-    std::cout << e << " ";
+  std::vector<float> gnn = globalCache()->at(1)->run(input_names_gnn_, input_GNN, input_shape_GNN, {}, 1)[0];
+
+  if (gnn.size() != distance.size()) 
+    throw cms::Exception("GNNInterface") << "Embedding distance and GNN prediction doesn't match!";
+
+  // Select edges based on distance and gnn score
+  std::vector<std::pair<int,int>> edges;
+  for (size_t i=0; i<n_edges; ++i) {
+    if ( (distance[i] > edge_dist_cut_) || (gnn[i] < edge_gnn_cut_) )
+      continue;
+    edges.push_back(std::pair<int,int>({sender_idx[i],receiver_idx[i]}));
   }
-  std::cout << std::endl;
-  FloatArrays gnn = globalCache()->at(1)->run(input_names_gnn_, input_GNN, input_shape_GNN, {}, 1);
 
-  std::cout << "GNN Output " << std::endl;
-  for (auto &e : gnn){
-    std::cout << "size " << e.size() << std::endl;
-    for(auto &ie : e){
-      std::cout << ie << " ";
+  // Remove single directed edges
+  std::vector<std::pair<int,int>> edges_bi;
+  for (size_t i=0; i<edges.size(); ++i) {
+    if (edges[i].first>edges[i].second)
+      continue;
+    std::pair<int,int> inverse_edge({edges[i].second,edges[i].first});
+    if (std::find(edges.begin(),edges.end(),inverse_edge) != edges.end()) {
+      edges_bi.push_back(edges[i]);
     }
-    std::cout << std::endl;
   }
-  std::cout << std::endl;
+
 
   iEvent.put(std::move(results));
 }
@@ -142,6 +171,27 @@ float GNNInference::edge_dist(std::vector<float> v1, std::vector<float> v2) {
     d2 += pow(v1[i]-v2[i],2);
   }
   return d2;
+}
+
+std::vector<float> GNNInference::track_input(reco::TrackRef tk, const reco::Vertex* pv, SoftDV::PFIsolation isoDR03) {
+  float pt = tk->pt();
+  float eta = tk->eta();
+  float phi = tk->phi();
+  float dxy = tk->dxy(pv->position());
+  float dxyError = tk->dxyError(pv->position(), pv->covariance());
+  float dz = tk->dz(pv->position());
+  float dzError = tk->dzError();
+  float ptError = tk->ptError();
+  float normchi2 = tk->normalizedChi2();
+  float nvalidhits = tk->numberOfValidHits();
+  float pfRelIso03_all = (isoDR03.chargedHadronIso() +
+                            std::max<double>(isoDR03.neutralHadronIso() +
+                                             isoDR03.photonIso() -
+                                             isoDR03.puChargedHadronIso()/2,0.0))
+                          / tk->pt();
+
+  std::vector<float> tk_vars = {pt,eta,phi,dxy,dxyError,dz,dzError,pfRelIso03_all,ptError,normchi2,nvalidhits};
+  return tk_vars;
 }
 
 DEFINE_FWK_MODULE(GNNInference);
