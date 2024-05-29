@@ -8,4 +8,6 @@ GNNInference = cms.EDProducer('GNNInference',
     isoDR03 = cms.InputTag("TrackFilter", "isolationDR03"),
     EMB_model_path = cms.FileInPath("SoftDisplacedVertices/ML/EMB_1.onnx"),
     GNN_model_path = cms.FileInPath("SoftDisplacedVertices/ML/GNN_dist0p15_0509.onnx"),
+    edge_dist_cut = cms.double(0.02),
+    edge_gnn_cut = cms.double(0.9),
     )

@@ -1,5 +1,7 @@
 #include <memory>
 #include <vector>
+#include <set>
+#include <algorithm>
 #include <iostream>
 
 #include "FWCore/Framework/interface/Event.h"
@@ -14,6 +16,61 @@
 #include "SoftDisplacedVertices/SoftDVDataFormats/interface/PFIsolation.h"
 
 #include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
+
+class Graph {
+  public:
+    int numVertices;
+    std::vector<std::set<int>> adjList;
+
+    Graph(int vertices) : numVertices(vertices), adjList(vertices) {}
+
+    void addEdge(int u, int v) {
+      adjList[u].insert(v);
+      adjList[v].insert(u);
+    }
+
+    void bronKerboschWithPivot(std::set<int> R, std::set<int> P, std::set<int> X) {
+      if (P.empty() && X.empty()) {
+        // Print maximal clique
+        for (int v : R) {
+          std::cout << v << " ";
+        }
+        std::cout << std::endl;
+        return;
+      }
+      int u = *P.begin();  // Choosing the first vertex in P as the pivot
+      std::set<int> P_diff;
+
+      // P \ N(u)
+      for (int v : P) {
+          if (adjList[u].find(v) == adjList[u].end()) {
+              P_diff.insert(v);
+          }
+      }
+
+      std::set<int> P_copy = P_diff;  // Create a copy to iterate over
+      for (int v : P_copy) {
+          std::set<int> R_new = R;
+          R_new.insert(v);
+          std::set<int> P_new, X_new;
+
+          for (int neighbor : adjList[v]) {
+              if (P.find(neighbor) != P.end()) {
+                  P_new.insert(neighbor);
+              }
+              if (X.find(neighbor) != X.end()) {
+                  X_new.insert(neighbor);
+              }
+          }
+
+          bronKerboschWithPivot(R_new, P_new, X_new);
+
+          P.erase(v);
+          X.insert(v);
+      }
+    }
+};
+
 
 using namespace cms::Ort;
 typedef std::vector<std::unique_ptr<ONNXRuntime>> NNArray;
@@ -41,8 +98,8 @@ class GNNInference : public edm::stream::EDProducer<edm::GlobalCache<NNArray>> {
     edm::EDGetTokenT<std::vector<SoftDV::PFIsolation>> isoDR03Token_;
     //FloatArrays data_; // each stream hosts its own data
     //
-    float edge_dist_cut_;
-    float edge_gnn_cut_;
+    double edge_dist_cut_;
+    double edge_gnn_cut_;
 };
 
 GNNInference::GNNInference(const edm::ParameterSet &iConfig, const NNArray *cache)
@@ -52,8 +109,8 @@ GNNInference::GNNInference(const edm::ParameterSet &iConfig, const NNArray *cach
     primary_vertex_token(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("primary_vertex_token"))),
     tracks_token(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"))),
     isoDR03Token_(consumes<std::vector<SoftDV::PFIsolation>>(iConfig.getParameter<edm::InputTag>("isoDR03"))),
-    edge_dist_cut_(iConfig.getParameter<float>("edge_dist_cut")),
-    edge_gnn_cut_(iConfig.getParameter<float>("edge_gnn_cut")){
+    edge_dist_cut_(iConfig.getParameter<double>("edge_dist_cut")),
+    edge_gnn_cut_(iConfig.getParameter<double>("edge_gnn_cut")){
     //data_.emplace_back(10,0);
     produces<std::vector<std::vector<reco::Track>>>();
     }
@@ -141,22 +198,30 @@ void GNNInference::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
 
   // Select edges based on distance and gnn score
   std::vector<std::pair<int,int>> edges;
-  for (size_t i=0; i<n_edges; ++i) {
+  for (int i=0; i<n_edges; ++i) {
     if ( (distance[i] > edge_dist_cut_) || (gnn[i] < edge_gnn_cut_) )
       continue;
     edges.push_back(std::pair<int,int>({sender_idx[i],receiver_idx[i]}));
   }
 
   // Remove single directed edges
-  std::vector<std::pair<int,int>> edges_bi;
+  //std::vector<std::pair<int,int>> edges_bi;
+  Graph track_g(ntks);
   for (size_t i=0; i<edges.size(); ++i) {
     if (edges[i].first>edges[i].second)
       continue;
     std::pair<int,int> inverse_edge({edges[i].second,edges[i].first});
     if (std::find(edges.begin(),edges.end(),inverse_edge) != edges.end()) {
-      edges_bi.push_back(edges[i]);
+      //edges_bi.push_back(edges[i]);
+      track_g.addEdge(edges[i].first,edges[i].second);
     }
   }
+
+  std::set<int> R, P, X;
+  for (int i=0; i < track_g.numVertices; ++i) {
+    P.insert(i);
+  }
+  track_g.bronKerboschWithPivot(R,P,X);
 
 
   iEvent.put(std::move(results));
