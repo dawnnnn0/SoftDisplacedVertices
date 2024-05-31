@@ -185,6 +185,7 @@ void LLPTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     if (vtxllpmatch.find(ivtx) != vtxllpmatch.end()){
       int llp_matched_idx = vtxllpmatch[ivtx].first;
       int match_ntk = vtxllpmatch[ivtx].second;
+      if (llp_matched_idx<0) continue;
       SDV_match_bydau[ivtx] = llp_matched_idx;
       SDV_match_bydau_ntk[ivtx] = match_ntk;
       math::XYZPoint llp_decay = math::XYZPoint(llp_decay_x[llp_matched_idx], llp_decay_y[llp_matched_idx], llp_decay_z[llp_matched_idx]);
