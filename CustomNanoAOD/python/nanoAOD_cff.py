@@ -2,12 +2,15 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import *
 
 isN2N3 = False
-useIVF = True
+useIVF = False
+useGNN = True
 
 def nanoAOD_customise_SoftDisplacedVertices(process, isMC=None):
+    assert not (useIVF and useGNN)
 
     process.load("SoftDisplacedVertices.VtxReco.VertexReco_cff")
     process.load("SoftDisplacedVertices.VtxReco.Vertexer_cfi")
+    process.load("SoftDisplacedVertices.ML.GNNInference_cfi")
   
     if useIVF:
       process.vtxReco = cms.Sequence(
@@ -15,6 +18,11 @@ def nanoAOD_customise_SoftDisplacedVertices(process, isMC=None):
           process.vertexMergerSoftDV *
           process.trackVertexArbitratorSoftDV *
           process.IVFSecondaryVerticesSoftDV
+      )
+    elif useGNN:
+      process.GNNVtxSoftDV = process.GNNInference.clone()
+      process.vtxReco = cms.Sequence(
+          process.GNNVtxSoftDV
       )
     else:
       process.MFVSecondaryVerticesSoftDV = process.mfvVerticesMINIAOD.clone()
@@ -25,7 +33,9 @@ def nanoAOD_customise_SoftDisplacedVertices(process, isMC=None):
     process.load("SoftDisplacedVertices.CustomNanoAOD.SVTrackTable_cfi")
     process.load("SoftDisplacedVertices.CustomNanoAOD.RecoTrackTableProducer_cfi")
 
-    if not useIVF:
+    if useGNN:
+      process.SVTrackTable.svSrc = cms.InputTag("GNNVtxSoftDV")
+    elif (not useIVF):
       process.SVTrackTable.svSrc = cms.InputTag("MFVSecondaryVerticesSoftDV")
     
 #   have care when running on data
@@ -56,7 +66,9 @@ def nanoAOD_customise_SoftDisplacedVerticesMC(process):
 
     if isN2N3:
       process.LLPTable.LLPid_ = cms.vint32(1000023, 1000025)
-    if not useIVF:
+    if useGNN:
+      process.LLPTable.svToken = cms.InputTag("GNNVtxSoftDV")
+    elif (not useIVF):
       process.LLPTable.svToken = cms.InputTag("MFVSecondaryVerticesSoftDV")
 
     process.sdvSequence = cms.Sequence(

@@ -14,6 +14,11 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "SoftDisplacedVertices/SoftDVDataFormats/interface/PFIsolation.h"
+#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 
 #include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
 
@@ -21,21 +26,35 @@ class Graph {
   public:
     int numVertices;
     std::vector<std::set<int>> adjList;
+    std::vector<std::set<int>> cliques;
 
-    Graph(int vertices) : numVertices(vertices), adjList(vertices) {}
+    Graph(int vertices) : numVertices(vertices), adjList(vertices), cliques() {}
 
     void addEdge(int u, int v) {
       adjList[u].insert(v);
       adjList[v].insert(u);
     }
 
+    std::vector<std::set<int>> getCliques() {
+      if (cliques.size()!=0)
+        throw cms::Exception("GNNInterface") << "Non-empty cliques before searching!";
+      std::set<int> R, P, X;
+      for (int i=0; i < numVertices; ++i) {
+        P.insert(i);
+      }
+      bronKerboschWithPivot(R,P,X);
+      return cliques;
+    }
+
     void bronKerboschWithPivot(std::set<int> R, std::set<int> P, std::set<int> X) {
       if (P.empty() && X.empty()) {
+        if (R.size()>1)
+          cliques.push_back(R);
         // Print maximal clique
-        for (int v : R) {
-          std::cout << v << " ";
-        }
-        std::cout << std::endl;
+        //for (int v : R) {
+        //  std::cout << v << " ";
+        //}
+        //std::cout << std::endl;
         return;
       }
       int u = *P.begin();  // Choosing the first vertex in P as the pivot
@@ -100,6 +119,8 @@ class GNNInference : public edm::stream::EDProducer<edm::GlobalCache<NNArray>> {
     //
     double edge_dist_cut_;
     double edge_gnn_cut_;
+
+    std::unique_ptr<KalmanVertexFitter> kv_reco;
 };
 
 GNNInference::GNNInference(const edm::ParameterSet &iConfig, const NNArray *cache)
@@ -110,14 +131,12 @@ GNNInference::GNNInference(const edm::ParameterSet &iConfig, const NNArray *cach
     tracks_token(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"))),
     isoDR03Token_(consumes<std::vector<SoftDV::PFIsolation>>(iConfig.getParameter<edm::InputTag>("isoDR03"))),
     edge_dist_cut_(iConfig.getParameter<double>("edge_dist_cut")),
-    edge_gnn_cut_(iConfig.getParameter<double>("edge_gnn_cut")){
-    //data_.emplace_back(10,0);
-    produces<std::vector<std::vector<reco::Track>>>();
+    edge_gnn_cut_(iConfig.getParameter<double>("edge_gnn_cut")),
+    kv_reco(new KalmanVertexFitter(iConfig.getParameter<edm::ParameterSet>("kvr_params"), iConfig.getParameter<edm::ParameterSet>("kvr_params").getParameter<bool>("doSmoothing"))){
+    produces<reco::VertexCollection>();
     }
 
 std::unique_ptr<NNArray> GNNInference::initializeGlobalCache(const edm::ParameterSet &iConfig) {
-  //ONNXRuntime* EMB = new ONNXRuntime(iConfig.getParameter<edm::FileInPath>("EMB_model_path").fullPath());
-  //ONNXRuntime* GNN = new ONNXRuntime(iConfig.getParameter<edm::FileInPath>("GNN_model_path").fullPath());
   std::unique_ptr<NNArray> NNs = std::make_unique<NNArray>();
   NNs->push_back(std::make_unique<ONNXRuntime>(iConfig.getParameter<edm::FileInPath>("EMB_model_path").fullPath()));
   NNs->push_back(std::make_unique<ONNXRuntime>(iConfig.getParameter<edm::FileInPath>("GNN_model_path").fullPath()));
@@ -128,9 +147,8 @@ void GNNInference::globalEndJob(const NNArray *cache) {}
 
 void GNNInference::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
 
-  std::unique_ptr<std::vector<std::vector<reco::Track>>> results(new std::vector<std::vector<reco::Track>>);
-  //std::unique_ptr<std::vector<std::vector<float>>> results (new std::vector<std::vector<float>>);
-  //
+  std::unique_ptr<reco::VertexCollection> vertices(new reco::VertexCollection);
+
   edm::Handle<reco::TrackCollection> tracks;
   iEvent.getByToken(tracks_token, tracks);
 
@@ -144,6 +162,9 @@ void GNNInference::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   iEvent.getByToken(isoDR03Token_, tracks_isoDR03);
   if (tracks->size() != tracks_isoDR03->size())
     throw cms::Exception("GNNInference") << "Tracks mismatch with track IsoDR03!";
+
+  edm::ESHandle<TransientTrackBuilder> tt_builder;
+  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", tt_builder);
 
   int ntks = tracks->size();
   int n_features = 0;
@@ -205,26 +226,30 @@ void GNNInference::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   }
 
   // Remove single directed edges
-  //std::vector<std::pair<int,int>> edges_bi;
   Graph track_g(ntks);
   for (size_t i=0; i<edges.size(); ++i) {
     if (edges[i].first>edges[i].second)
       continue;
     std::pair<int,int> inverse_edge({edges[i].second,edges[i].first});
     if (std::find(edges.begin(),edges.end(),inverse_edge) != edges.end()) {
-      //edges_bi.push_back(edges[i]);
       track_g.addEdge(edges[i].first,edges[i].second);
     }
   }
 
-  std::set<int> R, P, X;
-  for (int i=0; i < track_g.numVertices; ++i) {
-    P.insert(i);
+  std::vector<std::set<int> > clus = track_g.getCliques();
+  for (auto& ic : clus) {
+    std::vector<reco::TransientTrack> seed_tracks;
+    for (int itk : ic){
+      reco::TrackRef tk(tracks, itk);
+      seed_tracks.push_back(tt_builder->build(tk));
+    }
+    reco::Vertex v(TransientVertex(kv_reco->vertex(seed_tracks)));
+    if (v.nTracks()>1)
+      vertices->push_back(v);
   }
-  track_g.bronKerboschWithPivot(R,P,X);
 
 
-  iEvent.put(std::move(results));
+  iEvent.put(std::move(vertices));
 }
 
 float GNNInference::edge_dist(std::vector<float> v1, std::vector<float> v2) {
