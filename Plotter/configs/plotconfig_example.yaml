@@ -25,6 +25,10 @@ presel: MET_pt>400&&HLT_PFMET120_PFMHT120_IDTight && Jet_pt[0]>100 && !nMuon && 
 new_variables:
   SDVTrack_dxySig: abs(SDVTrack_dxy)/SDVTrack_dxyError
   nSDVSecVtx_sel: ['Sum({0})', vertex_selections]
+  SDVSecVtx_r: sqrt(SDVSecVtx_x*SDVSecVtx_x+SDVSecVtx_y*SDVSecVtx_y)
+  SDVSecVtx_x_sel: SDVSecVtx_x[SDVSecVtx_mmoverlap == false]
+  SDVSecVtx_y_sel: SDVSecVtx_y[SDVSecVtx_mmoverlap == false]
+  SDVSecVtx_r_sel: sqrt(SDVSecVtx_x_sel*SDVSecVtx_x_sel+SDVSecVtx_y_sel*SDVSecVtx_y_sel)
 
 ### EVENT SELECTION
 # This part defines search regions
@@ -60,7 +64,7 @@ objects:
   SDVSecVtx:
     selections:
       all:
-      goodvtx: ( acos(cos(SDVSecVtx_L_phi-MET_phi))<1.5 )&&(SDVSecVtx_LxySig>=20.)&&(SDVSecVtx_pAngle>0.2)&&(SDVSecVtx_nGoodTrack>=2)&&( acos(cos(SDVSecVtx_L_phi-Jet_phi[0]))>1 ) && (SDVSecVtx_ndof>1)
+        #goodvtx: ( acos(cos(SDVSecVtx_L_phi-MET_phi))<1.5 )&&(SDVSecVtx_LxySig>=20.)&&(SDVSecVtx_pAngle>0.2)&&(SDVSecVtx_nGoodTrack>=2)&&( acos(cos(SDVSecVtx_L_phi-Jet_phi[0]))>1 ) && (SDVSecVtx_ndof>1)
     variables:
     - SDVSecVtx_nTracks
     - SDVSecVtx_pAngle
@@ -74,6 +78,10 @@ objects:
     - SDVSecVtx_normalizedChi2
     - SDVSecVtx_ndof
     - SDVSecVtx_L_eta_abs
+    - SDVSecVtx_x
+    - SDVSecVtx_y
+    - SDVSecVtx_r
+    - SDVSecVtx_r_sel
     2d_plots:
     - [SDVSecVtx_Lxy,SDVSecVtx_pAngle]
     - [SDVSecVtx_x,SDVSecVtx_y]
@@ -125,6 +133,8 @@ plot_setting:
   SDVRefitTrack_dphi_jet0: [SDVRefitTrack_dphi_jet0,";#Delta #phi (track,jet0);A.U.",64,0,3.2]
   SDVSecVtx_x: [SDVSecVtx_x, ';vertex x (cm);A.U.',400, -20, 20]
   SDVSecVtx_y: [SDVSecVtx_y, ';vertex y (cm);A.U.',400, -20, 20]
+  SDVSecVtx_r: [SDVSecVtx_r, ';vertex r (cm);A.U.',200, 0, 20]
+  SDVSecVtx_r_sel: [SDVSecVtx_r_sel, ';vertex r selected (cm);A.U.',200, 0, 20]
   SDVSecVtx_L_eta_abs: [SDVSecVtx_L_eta_abs, ';vertex |#eta|;A.U.', 200, 0, 10]
   SDVSecVtx_Lxy: [SDVSecVtx_Lxy, ';vertex L_{xy} (cm);A.U.', 100, 0, 10]
   SDVSecVtx_LxySig: [SDVSecVtx_LxySig, ';vertex L_{xy}/#sigmaL_{xy};A.U.', 500, 0, 100]
@@ -153,4 +163,5 @@ plot_setting:
   SDVSecVtx_pAngle: [SDVSecVtx_pAngle, ';vertex pAngle;A.U.', 64, 0, 3.2]
   nSDVSecVtx_CCsel: [nSDVSecVtx_CCsel, ';Number of vertices (CC);A.U.', 20, 0, 20]
   nSDVSecVtx_MLsel: [nSDVSecVtx_MLsel, ';Number of vertices (ML);A.U.', 20, 0, 20]
+  nSDVSecVtx_sel: [nSDVSecVtx_sel, ';Number of vertices;A.U.', 20, 0, 20]
 

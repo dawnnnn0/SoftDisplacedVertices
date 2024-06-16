@@ -20,6 +20,9 @@ class Plotter:
       cfg = yaml.load(f_cfg, Loader=yaml.FullLoader)
     self.cfg = cfg
 
+    self.f1 = ROOT.TFile.Open("/eos/user/w/wuzh/dv/CMSSW_13_3_0/src/SoftDisplacedVertices/Plotter/Material_Map_HIST.root")
+    ROOT.gInterpreter.ProcessLine("auto h_mm = material_map; h_mm->SetDirectory(0);")
+    self.f1.Close()
 
   def setLumi(self,lumi):
     self.lumi = lumi
@@ -65,6 +68,7 @@ class Plotter:
       d = d.Define("SDVSecVtx_TkMindeta","SDV_TkMindphi(SDVIdxLUT_TrackIdx, SDVIdxLUT_SecVtxIdx, nSDVSecVtx, SDVTrack_eta)")
       d = d.Define("SDVSecVtx_TkMaxdR","SDV_TkMaxdR(SDVIdxLUT_TrackIdx, SDVIdxLUT_SecVtxIdx, nSDVSecVtx, SDVTrack_eta, SDVTrack_phi)")
       d = d.Define("SDVSecVtx_TkMindR","SDV_TkMindR(SDVIdxLUT_TrackIdx, SDVIdxLUT_SecVtxIdx, nSDVSecVtx, SDVTrack_eta, SDVTrack_phi)")
+      d = d.Define("SDVSecVtx_mmoverlap","return ROOT::VecOps::Map(SDVSecVtx_x,SDVSecVtx_y, [](float x, float y){return h_mm->GetBinContent(h_mm->FindBin(x,y)) > 0.01;})")
       if self.cfg['new_variables'] is not None:
         for newvar in self.cfg['new_variables']:
           if isinstance(self.cfg['new_variables'][newvar],list):
@@ -73,6 +77,7 @@ class Plotter:
           elif isinstance(self.cfg['new_variables'][newvar],str):
             var_define = self.cfg['new_variables'][newvar]
           d = d.Define(newvar,var_define)
+      print("Defining new variables finished") 
       return d
   
   def AddVarsWithSelection(self,d):
@@ -122,6 +127,7 @@ class Plotter:
     '''
     fns = self.s.getFileList(self.datalabel,"")
     d = ROOT.RDataFrame("Events",fns)
+    #d = d(1000)
     d = self.AddVars(d)
     d = self.AddVarsWithSelection(d)
     if self.cfg['presel'] is not None:
@@ -136,6 +142,8 @@ class Plotter:
     xsec_weights = self.lumi*self.s.xsec/(nevt)
     print("Total gen events {}, xsec {}, weight {}".format(nevt,self.s.xsec,xsec_weights))
     d = self.AddWeights(d,xsec_weights)
+    #d = d.Range(1000)
+    #print("RDF finished initializing with range 1000")
     return d,xsec_weights
 
   def getplotsOld(self,d,weight):
@@ -213,9 +221,10 @@ class Plotter:
         hs.append(h)
   
     for i in range(len(hs)):
+      print(hs[i].GetName(),"passes")
       hs[i] = hs[i].Clone()
       hs[i].SetName(hs[i].GetName())
-
+      #print(hs[i].GetName(),"passes")
     return hs
 
   def writeplots(self,rootdir,d,weight,plots_1d,plots_2d,varlabel):
