@@ -55,17 +55,6 @@ wlnu_2018 = [
     Sample("wjetstolnuht2500_2018",xsec=0.03255),
     ]
 
-#stop_2018 = [
-#    Sample("stop_M600_588_ct200_2018", xsec=0.205, filter_eff=0.294),
-#    Sample("stop_M600_585_ct20_2018", xsec=0.205, filter_eff=0.292),
-#    Sample("stop_M600_580_ct2_2018", xsec=0.205, filter_eff=0.292),
-#    Sample("stop_M600_575_ct0p2_2018", xsec=0.205, filter_eff=0.292),
-#    Sample("stop_M1000_988_ct200_2018", xsec=0.00683, filter_eff=0.343),
-#    Sample("stop_M1000_985_ct20_2018", xsec=0.00683, filter_eff=0.347),
-#    Sample("stop_M1000_980_ct2_2018", xsec=0.00683, filter_eff=0.348),
-#    Sample("stop_M1000_975_ct0p2_2018", xsec=0.00683, filter_eff=0.348),
-#    ]
-
 stop_2018 = [
     Sample("stop_M600_588_ct200_2018", xsec=0.205),
     Sample("stop_M600_585_ct20_2018", xsec=0.205),

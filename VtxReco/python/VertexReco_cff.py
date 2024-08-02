@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from SoftDisplacedVertices.VtxReco.TracksMiniAOD_cfi import TracksMiniAOD
-from SoftDisplacedVertices.VtxReco.VertexTracks_cfi import VertexTracksFilter
+from SoftDisplacedVertices.VtxReco.TrackFilter_cfi import TrackFilter
 from SoftDisplacedVertices.VtxReco.Vertexer_cfi import mfvVerticesAOD, mfvVerticesMINIAOD
 
 from RecoVertex.AdaptiveVertexFinder.inclusiveVertexFinder_cfi import *
@@ -10,11 +10,11 @@ from RecoVertex.AdaptiveVertexFinder.trackVertexArbitrator_cfi import *
 
 
 
-VertexTracksFilter.min_track_nsigmadxy = cms.double(2)
+TrackFilter.min_track_nsigmadxy = cms.double(2)
 
 inclusiveVertexFinderSoftDV = inclusiveVertexFinder.clone(
     primaryVertices = cms.InputTag('offlineSlimmedPrimaryVertices'),
-    tracks = cms.InputTag("VertexTracksFilter","seed"),
+    tracks = cms.InputTag("TrackFilter","seed"),
     minPt = 0.5,
     )
 
@@ -25,7 +25,7 @@ vertexMergerSoftDV = vertexMerger.clone(
 trackVertexArbitratorSoftDV = trackVertexArbitrator.clone(
     primaryVertices = cms.InputTag('offlineSlimmedPrimaryVertices'),
     secondaryVertices = cms.InputTag("vertexMergerSoftDV"),
-    tracks = cms.InputTag("VertexTracksFilter","seed"),
+    tracks = cms.InputTag("TrackFilter","seed"),
     )
 
 IVFSecondaryVerticesSoftDV = vertexMerger.clone(
@@ -59,7 +59,7 @@ def VertexFilterSeq(process, name="vtxfilter", useMINIAOD=False, useIVF=False):
     This part of the code is not usable... I am sad :(
     """
 
-    trackSeq = cms.Sequence(VertexTracksFilter)
+    trackSeq = cms.Sequence(TrackFilter)
     # DVSeq    = cms.Sequence(inclusiveVertexFinderSoftDV *
     #                         vertexMergerSoftDV *
     #                         trackVertexArbitratorSoftDV *

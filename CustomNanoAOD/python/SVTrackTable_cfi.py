@@ -13,7 +13,7 @@ SVTrackTable = cms.EDProducer("SVTrackTableProducer",
     svDoc = cms.string("Table of displaced vertices"),
     svCut = cms.string(""),
 
-    tkSrc = cms.InputTag("VertexTracksFilter","seed"),
+    tkSrc = cms.InputTag("TrackFilter","seed"),
     tkName = cms.string('SDVRefitTrack'),
     tkbranchDoc = cms.string('Indices of secondary vertices associated with the tracks.'),
     tkbranchName = cms.string('SecVtxIdx'),

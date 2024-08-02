@@ -11,4 +11,9 @@
 
  <class name="std::vector<std::vector<reco::Track> >"/>
  <class name="edm::Wrapper<std::vector<std::vector<reco::Track> >>"/>
+
+ <class name="SoftDV::PFIsolation"/>
+ <class name="std::vector<SoftDV::PFIsolation>"/>
+ <class name="edm::Wrapper<std::vector<SoftDV::PFIsolation> >"/>
+
 </lcgdict>

@@ -1,6 +1,9 @@
 // This module runs trained Particle Transformer ONNX model and produces
 // the output score that predicts whether a vertex is LLP vertex or not
 //
+// FIXME: This module does not work with the current CMSSW version becuase 
+// the ONNXRunTime is not compatible with the Partile Transformer ONNX model
+// 
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 
