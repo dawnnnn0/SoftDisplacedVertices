@@ -7,7 +7,22 @@
 #include "TStyle.h"
 #include <algorithm> 
 
-void printVec(ROOT::RVecI v) {
+float dPhi(float phi1, float phi2) {
+  float x = phi1-phi2;
+  float o2pi = 1. / (2. * M_PI);
+  if (std::abs(x) <= float(M_PI))
+    return x;
+  float n = std::round(x * o2pi);
+  return x - n * float(2. * M_PI);
+}
+
+float dR(float phi1, float phi2, float eta1, float eta2) {
+    float dp = std::abs(dPhi(phi1, phi2));
+    return sqrt(dp*dp+(eta1-eta2)*(eta1-eta2));
+}
+
+template<typename T>
+void printVec(T v) {
 
     for (size_t i=0; i<v.size(); ++i) {
         std::cout << v[i] << ", ";
@@ -27,6 +42,275 @@ T removeDuplicate(T v) {
     return v;
 }
 
+// This function returns the modified PFIsolation
+ROOT::VecOps::RVec<float> Track_modifiedIsolation_new(ROOT::RVecF Track_AbsIso_chg, ROOT::RVecF Track_AbsIso_neu, ROOT::RVecF Track_AbsIso_pho, ROOT::RVecF Track_AbsIso_pu, ROOT::RVecI SDVIdxLUT_TrackIdx, ROOT::RVecF Track_pt, ROOT::RVecF Track_eta, ROOT::RVecF Track_phi, ROOT::RVecF Track_dz, ROOT::RVecF Track_fromPV, ROOT::RVecF Track_AbsIso_all) {
+  ROOT::RVecF Track_AbsIso_chg_new = Track_AbsIso_chg;
+  ROOT::RVecF Track_AbsIso_pu_new = Track_AbsIso_pu;
+  ROOT::RVecI TrackIdx_InSV = removeDuplicate(SDVIdxLUT_TrackIdx);
+  for (size_t i=0;i<TrackIdx_InSV.size();++i){
+    int idxi = TrackIdx_InSV[i];
+    //std::cout << "Track " << idxi << " chg iso " << Track_AbsIso_chg_new[idxi] << " pu iso " << Track_AbsIso_pu_new[idxi] << " eta " << Track_eta[idxi] << " phi " << Track_phi[idxi] << std::endl;
+    for (size_t j=0; j<TrackIdx_InSV.size();++j){
+      int idxj = TrackIdx_InSV[j];
+      if (idxi==idxj) continue;
+      double dr = ROOT::VecOps::DeltaR(Track_eta[idxi],Track_eta[idxj],Track_phi[idxi],Track_phi[idxj]);
+
+      if (dr>0.3) continue;
+      //std::cout << "  Track pt" << Track_pt[idxj]  << " eta " << Track_eta[idxj] << " phi " << Track_phi[idxj] << std::endl;
+      //std::cout << "   dR " << dr << " dz " << abs(Track_dz[idxj]) << " fromPV " << Track_fromPV[idxj] << std::endl;
+      if ( (abs(Track_dz[idxj])<0.1) || (Track_fromPV[idxj]>1) ){
+        Track_AbsIso_chg_new[idxi] -= Track_pt[idxj];
+      }
+      else{
+        Track_AbsIso_pu_new[idxi] -= Track_pt[idxj];
+      }
+    }
+  }
+  ROOT::RVecF Track_AbsIso_all_new(Track_AbsIso_chg.size(),-1);
+  for (size_t i=0; i<Track_AbsIso_all_new.size(); ++i){
+    Track_AbsIso_all_new[i] = Track_AbsIso_chg_new[i] + std::max<double>(Track_AbsIso_neu[i]+Track_AbsIso_pho[i]-Track_AbsIso_pu_new[i]/2,0.0);
+  }
+  //std::cout << "After :" << std::endl;
+  //for (size_t i=0; i<TrackIdx_InSV.size();++i){
+  //  int tkidx = TrackIdx_InSV[i];
+  //  std::cout << "For tk " << tkidx << " before all " << Track_AbsIso_all[tkidx] << " chg " << Track_AbsIso_chg[tkidx] << " pu " << Track_AbsIso_pu[tkidx] << " neu " << Track_AbsIso_neu[tkidx] << " pho " << Track_AbsIso_pho[tkidx] << std::endl;
+  //  std::cout << "       after all " << Track_AbsIso_all_new[tkidx] << " chg " << Track_AbsIso_chg_new[tkidx] << " pu " << Track_AbsIso_pu_new[tkidx] << std::endl;
+  //}
+  return Track_AbsIso_all_new;
+}
+
+// This function returns the modified PFIsolation
+ROOT::VecOps::RVec<float> Track_modifiedIsolation_chg_new(ROOT::RVecF Track_AbsIso_chg, ROOT::RVecI SDVIdxLUT_TrackIdx, ROOT::RVecF Track_pt, ROOT::RVecF Track_eta, ROOT::RVecF Track_phi, ROOT::RVecF Track_dz, ROOT::RVecF Track_fromPV) {
+  ROOT::RVecF Track_AbsIso_chg_new = Track_AbsIso_chg;
+  ROOT::RVecI TrackIdx_InSV = removeDuplicate(SDVIdxLUT_TrackIdx);
+  for (size_t i=0;i<TrackIdx_InSV.size();++i){
+    int idxi = TrackIdx_InSV[i];
+    for (size_t j=0; j<TrackIdx_InSV.size();++j){
+      int idxj = TrackIdx_InSV[j];
+      if (idxi==idxj) continue;
+      double dr = ROOT::VecOps::DeltaR(Track_eta[idxi],Track_eta[idxj],Track_phi[idxi],Track_phi[idxj]);
+
+      if (dr>0.3) continue;
+      if ( (abs(Track_dz[idxj])<0.1) || (Track_fromPV[idxj]>1) ){
+        Track_AbsIso_chg_new[idxi] -= Track_pt[idxj];
+      }
+    }
+  }
+  return Track_AbsIso_chg_new;
+}
+
+// This function returns the modified PFIsolation
+ROOT::VecOps::RVec<float> Track_ntk_dRcone_new(ROOT::RVecI SDVIdxLUT_TrackIdx, ROOT::RVecF Track_pt, ROOT::RVecF Track_eta, ROOT::RVecF Track_phi, ROOT::RVecF Track_dz, ROOT::RVecF Track_fromPV) {
+  ROOT::RVecI ntkdRcone(Track_pt.size(),-1);
+  ROOT::RVecI TrackIdx_InSV = removeDuplicate(SDVIdxLUT_TrackIdx);
+  for (size_t i=0;i<TrackIdx_InSV.size();++i){
+    int idxi = TrackIdx_InSV[i];
+    if (ntkdRcone[idxi]==-1)
+      ntkdRcone[idxi]=0;
+    for (size_t j=0; j<TrackIdx_InSV.size();++j){
+      int idxj = TrackIdx_InSV[j];
+      if (idxi==idxj) continue;
+      double dr = ROOT::VecOps::DeltaR(Track_eta[idxi],Track_eta[idxj],Track_phi[idxi],Track_phi[idxj]);
+
+      if (dr>0.3) continue;
+      if ((abs(Track_dz[idxj])<0.1) || (Track_fromPV[idxj]>1) ){
+        ntkdRcone[idxi] += 1;
+      }
+    }
+  }
+  return ntkdRcone;
+}
+
+// This function returns the modified PFIsolation
+ROOT::VecOps::RVec<float> Track_sumpt_dRcone_new(ROOT::RVecI SDVIdxLUT_TrackIdx, ROOT::RVecF Track_pt, ROOT::RVecF Track_eta, ROOT::RVecF Track_phi, ROOT::RVecF Track_dz, ROOT::RVecF Track_fromPV) {
+  ROOT::RVecI sumptdRcone(Track_pt.size(),-1);
+  ROOT::RVecI TrackIdx_InSV = removeDuplicate(SDVIdxLUT_TrackIdx);
+  for (size_t i=0;i<TrackIdx_InSV.size();++i){
+    int idxi = TrackIdx_InSV[i];
+    if (sumptdRcone[idxi]==-1)
+      sumptdRcone[idxi]=0;
+    for (size_t j=0; j<TrackIdx_InSV.size();++j){
+      int idxj = TrackIdx_InSV[j];
+      if (idxi==idxj) continue;
+      double dr = ROOT::VecOps::DeltaR(Track_eta[idxi],Track_eta[idxj],Track_phi[idxi],Track_phi[idxj]);
+
+      if (dr>0.3) continue;
+      if ((abs(Track_dz[idxj])<0.1) || (Track_fromPV[idxj]>1) ){
+        sumptdRcone[idxi] += Track_pt[idxj];
+      }
+      //else if (Track_AbsIso_all[idxi]!=Track_AbsIso_chg[idxi]){
+      //  Track_AbsIso_all[idxi] += Track_pt[idxj]/2.0;
+      //}
+    }
+  }
+  return sumptdRcone;
+}
+
+// This function returns the modified PFIsolation
+ROOT::VecOps::RVec<float> Track_modifiedIsolation(ROOT::RVecF Track_AbsIso, ROOT::RVecI SDVIdxLUT_TrackIdx, ROOT::RVecF Track_pt, ROOT::RVecF Track_eta, ROOT::RVecF Track_phi, ROOT::RVecF Track_dz, float dz_cut) {
+  ROOT::RVecF Track_AbsIso_new = Track_AbsIso;
+  ROOT::RVecI TrackIdx_InSV = removeDuplicate(SDVIdxLUT_TrackIdx);
+  for (size_t i=0;i<TrackIdx_InSV.size();++i){
+    int idxi = TrackIdx_InSV[i];
+    for (size_t j=0; j<TrackIdx_InSV.size();++j){
+      int idxj = TrackIdx_InSV[j];
+      if (idxi==idxj) continue;
+      double dr = ROOT::VecOps::DeltaR(Track_eta[idxi],Track_eta[idxj],Track_phi[idxi],Track_phi[idxj]);
+
+      if (dr>0.3) continue;
+      if (abs(Track_dz[idxj])<dz_cut){
+        Track_AbsIso_new[idxi] -= Track_pt[idxj];
+      }
+      //else if (Track_AbsIso_all[idxi]!=Track_AbsIso_chg[idxi]){
+      //  Track_AbsIso_all[idxi] += Track_pt[idxj]/2.0;
+      //}
+    }
+  }
+  for (size_t i=0; i<Track_AbsIso_new.size(); ++i){
+    if(Track_AbsIso_new[i]<0)
+      Track_AbsIso_new[i] = 0;
+  }
+  return Track_AbsIso_new;
+}
+
+// This function returns the modified PFIsolation
+ROOT::VecOps::RVec<float> Track_ntk_dRcone(ROOT::RVecI SDVIdxLUT_TrackIdx, ROOT::RVecF Track_pt, ROOT::RVecF Track_eta, ROOT::RVecF Track_phi, ROOT::RVecF Track_dz, float dz_cut) {
+  ROOT::RVecI ntkdRcone(Track_pt.size(),-1);
+  ROOT::RVecI TrackIdx_InSV = removeDuplicate(SDVIdxLUT_TrackIdx);
+  for (size_t i=0;i<TrackIdx_InSV.size();++i){
+    int idxi = TrackIdx_InSV[i];
+    if (ntkdRcone[idxi]==-1)
+      ntkdRcone[idxi]=0;
+    for (size_t j=0; j<TrackIdx_InSV.size();++j){
+      int idxj = TrackIdx_InSV[j];
+      if (idxi==idxj) continue;
+      double dr = ROOT::VecOps::DeltaR(Track_eta[idxi],Track_eta[idxj],Track_phi[idxi],Track_phi[idxj]);
+
+      if (dr>0.3) continue;
+      if (abs(Track_dz[idxj])<dz_cut){
+        ntkdRcone[idxi] += 1;
+      }
+      //else if (Track_AbsIso_all[idxi]!=Track_AbsIso_chg[idxi]){
+      //  Track_AbsIso_all[idxi] += Track_pt[idxj]/2.0;
+      //}
+    }
+  }
+  return ntkdRcone;
+}
+
+// This function returns the modified PFIsolation
+ROOT::VecOps::RVec<float> Track_sumpt_dRcone(ROOT::RVecI SDVIdxLUT_TrackIdx, ROOT::RVecF Track_pt, ROOT::RVecF Track_eta, ROOT::RVecF Track_phi, ROOT::RVecF Track_dz, float dz_cut) {
+  ROOT::RVecI sumptdRcone(Track_pt.size(),-1);
+  ROOT::RVecI TrackIdx_InSV = removeDuplicate(SDVIdxLUT_TrackIdx);
+  for (size_t i=0;i<TrackIdx_InSV.size();++i){
+    int idxi = TrackIdx_InSV[i];
+    if (sumptdRcone[idxi]==-1)
+      sumptdRcone[idxi]=0;
+    for (size_t j=0; j<TrackIdx_InSV.size();++j){
+      int idxj = TrackIdx_InSV[j];
+      if (idxi==idxj) continue;
+      double dr = ROOT::VecOps::DeltaR(Track_eta[idxi],Track_eta[idxj],Track_phi[idxi],Track_phi[idxj]);
+
+      if (dr>0.3) continue;
+      if (abs(Track_dz[idxj])<dz_cut){
+        sumptdRcone[idxi] += Track_pt[idxj];
+      }
+      //else if (Track_AbsIso_all[idxi]!=Track_AbsIso_chg[idxi]){
+      //  Track_AbsIso_all[idxi] += Track_pt[idxj]/2.0;
+      //}
+    }
+  }
+  return sumptdRcone;
+}
+
+// This function returns an array (with length of number of tracks) 
+// Each element represent the minimum dphi between a given track and all selected jets
+ROOT::VecOps::RVec<float> Track_minJetdphi(ROOT::RVecF Track_phi, ROOT::RVecF Jet_phi, int nTracks) {
+  ROOT::RVecF minJetdphi(nTracks,999);
+  for (size_t i=0; i<nTracks; ++i) {
+    ROOT::RVecF jet_dphi = ROOT::VecOps::abs(ROOT::VecOps::DeltaPhi(Jet_phi,Track_phi[i]));
+    minJetdphi[i] = ROOT::VecOps::Min(jet_dphi);
+  }
+  //printVec(minJetdphi);
+  return minJetdphi;
+}
+// This function returns an array (with length of number of tracks) 
+// Each element represent the minimum deta between a given track and all selected jets
+ROOT::VecOps::RVec<float> Track_minJetdeta(ROOT::RVecF Track_eta, ROOT::RVecF Jet_eta, int nTracks) {
+  //std::cout << "tracks : " << std::endl;
+  //printVec(Track_eta);
+  //std::cout << "jets: " << std::endl;
+  //printVec(Jet_eta);
+  ROOT::RVecF minJetdeta(nTracks,999);
+  for (size_t i=0; i<nTracks; ++i) {
+    ROOT::RVecF jet_deta = ROOT::VecOps::abs(Jet_eta-Track_eta[i]);
+    //std::cout << "  For track " << i << std::endl;
+    //printVec(jet_deta);
+    minJetdeta[i] = ROOT::VecOps::Min(jet_deta);
+  }
+  //printVec(minJetdeta);
+  return minJetdeta;
+}
+
+// This function returns an array (with length of number of tracks) 
+// Each element represent the minimum dphi between a given track and all selected jets
+ROOT::VecOps::RVec<float> Track_minJetdR(ROOT::RVecF Track_phi, ROOT::RVecF Track_eta, ROOT::RVecF Jet_phi, ROOT::RVecF Jet_eta, int nTracks) {
+  //std::cout << "tracks : " << std::endl;
+  //std::cout << "phi ";
+  //printVec(Track_phi);
+  //std::cout << "eta ";
+  //printVec(Track_eta);
+  //std::cout << "jets: " << std::endl;
+  //std::cout << "phi ";
+  //printVec(Jet_phi);
+  //std::cout << "eta ";
+  //printVec(Jet_eta);
+  ROOT::RVecF minJetdR(nTracks,999);
+  for (size_t i=0; i<nTracks; ++i) {
+    ROOT::RVecF jet_dphi = ROOT::VecOps::abs(ROOT::VecOps::DeltaPhi(Jet_phi,Track_phi[i]));
+    ROOT::RVecF jet_deta = ROOT::VecOps::abs(Jet_eta-Track_eta[i]);
+    ROOT::RVecF jet_dR = ROOT::VecOps::hypot(jet_dphi,jet_deta);
+
+    //std::cout << "  For track " << i << std::endl;
+    //std::cout << "  dphi: ";
+    //printVec(jet_dphi);
+    //std::cout << "  deta: ";
+    //printVec(jet_deta);
+    //std::cout << "  dR: ";
+    //printVec(jet_dR);
+    minJetdR[i] = ROOT::VecOps::Min(jet_dR);
+  }
+  //printVec(minJetdphi);
+  return minJetdR;
+}
+
+// This function returns an array (with length of number of tracks) 
+// Each element represent the minimum dphi between a given track and all selected jets
+ROOT::VecOps::RVec<float> Track_minJetdR_pt(ROOT::RVecF Track_phi, ROOT::RVecF Track_eta, ROOT::RVecF Jet_phi, ROOT::RVecF Jet_eta, ROOT::RVecF Jet_pt, int nTracks) {
+  //std::cout << "tracks : " << std::endl;
+  //std::cout << "phi ";
+  //printVec(Track_phi);
+  //std::cout << "eta ";
+  //printVec(Track_eta);
+  //std::cout << "jets: " << std::endl;
+  //std::cout << "phi ";
+  //printVec(Jet_phi);
+  //std::cout << "eta ";
+  //printVec(Jet_eta);
+  ROOT::RVecF min_pt(nTracks,999);
+  for (size_t i=0; i<nTracks; ++i) {
+    ROOT::RVecF jet_dphi = ROOT::VecOps::abs(ROOT::VecOps::DeltaPhi(Jet_phi,Track_phi[i]));
+    ROOT::RVecF jet_deta = ROOT::VecOps::abs(Jet_eta-Track_eta[i]);
+    ROOT::RVecF jet_dR = ROOT::VecOps::hypot(jet_dphi,jet_deta);
+    size_t min_idx = ROOT::VecOps::ArgMin(jet_dR);
+    float jet_dR_min = jet_dR[min_idx];
+    float jet_pt_min = Jet_pt[min_idx];
+
+    min_pt[i] = jet_pt_min;
+  }
+  //printVec(min_pt);
+  return min_pt;
+}
 // This function returns a list with the length of nTracks, each element labels whether the track is included in a SV or not
 ROOT::VecOps::RVec<int> Track_isInSV(ROOT::RVecI SDVIdxLUT_TrackIdx, int nTracks){
   ROOT::RVecI isInSV(nTracks,0);
@@ -231,19 +515,6 @@ ROOT::RVecF LLP_GenTkMaxpT(ROOT::RVecI SDVGenPart_isGentk, ROOT::RVecI SDVGenPar
     return LLP_gtkpTmax;
 }
 
-float dPhi(float phi1, float phi2) {
-  float x = phi1-phi2;
-  float o2pi = 1. / (2. * M_PI);
-  if (std::abs(x) <= float(M_PI))
-    return x;
-  float n = std::round(x * o2pi);
-  return x - n * float(2. * M_PI);
-}
-
-float dR(float phi1, float phi2, float eta1, float eta2) {
-    float dp = std::abs(dPhi(phi1, phi2));
-    return sqrt(dp*dp+(eta1-eta2)*(eta1-eta2));
-}
 
 ROOT::RVecF SDV_TkMaxdphi(ROOT::RVecI SDVIdxLUT_TrackIdx, ROOT::RVecI SDVIdxLUT_SecVtxIdx, int nSDV, ROOT::RVecF SDVTrack_phi)
 {

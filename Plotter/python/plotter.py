@@ -9,13 +9,14 @@ ROOT.TH1.SetDefaultSumw2(True)
 ROOT.gStyle.SetOptStat(0)
 
 class Plotter:
-  def __init__(self,s=None,datalabel="",outputDir="./",lumi=1,info_path="",input_json="",config=""):
+  def __init__(self,s=None,datalabel="",outputDir="./",lumi=1,info_path="",input_json="",config="",isData=False):
     self.s = None
     self.datalabel = datalabel
     self.outputDir = outputDir
     self.lumi = lumi
     self.info_path = info_path
     self.input_json = input_json
+    self.isData = isData
     with open(config, "r") as f_cfg:
       cfg = yaml.load(f_cfg, Loader=yaml.FullLoader)
     self.cfg = cfg
@@ -110,8 +111,11 @@ class Plotter:
     return d_filter
 
   def AddWeights(self,d,weight):
+    if self.isData:
+      d = d.Define("evt_weight","{0}".format(weight))
+    else:
       d = d.Define("evt_weight","Generator_weight*{0}".format(weight))
-      return d
+    return d
   
   def getRDF(self):
     '''
@@ -126,15 +130,18 @@ class Plotter:
     d = self.AddVarsWithSelection(d)
     if self.cfg['presel'] is not None:
       d = d.Filter(self.cfg['presel'])
-    nevt = self.getSumWeight()
-    if nevt==-1:
-      print("No sum weight record, using total events in NanoAOD...")
-      dw = ROOT.RDataFrame("Runs",fns)
-      nevt = dw.Sum("genEventSumw")
-      nevt = nevt.GetValue()
-      print("Total events in NanoAOD {}".format(nevt))
-    xsec_weights = self.lumi*self.s.xsec/(nevt)
-    print("Total gen events {}, xsec {}, weight {}".format(nevt,self.s.xsec,xsec_weights))
+    if self.lumi==-1:
+      xsec_weights = 1
+    else:
+      nevt = self.getSumWeight()
+      if nevt==-1:
+        print("No sum weight record, using total events in NanoAOD...")
+        dw = ROOT.RDataFrame("Runs",fns)
+        nevt = dw.Sum("genEventSumw")
+        nevt = nevt.GetValue()
+        print("Total events in NanoAOD {}".format(nevt))
+      xsec_weights = self.lumi*self.s.xsec/(nevt)
+      print("Total gen events {}, xsec {}, weight {}".format(nevt,self.s.xsec,xsec_weights))
     d = self.AddWeights(d,xsec_weights)
     return d,xsec_weights
 
@@ -145,7 +152,10 @@ class Plotter:
       plots = self.dplots[varlabel][0]
       plots_2d = self.dplots[varlabel][1]
       for plt in plots:
-        h = d.Histo1D(tuple(self.cfg['plot_setting'][plt]),plt+varlabel,weight)
+        if self.isData:
+          h = d.Histo1D(tuple(self.cfg['plot_setting'][plt]),plt+varlabel)
+        else:
+          h = d.Histo1D(tuple(self.cfg['plot_setting'][plt]),plt+varlabel,weight)
         hs.append(h)
   
       for x in plots_2d:
@@ -159,7 +169,10 @@ class Plotter:
           ytitle_idx1 = yax[1].find(';',ytitle_idx0+1)
           ytitle = yax[1][ytitle_idx0+1:ytitle_idx1]
           hset = (xax[0]+'_vs_'+yax[0],";{0};{1}".format(xtitle,ytitle),xax[2],xax[3],xax[4],yax[2],yax[3],yax[4])
-          h = d.Histo2D(hset,x+varlabel,y_varlabel,weight)
+          if self.isData:
+            h = d.Histo2D(hset,x+varlabel,y_varlabel)
+          else:
+            h = d.Histo2D(hset,x+varlabel,y_varlabel,weight)
           hs.append(h)
   
       for i in range(len(hs)):
@@ -180,14 +193,20 @@ class Plotter:
       plots_nm1 = []
 
     for plt in plots_1d:
-      h = d.Histo1D(tuple(self.cfg['plot_setting'][plt]),plt+varlabel,weight)
+      if self.isData:
+        h = d.Histo1D(tuple(self.cfg['plot_setting'][plt]),plt+varlabel)
+      else:
+        h = d.Histo1D(tuple(self.cfg['plot_setting'][plt]),plt+varlabel,weight)
       hs.append(h)
 
     for plt in plots_nm1:
       nm1_setting = (self.cfg['plot_setting'][plt[0]]).copy()
       nm1_setting[0] += 'nm1'
       nm1_setting = tuple(nm1_setting)
-      h = d.Histo1D(nm1_setting,plt[0]+varlabel+'_nm1',weight)
+      if self.isData:
+        h = d.Histo1D(nm1_setting,plt[0]+varlabel+'_nm1')
+      else:
+        h = d.Histo1D(nm1_setting,plt[0]+varlabel+'_nm1',weight)
       hs.append(h)
   
     for x,y in plots_2d:
@@ -209,7 +228,10 @@ class Plotter:
           print("Warning! Variable {} not registered in this level!".format(y))
           y2d = y
         #h = d.Histo2D(hset,x+varlabel,y+varlabel,weight)
-        h = d.Histo2D(hset,x2d,y2d,weight)
+        if self.isData:
+          h = d.Histo2D(hset,x2d,y2d)
+        else:
+          h = d.Histo2D(hset,x2d,y2d,weight)
         hs.append(h)
   
     for i in range(len(hs)):

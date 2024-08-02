@@ -25,7 +25,15 @@ def loadData(samples, json_path, label):
       s.setEOSDirs(label=label,dirs=d[label]["logical_dir"][s.name])
       setable = True
     if not setable:
-      print("Sample {} has no records!".format(b.name))
+      print("Sample {} has no records!".format(s.name))
+
+met_2018 = [
+    Sample("met2018a", xsec=-1),
+    Sample("met2018b", xsec=-1),
+    Sample("met2018c", xsec=-1),
+    Sample("met2018d", xsec=-1),
+    Sample("met2018d_rest", xsec=-1),
+    ]
 
 znunu_2018 = [
     Sample("zjetstonunuht0100_2018",xsec=344.83),
@@ -47,20 +55,49 @@ wlnu_2018 = [
     Sample("wjetstolnuht2500_2018",xsec=0.03255),
     ]
 
+#stop_2018 = [
+#    Sample("stop_M600_588_ct200_2018", xsec=0.205, filter_eff=0.294),
+#    Sample("stop_M600_585_ct20_2018", xsec=0.205, filter_eff=0.292),
+#    Sample("stop_M600_580_ct2_2018", xsec=0.205, filter_eff=0.292),
+#    Sample("stop_M600_575_ct0p2_2018", xsec=0.205, filter_eff=0.292),
+#    Sample("stop_M1000_988_ct200_2018", xsec=0.00683, filter_eff=0.343),
+#    Sample("stop_M1000_985_ct20_2018", xsec=0.00683, filter_eff=0.347),
+#    Sample("stop_M1000_980_ct2_2018", xsec=0.00683, filter_eff=0.348),
+#    Sample("stop_M1000_975_ct0p2_2018", xsec=0.00683, filter_eff=0.348),
+#    ]
+
 stop_2018 = [
-    Sample("stop_M600_588_ct200_2018", xsec=0.205, filter_eff=0.294),
-    Sample("stop_M600_585_ct20_2018", xsec=0.205, filter_eff=0.292),
-    Sample("stop_M600_580_ct2_2018", xsec=0.205, filter_eff=0.292),
-    Sample("stop_M1000_988_ct200_2018", xsec=0.00683, filter_eff=0.343),
-    Sample("stop_M1000_985_ct20_2018", xsec=0.00683, filter_eff=0.347),
-    Sample("stop_M1000_980_ct2_2018", xsec=0.00683, filter_eff=0.348),
+    Sample("stop_M600_588_ct200_2018", xsec=0.205),
+    Sample("stop_M600_585_ct20_2018", xsec=0.205),
+    Sample("stop_M600_580_ct2_2018", xsec=0.205),
+    Sample("stop_M600_575_ct0p2_2018", xsec=0.205),
+    Sample("stop_M1000_988_ct200_2018", xsec=0.00683),
+    Sample("stop_M1000_985_ct20_2018", xsec=0.00683),
+    Sample("stop_M1000_980_ct2_2018", xsec=0.00683),
+    Sample("stop_M1000_975_ct0p2_2018", xsec=0.00683),
+    Sample("stop_M1400_1388_ct200_2018", xsec=0.473E-03),
+    Sample("stop_M1400_1385_ct20_2018", xsec=0.473E-03),
+    Sample("stop_M1400_1380_ct2_2018", xsec=0.473E-03),
+    Sample("stop_M1400_1375_ct0p2_2018", xsec=0.473E-03),
     ]
 
 c1n2_2018 = [
-    Sample("C1N2_M600_588_ct200_2018", xsec=1e-03),
+    Sample("C1N2_M600_588_ct200_2018", xsec=20.1372e-03),
+    Sample("C1N2_M600_585_ct20_2018", xsec=20.1372e-03),
+    Sample("C1N2_M600_580_ct2_2018", xsec=20.1372e-03),
+    Sample("C1N2_M600_575_ct0p2_2018", xsec=20.1372e-03),
+    #Sample("C1N2_M1000_988_ct200_2018", xsec=1.34352e-03),
+    Sample("C1N2_M1000_985_ct20_2018", xsec=1.34352e-03),
+    Sample("C1N2_M1000_980_ct2_2018", xsec=1.34352e-03),
+    Sample("C1N2_M1000_975_ct0p2_2018", xsec=1.34352e-03),
+    Sample("C1N2_M1400_1388_ct200_2018", xsec=0.131074e-03),
+    Sample("C1N2_M1400_1385_ct20_2018", xsec=0.131074e-03),
+    Sample("C1N2_M1400_1380_ct2_2018", xsec=0.131074e-03),
+    Sample("C1N2_M1400_1375_ct0p2_2018", xsec=0.131074e-03),
     ]
 
 all_samples = [
+    met_2018,
     znunu_2018,
     wlnu_2018,
     stop_2018,
