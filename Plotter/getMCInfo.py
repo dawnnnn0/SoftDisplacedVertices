@@ -47,6 +47,8 @@ def get_metadata(ss, sample_version):
             yaml_dict[sp.name]['files'].append({'filename': filename,
                                              'sumWeights': sum(lumisumWeights),
                                              'sumPassWeights': sum(lumisumPassWeights)})
+            if lumis._tfile:
+              lumis._tfile.Close()
 
         
         totalsumWeights = sum(sumWeights)
@@ -123,6 +125,8 @@ if __name__ == '__main__':
     parser.add_argument('--outDir')
     parser.add_argument('--json')
     args = parser.parse_args()
-    input_samples = s.stop_2018
+    #input_samples = s.stop_2018# + s.c1n2_2018
+    #input_samples = s.c1n2_2018
+    input_samples = s.wlnu_2017
     s.loadData(input_samples,os.path.join(os.environ['CMSSW_BASE'],'src/SoftDisplacedVertices/Samples/json/{}'.format(args.json)),args.sample_version)
     get_metadata(input_samples,args.sample_version)
