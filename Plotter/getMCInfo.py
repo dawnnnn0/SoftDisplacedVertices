@@ -22,13 +22,16 @@ def get_metadata(ss, sample_version):
       yaml_dict[sp.name] = {'totalsumWeights': None,
                          'totalsumPassWeights': None,
                          'files': []}
-
+      print('sp.name: ', sp.name)
+      print('sample_dir: ', sample_dir)
+      filename_list = []
+      sumPassWeights = []
+      sumWeights = []
       for root, dirnames, filenames in os.walk(sample_dir):
-        filename_list = []
-        sumPassWeights = []
-        sumWeights = []
+        
 
         for filename in fnmatch.filter(filenames, '*.root'):
+            print(filename)
             filename_list.append(filename)
             file_path = os.path.join(root, filename)
             lumis = Lumis(file_path)
@@ -47,15 +50,16 @@ def get_metadata(ss, sample_version):
             yaml_dict[sp.name]['files'].append({'filename': filename,
                                              'sumWeights': sum(lumisumWeights),
                                              'sumPassWeights': sum(lumisumPassWeights)})
+            
             if lumis._tfile:
               lumis._tfile.Close()
 
         
-        totalsumWeights = sum(sumWeights)
-        totalsumPassWeights = sum(sumPassWeights)
+      totalsumWeights = sum(sumWeights)
+      totalsumPassWeights = sum(sumPassWeights)
 
-        yaml_dict[sp.name]['totalsumWeights'] = totalsumWeights
-        yaml_dict[sp.name]['totalsumPassWeights'] = totalsumPassWeights
+      yaml_dict[sp.name]['totalsumWeights'] = totalsumWeights
+      yaml_dict[sp.name]['totalsumPassWeights'] = totalsumPassWeights
 
       if not yaml_dict[sp.name]['files']:
           yaml_dict.pop(sp.name)
@@ -125,8 +129,6 @@ if __name__ == '__main__':
     parser.add_argument('--outDir')
     parser.add_argument('--json')
     args = parser.parse_args()
-    #input_samples = s.stop_2018# + s.c1n2_2018
-    #input_samples = s.c1n2_2018
-    input_samples = s.wlnu_2017
+    input_samples = s.znunu_2017
     s.loadData(input_samples,os.path.join(os.environ['CMSSW_BASE'],'src/SoftDisplacedVertices/Samples/json/{}'.format(args.json)),args.sample_version)
     get_metadata(input_samples,args.sample_version)
