@@ -50,6 +50,9 @@ def get_metadata(ss, sample_version):
             yaml_dict[sp.name]['files'].append({'filename': filename,
                                              'sumWeights': sum(lumisumWeights),
                                              'sumPassWeights': sum(lumisumPassWeights)})
+            
+            if lumis._tfile:
+              lumis._tfile.Close()
 
         
       totalsumWeights = sum(sumWeights)
