@@ -1,25 +1,48 @@
 import os
 import yaml
 import ROOT
+import correctionlib
+correctionlib.register_pyroot_binding()
 import SoftDisplacedVertices.Samples.Samples as s
 ROOT.gInterpreter.Declare('#include "{}/src/SoftDisplacedVertices/Plotter/RDFHelper.h"'.format(os.environ['CMSSW_BASE']))
-ROOT.EnableImplicitMT(4)
+ROOT.gInterpreter.Declare('#include "{}/src/SoftDisplacedVertices/Plotter/METxyCorrection.h"'.format(os.environ['CMSSW_BASE']))
+ROOT.EnableImplicitMT(16)
 ROOT.gROOT.SetBatch(ROOT.kTRUE)
 ROOT.TH1.SetDefaultSumw2(True)
 ROOT.gStyle.SetOptStat(0)
 
 class Plotter:
-  def __init__(self,s=None,datalabel="",outputDir="./",lumi=1,info_path="",input_json="",config="",isData=False):
+  def __init__(self,s=None,datalabel="",outputDir="./",lumi=1,info_path="",input_json="",config="",year="",isData=False):
     self.s = None
     self.datalabel = datalabel
     self.outputDir = outputDir
     self.lumi = lumi
     self.info_path = info_path
     self.input_json = input_json
+    self.year = year
     self.isData = isData
     with open(config, "r") as f_cfg:
       cfg = yaml.load(f_cfg, Loader=yaml.FullLoader)
     self.cfg = cfg
+    if not self.isData:
+      self.setCorrections()
+
+  def setCorrections(self):
+    if self.cfg['corrections'] is not None:
+      if self.cfg['corrections']['PU'] is not None:
+        ROOT.gInterpreter.Declare('auto puf = correction::CorrectionSet::from_file("{}");'.format(self.cfg['corrections']['PU']['path']))
+        ROOT.gInterpreter.Declare('auto pu = puf->at("{}");'.format(self.cfg['corrections']['PU']['name']))
+
+  def applyCorrections(self,d):
+    self.weightstr = ''
+    if self.isData:
+      d = d.Define("puweight","1")
+    else:
+      if self.cfg['corrections'] is not None:
+        if self.cfg['corrections']['PU'] is not None:
+          d = d.Define("puweight",('pu->evaluate({{Pileup_nTrueInt,"{0}"}})'.format(self.cfg['corrections']['PU']['mode'])))
+          self.weightstr += ' * puweight'
+    return d
 
 
   def setLumi(self,lumi):
@@ -53,19 +76,10 @@ class Plotter:
     return -1
   
   def AddVars(self,d):
-      d = d.Define("SDVSecVtx_dphi_L_MET","acos(cos(SDVSecVtx_L_phi-MET_phi))")
-      d = d.Define("SDVSecVtx_dphi_L_jet0","acos(cos(SDVSecVtx_L_phi-Jet_phi[0]))")
-  
-      d = d.Define("SDVSecVtx_Lxy_err","SDVSecVtx_Lxy/SDVSecVtx_LxySig")
-      d = d.Define("SDVSecVtx_dlen_err","SDVSecVtx_dlen/SDVSecVtx_dlenSig")
-      d = d.Define("SDVSecVtx_L_eta_abs","abs(SDVSecVtx_L_eta)")
-  
-      d = d.Define("SDVSecVtx_TkMaxdphi","SDV_TkMaxdphi(SDVIdxLUT_TrackIdx, SDVIdxLUT_SecVtxIdx, nSDVSecVtx, SDVTrack_phi)")
-      d = d.Define("SDVSecVtx_TkMindphi","SDV_TkMindphi(SDVIdxLUT_TrackIdx, SDVIdxLUT_SecVtxIdx, nSDVSecVtx, SDVTrack_phi)")
-      d = d.Define("SDVSecVtx_TkMaxdeta","SDV_TkMaxdphi(SDVIdxLUT_TrackIdx, SDVIdxLUT_SecVtxIdx, nSDVSecVtx, SDVTrack_eta)")
-      d = d.Define("SDVSecVtx_TkMindeta","SDV_TkMindphi(SDVIdxLUT_TrackIdx, SDVIdxLUT_SecVtxIdx, nSDVSecVtx, SDVTrack_eta)")
-      d = d.Define("SDVSecVtx_TkMaxdR","SDV_TkMaxdR(SDVIdxLUT_TrackIdx, SDVIdxLUT_SecVtxIdx, nSDVSecVtx, SDVTrack_eta, SDVTrack_phi)")
-      d = d.Define("SDVSecVtx_TkMindR","SDV_TkMindR(SDVIdxLUT_TrackIdx, SDVIdxLUT_SecVtxIdx, nSDVSecVtx, SDVTrack_eta, SDVTrack_phi)")
+      # MET xy corrections
+      d = d.Define("MET_corr",'SDV::METXYCorr_Met_MetPhi(MET_pt,MET_phi,run,"{}",{},PV_npvs)'.format(self.year,"false" if self.isData else "true"))
+      d = d.Define("MET_pt_corr",'MET_corr.first')
+      d = d.Define("MET_phi_corr",'MET_corr.second')
       if self.cfg['new_variables'] is not None:
         for newvar in self.cfg['new_variables']:
           if isinstance(self.cfg['new_variables'][newvar],list):
@@ -74,6 +88,11 @@ class Plotter:
           elif isinstance(self.cfg['new_variables'][newvar],str):
             var_define = self.cfg['new_variables'][newvar]
           d = d.Define(newvar,var_define)
+      # HEM veto for 2018 data
+      if self.year=="2018" and self.isData:
+        d = d.Define("nJetHEM", self.cfg['nJetHEM'])
+      else:
+        d = d.Define("nJetHEM", "0")
       return d
   
   def AddVarsWithSelection(self,d):
@@ -112,9 +131,11 @@ class Plotter:
 
   def AddWeights(self,d,weight):
     if self.isData:
+      d = self.applyCorrections(d)
       d = d.Define("evt_weight","{0}".format(weight))
     else:
-      d = d.Define("evt_weight","Generator_weight*{0}".format(weight))
+      d = self.applyCorrections(d)
+      d = d.Define("evt_weight","Generator_weight*{0}{1}".format(weight,self.weightstr))
     return d
   
   def getRDF(self):

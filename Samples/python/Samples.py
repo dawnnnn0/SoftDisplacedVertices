@@ -27,6 +27,14 @@ def loadData(samples, json_path, label):
     if not setable:
       print("Sample {} has no records!".format(s.name))
 
+wlnu_2017 = [
+    Sample("wjetstolnuht2500_2017",xsec=0.03255),
+    ]
+
+znunu_2017 = [
+    Sample("zjetstonunuht1200_2017",xsec=0.355),
+    ]
+
 met_2018 = [
     Sample("met2018a", xsec=-1),
     Sample("met2018b", xsec=-1),
@@ -71,21 +79,29 @@ stop_2018 = [
     ]
 
 c1n2_2018 = [
-    Sample("C1N2_M600_588_ct200_2018", xsec=20.1372e-03),
-    Sample("C1N2_M600_585_ct20_2018", xsec=20.1372e-03),
-    Sample("C1N2_M600_580_ct2_2018", xsec=20.1372e-03),
-    Sample("C1N2_M600_575_ct0p2_2018", xsec=20.1372e-03),
-    #Sample("C1N2_M1000_988_ct200_2018", xsec=1.34352e-03),
-    Sample("C1N2_M1000_985_ct20_2018", xsec=1.34352e-03),
-    Sample("C1N2_M1000_980_ct2_2018", xsec=1.34352e-03),
-    Sample("C1N2_M1000_975_ct0p2_2018", xsec=1.34352e-03),
-    Sample("C1N2_M1400_1388_ct200_2018", xsec=0.131074e-03),
-    Sample("C1N2_M1400_1385_ct20_2018", xsec=0.131074e-03),
-    Sample("C1N2_M1400_1380_ct2_2018", xsec=0.131074e-03),
-    Sample("C1N2_M1400_1375_ct0p2_2018", xsec=0.131074e-03),
+    #Sample("C1N2_M600_588_ct200_2018", xsec=20.1372e-03),
+    #Sample("C1N2_M600_585_ct20_2018", xsec=20.1372e-03),
+    #Sample("C1N2_M600_580_ct2_2018", xsec=20.1372e-03),
+    #Sample("C1N2_M600_575_ct0p2_2018", xsec=20.1372e-03),
+    ##Sample("C1N2_M1000_988_ct200_2018", xsec=1.34352e-03),
+    #Sample("C1N2_M1000_985_ct20_2018", xsec=1.34352e-03),
+    #Sample("C1N2_M1000_980_ct2_2018", xsec=1.34352e-03),
+    #Sample("C1N2_M1000_975_ct0p2_2018", xsec=1.34352e-03),
+    #Sample("C1N2_M1400_1388_ct200_2018", xsec=0.131074e-03),
+    #Sample("C1N2_M1400_1385_ct20_2018", xsec=0.131074e-03),
+    #Sample("C1N2_M1400_1380_ct2_2018", xsec=0.131074e-03),
+    #Sample("C1N2_M1400_1375_ct0p2_2018", xsec=0.131074e-03),
+    Sample("C1N2_M1000_988_ct200_2018", xsec=1e-03),
+    Sample("C1N2_M1000_988_ct2_2018", xsec=1e-03),
+    Sample("C1N2_M1000_988_ct0p2_2018", xsec=1e-03),
+    Sample("C1N2_M1000_980_ct200_2018", xsec=1e-03),
+    Sample("C1N2_M1000_980_ct2_2018", xsec=1e-03),
+    Sample("C1N2_M1000_980_ct0p2_2018", xsec=1e-03),
     ]
 
 all_samples = [
+    wlnu_2017,
+    znunu_2017,
     met_2018,
     znunu_2018,
     wlnu_2018,

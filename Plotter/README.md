@@ -69,3 +69,17 @@ To compare histograms, do:
 ```
 python3 compare.py --input /users/ang.li/public/SoftDV/CMSSW_13_3_0/src/SoftDisplacedVertices/Plotter/plots_ML_METSlice/bkg_2018_MLNanoAODv0_hist.root /users/ang.li/public/SoftDV/CMSSW_13_3_0/src/SoftDisplacedVertices/Plotter/plots_ML_METSlice/stop_M600_588_ct200_2018_MLNanoAODv0_hist.root --dirs '' --nice 'signal' 'bkg' --scale
 ```
+
+To [make CMS style comparison plots](https://cms-analysis.docs.cern.ch/guidelines/plotting/#__tabbed_1_2), new package is required:
+
+Do this once in CMSSW:
+```
+cd CMSSW_13_3_0/src
+scram-venv
+pip3 install cmsstyle
+```
+
+Once the enviroment is set up, do:
+```
+python3 compare_data_new.py --data data_hist.root --bkg wjets_2018_hist.root zjets_2018_hist.root --bkgnice "WJets" "ZJets" --signal stop_M600_585_ct20_2018_hist.root --signice "signal" --output dir_output/ --dirs "All_SDVTrack_all" --commands "h.Rebin(5) if ('LxySig' in h.GetName()) else None" --ratio 
+```

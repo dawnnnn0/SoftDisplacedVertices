@@ -25,6 +25,8 @@ parser.add_argument('--metadata', type=str,default='',
                         help='metadata for sum gen weights of MC samples') 
 parser.add_argument('--datalabel', type=str,
                         help='datalabel to use in json file') 
+parser.add_argument('--year', type=str,
+                        help='Which year does the data correspond to') 
 parser.add_argument('--data', action='store_true', default=False,
                         help='Whether the input is data') 
 parser.add_argument('--submit', action='store_true', default=False,
@@ -62,9 +64,9 @@ if __name__=="__main__":
       #command += "cp %s /tmp/%s/.;" %(os.path.join(os.environ['CMSSW_BASE'],'src/SoftDisplacedVertices/Plotter/autoplotter.py'),uuid_)
       #command += "python3 autoplotter.py --sample {} --output ./ --config {};".format(samp.name,args.config)
       if args.metadata=='':
-        command += "python3 autoplotter.py --sample {} --output ./ --config ./{} --lumi {} --json {} --datalabel {} {};".format(samp.name,os.path.basename(args.config),args.lumi,args.json,args.datalabel,data)
+        command += "python3 autoplotter.py --sample {} --output ./ --config ./{} --lumi {} --json {} --datalabel {} --year {} {};".format(samp.name,os.path.basename(args.config),args.lumi,args.json,args.datalabel,args.year,data)
       else:
-        command += "python3 autoplotter.py --sample {} --output ./ --config ./{} --lumi {} --json {} --metadata {} --datalabel {} {};".format(samp.name,os.path.basename(args.config),args.lumi,args.json,args.metadata,args.datalabel, data)
+        command += "python3 autoplotter.py --sample {} --output ./ --config ./{} --lumi {} --json {} --metadata {} --datalabel {} {} {};".format(samp.name,os.path.basename(args.config),args.lumi,args.json,args.metadata,args.datalabel, args.year, data)
       command += "cp ./*.root {}/.;".format(args.output)
       command += "\n"
       jobf.write(command)
@@ -78,7 +80,7 @@ if __name__=="__main__":
     s.loadData(all_samples,os.path.join(os.environ['CMSSW_BASE'],'src/SoftDisplacedVertices/Samples/json/{}'.format(args.json)),args.datalabel)
     info_path = os.path.join(os.environ['CMSSW_BASE'],'src/SoftDisplacedVertices/Samples/json/{}'.format(args.metadata))
 
-    plotter = p.Plotter(datalabel=args.datalabel,outputDir=args.output,lumi=lumi,info_path=info_path,config=args.config,isData=args.data)
+    plotter = p.Plotter(datalabel=args.datalabel,outputDir=args.output,lumi=lumi,info_path=info_path,config=args.config,year=args.year,isData=args.data)
 
     for sample in all_samples:
       plotter.setSample(sample)
