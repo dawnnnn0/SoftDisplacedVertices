@@ -42,6 +42,32 @@ T removeDuplicate(T v) {
     return v;
 }
 
+// This function calculates the closest jet for each vertex by looking for the smallest dR
+// Then it calculated the dR, dphi, and deta between the vertex and the closest jet
+// It returns an array of 3 arrays, each array has the length of the number of vertices
+// The first array is the dR between vertex displacement vector and the closest jet
+// The second array is the dphi, and the third array is the deta
+std::vector<ROOT::VecOps::RVec<float>> Vertex_mindRdetadphi(ROOT::RVecF Vertex_phi, ROOT::RVecF Vertex_eta, ROOT::RVecF Jet_phi, ROOT::RVecF Jet_eta) {
+  size_t nVertex = Vertex_phi.size();
+  ROOT::RVecF minJetdR(nVertex,999);
+  ROOT::RVecF minJetdphi(nVertex,999);
+  ROOT::RVecF minJetdeta(nVertex,999);
+  if (Jet_phi.size()>0){
+      for (size_t i=0; i<nVertex; ++i) {
+        ROOT::RVecF jet_dphi = ROOT::VecOps::abs(ROOT::VecOps::DeltaPhi(Jet_phi,Vertex_phi[i]));
+        ROOT::RVecF jet_deta = ROOT::VecOps::abs(Jet_eta-Vertex_eta[i]);
+        ROOT::RVecF jet_dR = ROOT::VecOps::hypot(jet_dphi,jet_deta);
+    
+        size_t jetidx = ROOT::VecOps::ArgMin(jet_dR);
+        minJetdR[i] = jet_dR[jetidx];
+        minJetdphi[i] = jet_dphi[jetidx];
+        minJetdeta[i] = jet_deta[jetidx];
+      }
+  }
+  std::vector<ROOT::VecOps::RVec<float>> mindRdetadphi = {minJetdR,minJetdphi,minJetdeta};
+  return mindRdetadphi;
+}
+
 // This function returns the modified PFIsolation
 ROOT::VecOps::RVec<float> Track_modifiedIsolation_new(ROOT::RVecF Track_AbsIso_chg, ROOT::RVecF Track_AbsIso_neu, ROOT::RVecF Track_AbsIso_pho, ROOT::RVecF Track_AbsIso_pu, ROOT::RVecI SDVIdxLUT_TrackIdx, ROOT::RVecF Track_pt, ROOT::RVecF Track_eta, ROOT::RVecF Track_phi, ROOT::RVecF Track_dz, ROOT::RVecF Track_fromPV, ROOT::RVecF Track_AbsIso_all) {
   ROOT::RVecF Track_AbsIso_chg_new = Track_AbsIso_chg;

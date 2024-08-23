@@ -109,8 +109,12 @@ parser.add_argument('--output', type=str,
                     help='output dir')
 parser.add_argument('--dirs', type=str, nargs='+',
                     help='directories to compare')
-parser.add_argument('--scale', action='store_true', default=False,
-                    help='Whether to scale the plot')
+parser.add_argument('--scale_to_data', action='store_true', default=False,
+                    help='Whether to scale the bkg plot according to data')
+parser.add_argument('--sig_scale', type=float, nargs='+',default=[],
+                    help='Scale factors for signal')
+parser.add_argument('--norm', action='store_true', default=False,
+                    help='Whether to normalise all the histograms')
 parser.add_argument('--commands', type=str, nargs='+',
                     help="Additional commands, such as rebinning or set range etc.")
 parser.add_argument('--ratio', action='store_true', default=False,
@@ -118,7 +122,7 @@ parser.add_argument('--ratio', action='store_true', default=False,
 
 args = parser.parse_args()
 
-signal_colors = [ROOT.kGreen+1,ROOT.kRed+1,ROOT.kYellow+1,ROOT.kMagenta+1,ROOT.kCyan+1,ROOT.kOrange+1]
+signal_colors = [ROOT.kGreen,ROOT.kRed,ROOT.kYellow+1,ROOT.kMagenta+1,ROOT.kCyan+1,ROOT.kOrange+1]
 bkg_colors = [ROOT.kBlue-9, ROOT.kBlue-5, ROOT.kCyan-9]
 
 def AddHists(hs,ws):
@@ -147,7 +151,8 @@ def h_command(h):
     exec(c)
     return
 
-def comparehists_cms(name,hs,colors,legends,scale=False, ratio=True):
+def comparehists_cms(name,hs,colors,legends,sig_scale=[], scale_to_data=False, ratio=True, norm=False):
+  assert not (scale_to_data and norm), "Cannot set scale_to_data and norm in the same time!"
   if colors is None:
     colors = colors_global[:len(hs)]
   y_max = float('-inf')
@@ -167,7 +172,9 @@ def comparehists_cms(name,hs,colors,legends,scale=False, ratio=True):
         d_bkg[legends[k][i]] = h
       elif k=='sig':
         h.SetLineColor(colors[k][i])
-        h.SetLineWidth(2)
+        h.SetLineWidth(3)
+        if len(sig_scale)>0:
+          h.Scale(sig_scale[i])
   data = None
   bkg_mc = None
   if len(hs['data'])>0:
@@ -176,18 +183,30 @@ def comparehists_cms(name,hs,colors,legends,scale=False, ratio=True):
   if len(hs['bkg'])>0:
     w = [1]*len(hs['bkg'])
     bkg_mc = AddHists(hs['bkg'],w)
-  if scale and (data is not None and bkg_mc is not None) and bkg_mc.Integral()!=0:
-    w = [data.Integral()/bkg_mc.Integral()]*len(hs['bkg'])
-    w_value = data.Integral()/bkg_mc.Integral()
+  if scale_to_data and (data is not None and bkg_mc is not None) and bkg_mc.Integral()!=0:
+    w = [data.Integral(0,1000000)/bkg_mc.Integral(0,1000000)]*len(hs['bkg'])
+    w_value = data.Integral(0,1000000)/bkg_mc.Integral(0,1000000)
     bkg_mc.Scale(w_value)
     for h in d_bkg:
       d_bkg[h].Scale(w_value)
+
+  if norm:
+    if data is not None:
+      data.Scale(1.0/data.Integral(0,1000000))
+    if bkg_mc is not None:
+      w_value = 1.0/bkg_mc.Integral(0,1000000)
+      bkg_mc.Scale(w_value)
+      for h in d_bkg:
+        d_bkg[h].Scale(w_value)
+    for h in hs['sig']:
+      h.Scale(1.0/h.Integral(0,1000000))
 
   hlist = []
   if data is not None:
     hlist.append(data)
   if bkg_mc is not None:
     hlist.append(bkg_mc)
+    hlist.append(d_bkg[legends['bkg'][0]])
   for h in hs['sig']:
     hlist.append(h)
   for h in hlist:
@@ -197,8 +216,8 @@ def comparehists_cms(name,hs,colors,legends,scale=False, ratio=True):
     y_max = max(y_max,h.GetMaximum())
     y_min_log = min(y_min_log,h.GetMinimum(1e-08))
     y_min = min(y_min,h.GetMinimum())
-    x_max = max(x_max,h.GetXaxis().GetXmax())
-    x_min = min(x_min,h.GetXaxis().GetXmin())
+    x_max = max(x_max,h.GetXaxis().GetBinUpEdge(h.GetXaxis().GetLast()))
+    x_min = min(x_min,h.GetXaxis().GetBinLowEdge(h.GetXaxis().GetFirst()))
 
   if data is not None:
     CMS.SetExtraText("Preliminary")
@@ -252,6 +271,9 @@ def comparehists_cms(name,hs,colors,legends,scale=False, ratio=True):
     ref_line = ROOT.TLine(x_min, 1, x_max, 1)
     CMS.cmsDrawLine(ref_line, lcolor=ROOT.kBlack, lstyle=ROOT.kDotted)
 
+  if ratio:
+    canv.cd(1)
+  CMS.cmsCanvasResetAxes(ROOT.gPad, x_min, x_max, y_min, (y_max-y_min)/0.65+y_min)
   canv.Update()
   CMS.SaveCanvas(canv,"{}.pdf".format(args.output+'/'+name),False)
   CMS.SaveCanvas(canv,"{}.png".format(args.output+'/'+name),False)
@@ -266,126 +288,14 @@ def comparehists_cms(name,hs,colors,legends,scale=False, ratio=True):
   CMS.SaveCanvas(canv,"{}_log.pdf".format(args.output+'/'+name),False)
   CMS.SaveCanvas(canv,"{}_log.png".format(args.output+'/'+name),True)
 
-def datamccomparison(name,hs,colors,legends,scale=False, ratio=True):
-  c = ROOT.TCanvas("c"+name,"c"+name,1000,800)
-  l = ROOT.TLegend(0.72,0.7,1.0,0.9)
-  for k in hs:
-    for i in range(len(hs[k])):
-      h = hs[k][i]
-      move_overflows_into_visible_bins(h)
-      if k=='data':
-        h.SetLineColor(ROOT.kBlack)
-        h.SetMarkerStyle(20)
-        h.SetMarkerSize(0.8)
-      elif k=='bkg':
-        h.SetLineColor(ROOT.kBlue)
-        h.SetFillColor(ROOT.kBlue-9)
-        #h.SetFillStyle(1001)
-        h.SetLineColor(colors[k][i])
-        h.SetFillColor(colors[k][i])
-      elif k=='sig':
-        h.SetLineColor(colors[k][i])
-        h.SetLineWidth(2)
-  w =  [1]*len(hs['data'])
-  data = AddHists(hs['data'],w)
-  w = [1]*len(hs['bkg'])
-  bkg_mc = AddHists(hs['bkg'],w)
-  bkg_mc.SetLineColor(0)
-  bkg_mc.SetFillColor(1)
-  bkg_mc.SetFillStyle(3254)
-  if scale and bkg_mc.Integral()!=0:
-    w = [data.Integral()/bkg_mc.Integral()]*len(hs['bkg'])
-    bkg_mc.Scale(data.Integral()/bkg_mc.Integral())
-  bkg_stack = StackHists(hs['bkg'],w)
-  l.SetBorderSize(0)
-  l.AddEntry(data, "data", "lep")
-  for k in ['bkg','sig']:
-    for i in range(len(hs[k])):
-      l.AddEntry(hs[k][i],legends[k][i])
-
-  if ratio and (('TH1' in str(type(data))) and ('TH1' in str(type(bkg_mc)))):
-    rp = ROOT.TRatioPlot(data,bkg_mc)
-    rp.SetH1DrawOpt("e")
-    rp.SetH2DrawOpt("E2")
-    rp.GetLowYaxis().SetNdivisions(505)
-    rp.SetRightMargin(0.3)
-    rp.SetSeparationMargin(0.01)
-    rp.Draw()
-    #rmax = rp.GetLowerRefGraph().GetMaximum()
-    #rp.GetLowerRefGraph().SetMinimum(0.85)
-    rp.GetLowerRefGraph().SetMaximum(2.5)
-    rp.GetLowerRefYaxis().SetTitle("Data/MC")
-    rp.GetLowerRefGraph().SetMarkerStyle(20)
-    rp.GetLowerRefGraph().SetLineColor(1)
-    rp.GetLowerRefGraph().SetMarkerColor(1)
-    rp.GetUpperPad().cd()
-    bkg_stack.Draw("hist SAME")
-    bkg_mc.Draw("E2 SAME")
-    for i in range(len(hs['sig'])):
-      hs['sig'][i].Draw("SAME histE1")
-    data.Draw("PE SAME")
-    rp.GetUpperPad().SetLogy()
-  else:
-    bkg_stack.Draw("hist")
-    bkg_mc.Draw("SAME E2")
-    for i in range(len(hs['sig'])):
-      hs['sig'][i].Draw("SAME histE1")
-    data.Draw("PE SAME")
-    c.SetLogy()
-
-  l.Draw()
-  c.Update()
-  #c.GetUpperPad().BuildLegend(x1=0.58,y1=0.8,x2=0.88,y2=1.0)
-  c.SaveAs("{}.pdf".format(args.output+'/'+name))
-  c.SaveAs("{}.png".format(args.output+'/'+name))
-
-def comparehists(name,hs,legend,colors=None,scale=False, ratio=False):
-  if colors is None:
-    colors = colors_global[:len(hs)]
-  c = ROOT.TCanvas("c"+name,"c"+name,600,600)
-  l = ROOT.TLegend(0.7,0.7,1.0,1.0)
-  y_max = 0
-  y_min = 1
-  for i in range(len(hs)):
-    hs[i].SetName(legend[i])
-    hs[i].SetLineWidth(2)
-    hs[i].SetLineColor(colors[i])
-    move_overflows_into_visible_bins(hs[i])
-    if scale and hs[i].Integral()!=0:
-      hs[i].Scale(1./hs[i].Integral())
-    y_max = max(y_max,hs[i].GetMaximum())
-    #y_min = min(y_min,hs[i].GetBinContent(hs[i].GetMinimumBin()))
-    y_min = min(y_min,hs[i].GetMinimum(1e-08))
-    #y_min = max(1e03,y_min)
-
-  if ratio and len(hs)==2 and (('TH1' in str(type(hs[0]))) and ('TH1' in str(type(hs[1])))):
-    rp = ROOT.TRatioPlot(hs[0],hs[1])
-    rp.GetLowYaxis().SetNdivisions(505)
-    rp.SetSeparationMargin(0.01)
-    #rp.SetRightMargin(0.4)
-    rp.Draw()
-
-  else:
-    for i in range(len(hs)):
-      if i==0:
-        hs[i].SetMaximum(10*y_max)
-        #hs[i].SetMinimum(0.5*y_min)
-        hs[i].DrawClone()
-      else:
-        hs[i].DrawClone("same")
-      l.AddEntry(hs[i],legend[i])
-
-  #l.Draw()
-  c.Update()
-  c.GetUpperPad().SetLogy()
-  c.GetUpperPad().BuildLegend(x1=0.58,y1=0.8,x2=0.88,y2=1.0)
-  c.Update()
-  c.SaveAs("{}.pdf".format(args.output+'/'+name))
-  c.SaveAs("{}.png".format(args.output+'/'+name))
-
-def makeplots(datafn, bkgfns, sigfns,bkglegend,siglegend,bkgcolors,sigcolors,scale,ratio):
+def makeplots(datafn, bkgfns, sigfns,bkglegend,siglegend,bkgcolors,sigcolors,sig_scale,scale_to_data,ratio,norm):
   assert(len(bkgfns)==len(bkglegend))
   assert(len(sigfns)==len(siglegend))
+  if len(sig_scale)==1:
+    sig_scale = len(sigfns)*sig_scale
+  elif len(sig_scale)>1:
+    assert(len(sigfns)==len(sig_scale))
+
   legends = {
       'bkg':bkglegend,
       'sig':siglegend,
@@ -434,43 +344,16 @@ def makeplots(datafn, bkgfns, sigfns,bkglegend,siglegend,bkgcolors,sigcolors,sca
         h_command(h)
         hs[k].append(h)
         doit = True
-    #datamccomparison(plt,hs,colors,legends,scale=False, ratio=True)
-    comparehists_cms(plt,hs,colors,legends,scale=False, ratio=ratio)
+    #datamccomparison(plt,hs,colors,legends,scale_to_data=False, ratio=True)
+    comparehists_cms(plt,hs,colors,legends,sig_scale=sig_scale,scale_to_data=scale_to_data, ratio=ratio,norm=norm)
   
   for k in fs:
     for f in fs[k]:
       f.Close()
 
-def compareSameFile(fn,legend,colors,scale,ratio):
-  f = ROOT.TFile.Open(fn)
-
-  fdir = f.Get(args.dirs[0])
-  if not fdir:
-    print("{} not available in {}!".format(args.dirs[0],f.GetName()))
-  plots = [p.GetName() for p in fdir.GetListOfKeys()]
-  
-  for plt in plots:
-    h_compare = []
-    for d in args.dirs:
-      try:
-        h = f.Get(d+'/'+plt)
-      except:
-        print('{} is not available in {}!'.format(d+'/'+plt,f.GetName()))
-        continue
-      if not h:
-        print('{} is not available in {}!'.format(d+'/'+plt,f.GetName()))
-        continue
-      h.SetDirectory(0)
-      h_command(h)
-      h_compare.append(h)
-  
-    comparehists(plt,h_compare,legend=legend,colors=colors,scale=scale,ratio=ratio)
-  
-  f.Close()
-
 if __name__ == "__main__":
   if not os.path.exists(args.output):
     os.makedirs(args.output)
-  makeplots(args.data,args.bkg,args.signal,args.bkgnice,args.signice,bkg_colors,signal_colors,args.scale,ratio=args.ratio)
+  makeplots(args.data,args.bkg,args.signal,args.bkgnice,args.signice,bkg_colors,signal_colors,args.sig_scale,args.scale_to_data,ratio=args.ratio,norm=args.norm)
 
 

@@ -63,6 +63,17 @@ wlnu_2018 = [
     Sample("wjetstolnuht2500_2018",xsec=0.03255),
     ]
 
+qcd_2018 = [
+    Sample("qcdht0100_2018",xsec=187700000.0),
+    Sample("qcdht0200_2018",xsec=1555000.0),
+    Sample("qcdht0300_2018",xsec=324500.0),
+    Sample("qcdht0500_2018",xsec=30980.0),
+    Sample("qcdht0700_2018",xsec=6444.0),
+    Sample("qcdht1000_2018",xsec=1127.0),
+    Sample("qcdht1500_2018",xsec=109.8),
+    Sample("qcdht2000_2018",xsec=22.36),
+    ]
+
 stop_2018 = [
     Sample("stop_M600_588_ct200_2018", xsec=0.205),
     Sample("stop_M600_585_ct20_2018", xsec=0.205),
@@ -105,6 +116,7 @@ all_samples = [
     met_2018,
     znunu_2018,
     wlnu_2018,
+    qcd_2018,
     stop_2018,
     c1n2_2018,
 ]
