@@ -3,6 +3,49 @@
 import json
 from SoftDisplacedVertices.Samples.Sample import *
 
+#stop_M600_580_ct2_2018
+def _model(sample):
+    s = sample if type(sample) == str else sample.name
+    return s.split('_M')[0]
+
+def _tau(sample):
+    s = sample if type(sample) == str else sample.name
+    x = s.index('ct')
+    y = s.find('_',x+1)
+    if y == -1:
+        y = len(s)
+    res = s[x+2:y].replace('p','.')
+    return float(res)
+
+def _mass(sample):
+    s = sample if type(sample) == str else sample.name
+    x = s.index('_M')
+    y = s.find('_',x+1)
+    if y == -1:
+        y = len(s)
+    return int(s[x+2:y])
+
+def _massLSP(sample):
+    '''
+    For some SUSY models, there are two masses: mass of LLP and mass of LSP
+    _mass figures out the mass of LLP and _massLSP figures out the mass of LSP
+    This only works for splitSUSY currently
+    '''
+    s = sample if type(sample) == str else sample.name
+    x = s.index('_M')
+    x = s.find('_',x+1)
+    y = s.find('_',x+1)
+    if y == -1:
+        y = len(s)
+    return int(s[x+1:y])
+
+def _set_signal_stuff(sample):
+    sample.is_signal = True
+    sample.model = _model(sample)
+    sample.tau = _tau(sample)
+    sample.mass = _mass(sample)
+    sample.massLSP = _massLSP(sample)
+
 def loadData(samples, json_path, label):
   with open(json_path,'r') as fj:
     d = json.load(fj)
@@ -90,24 +133,24 @@ stop_2018 = [
     ]
 
 c1n2_2018 = [
-    #Sample("C1N2_M600_588_ct200_2018", xsec=20.1372e-03),
-    #Sample("C1N2_M600_585_ct20_2018", xsec=20.1372e-03),
-    #Sample("C1N2_M600_580_ct2_2018", xsec=20.1372e-03),
-    #Sample("C1N2_M600_575_ct0p2_2018", xsec=20.1372e-03),
-    ##Sample("C1N2_M1000_988_ct200_2018", xsec=1.34352e-03),
-    #Sample("C1N2_M1000_985_ct20_2018", xsec=1.34352e-03),
-    #Sample("C1N2_M1000_980_ct2_2018", xsec=1.34352e-03),
-    #Sample("C1N2_M1000_975_ct0p2_2018", xsec=1.34352e-03),
-    #Sample("C1N2_M1400_1388_ct200_2018", xsec=0.131074e-03),
-    #Sample("C1N2_M1400_1385_ct20_2018", xsec=0.131074e-03),
-    #Sample("C1N2_M1400_1380_ct2_2018", xsec=0.131074e-03),
-    #Sample("C1N2_M1400_1375_ct0p2_2018", xsec=0.131074e-03),
-    Sample("C1N2_M1000_988_ct200_2018", xsec=1e-03),
-    Sample("C1N2_M1000_988_ct2_2018", xsec=1e-03),
-    Sample("C1N2_M1000_988_ct0p2_2018", xsec=1e-03),
-    Sample("C1N2_M1000_980_ct200_2018", xsec=1e-03),
-    Sample("C1N2_M1000_980_ct2_2018", xsec=1e-03),
-    Sample("C1N2_M1000_980_ct0p2_2018", xsec=1e-03),
+    Sample("C1N2_M600_588_ct200_2018", xsec=20.1372e-03),
+    Sample("C1N2_M600_585_ct20_2018", xsec=20.1372e-03),
+    Sample("C1N2_M600_580_ct2_2018", xsec=20.1372e-03),
+    Sample("C1N2_M600_575_ct0p2_2018", xsec=20.1372e-03),
+    Sample("C1N2_M1000_988_ct200_2018", xsec=1.34352e-03),
+    Sample("C1N2_M1000_985_ct20_2018", xsec=1.34352e-03),
+    Sample("C1N2_M1000_980_ct2_2018", xsec=1.34352e-03),
+    Sample("C1N2_M1000_975_ct0p2_2018", xsec=1.34352e-03),
+    Sample("C1N2_M1400_1388_ct200_2018", xsec=0.131074e-03),
+    Sample("C1N2_M1400_1385_ct20_2018", xsec=0.131074e-03),
+    Sample("C1N2_M1400_1380_ct2_2018", xsec=0.131074e-03),
+    Sample("C1N2_M1400_1375_ct0p2_2018", xsec=0.131074e-03),
+    #Sample("C1N2_M1000_988_ct200_2018", xsec=1e-03),
+    #Sample("C1N2_M1000_988_ct2_2018", xsec=1e-03),
+    #Sample("C1N2_M1000_988_ct0p2_2018", xsec=1e-03),
+    #Sample("C1N2_M1000_980_ct200_2018", xsec=1e-03),
+    #Sample("C1N2_M1000_980_ct2_2018", xsec=1e-03),
+    #Sample("C1N2_M1000_980_ct0p2_2018", xsec=1e-03),
     ]
 
 all_samples = [
@@ -121,7 +164,16 @@ all_samples = [
     c1n2_2018,
 ]
 
+all_signals = [
+    stop_2018,
+    c1n2_2018,
+]
+
 for samples in all_samples:
   for s in samples:
     exec("{} = s".format(s.name))
+
+for samples in all_signals:
+  for s in samples:
+    _set_signal_stuff(s)
 
