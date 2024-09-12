@@ -25,10 +25,16 @@ presel: MET_pt>400&&HLT_PFMET120_PFMHT120_IDTight && Jet_pt[0]>100 && !nMuon && 
 new_variables:
   SDVTrack_dxySig: abs(SDVTrack_dxy)/SDVTrack_dxyError
   nSDVSecVtx_sel: ['Sum({0})', vertex_selections]
+  SDVTrack_isGoodTrack: ( (abs(SDVTrack_dxy)/SDVTrack_dxyError)>4 ) && (SDVTrack_normalizedChi2 < 5) && (abs(SDVTrack_dz)<4.) && (SDVTrack_numberOfValidHits>13) && ( (SDVTrack_ptError/SDVTrack_pt)<0.015 ) && ( acos(cos(SDVTrack_phi-Jet_phi[0]))>1 ) && ( acos(cos(SDVTrack_phi-MET_phi))<1.5 )
+  SDVSecVtx_nGoodTrack: SDVSecVtx_nGoodTrack(SDVIdxLUT_SecVtxIdx,SDVIdxLUT_TrackIdx,SDVTrack_isGoodTrack,nSDVSecVtx)
   SDVSecVtx_r: sqrt(SDVSecVtx_x*SDVSecVtx_x+SDVSecVtx_y*SDVSecVtx_y)
   SDVSecVtx_x_sel: SDVSecVtx_x[SDVSecVtx_mmoverlap == false]
   SDVSecVtx_y_sel: SDVSecVtx_y[SDVSecVtx_mmoverlap == false]
   SDVSecVtx_r_sel: sqrt(SDVSecVtx_x_sel*SDVSecVtx_x_sel+SDVSecVtx_y_sel*SDVSecVtx_y_sel)
+  SDVSecVtx_mass_0_100: SDVSecVtx_mass
+  SDVSecVtx_mass_jpsi: SDVSecVtx_mass
+  SDVSecVtx_mass_K0: SDVSecVtx_mass
+  SDVSecVtx_ndof_minus3_2: SDVSecVtx_ndof
 
 ### EVENT SELECTION
 # This part defines search regions
@@ -46,11 +52,13 @@ regions:
 #   This part defines 2D histograms that will be made
 #   usage: [x,y]
 event_variables:
-- nSDVSecVtx_sel
-- MET_pt
-- LHE_HT
+  #- nSDVSecVtx_sel
+  - MET_pt
+  #- met_weight
+  #- LHE_HT
 event_2d_plots:
-  - [MET_pt,nSDVSecVtx_sel]
+  #- [MET_pt,nSDVSecVtx_sel]
+  #- [MET_pt,met_weight]
 
 ### OBJECTS
 # This part lists all objects that will be plotted
@@ -63,34 +71,46 @@ event_2d_plots:
 objects:
   SDVSecVtx:
     selections:
-      all:
+      K0: SDVSecVtx_mass>0.48 && SDVSecVtx_mass<0.52 && SDVSecVtx_nTracks==2
+      #all:
         #goodvtx: ( acos(cos(SDVSecVtx_L_phi-MET_phi))<1.5 )&&(SDVSecVtx_LxySig>=20.)&&(SDVSecVtx_pAngle>0.2)&&(SDVSecVtx_nGoodTrack>=2)&&( acos(cos(SDVSecVtx_L_phi-Jet_phi[0]))>1 ) && (SDVSecVtx_ndof>1)
     variables:
-    - SDVSecVtx_nTracks
-    - SDVSecVtx_pAngle
-    - SDVSecVtx_dlen
-    - SDVSecVtx_dlenSig
-    - SDVSecVtx_dlen_err
-    - SDVSecVtx_Lxy
-    - SDVSecVtx_LxySig
-    - SDVSecVtx_Lxy_err
-    - SDVSecVtx_chi2
-    - SDVSecVtx_normalizedChi2
-    - SDVSecVtx_ndof
-    - SDVSecVtx_L_eta_abs
-    - SDVSecVtx_x
-    - SDVSecVtx_y
-    - SDVSecVtx_r
-    - SDVSecVtx_r_sel
+      #    - SDVSecVtx_nTracks
+      - SDVSecVtx_pAngle
+      #    - SDVSecVtx_dlen
+      #    - SDVSecVtx_dlenSig
+      #    - SDVSecVtx_dlen_err
+      - SDVSecVtx_Lxy
+      - SDVSecVtx_LxySig
+      - SDVSecVtx_Lxy_err
+      #    - SDVSecVtx_chi2
+      #    - SDVSecVtx_normalizedChi2
+      - SDVSecVtx_ndof
+      - SDVSecVtx_ndof_minus3_2
+      #    - SDVSecVtx_L_eta_abs
+      - SDVSecVtx_x
+      - SDVSecVtx_y
+      #    - SDVSecVtx_r
+      #    - SDVSecVtx_r_sel
+      #    - SDVSecVtx_mass
+      #    - SDVSecVtx_mass_0_100
+      #    - SDVSecVtx_mass_jpsi
+      #    - SDVSecVtx_mass_K0
+      - SDVSecVtx_nGoodTrack
+      - SDVSecVtx_dphi_L_MET
+      - SDVSecVtx_dphi_L_jet0
+      - SDVSecVtx_pt
     2d_plots:
-    - [SDVSecVtx_Lxy,SDVSecVtx_pAngle]
-    - [SDVSecVtx_x,SDVSecVtx_y]
+      - [SDVSecVtx_Lxy,SDVSecVtx_pAngle]
+      - [SDVSecVtx_x,SDVSecVtx_y]
+      - [SDVSecVtx_pt,SDVSecVtx_Lxy]
+      - [SDVSecVtx_pt,SDVSecVtx_pAngle]
     nm1:
-    - [SDVSecVtx_dphi_L_MET,'<1.5']
-    - [SDVSecVtx_dphi_L_jet0,'>1']
-    - [SDVSecVtx_LxySig,'>=20']
-    - [SDVSecVtx_pAngle,'>0.2']
-    - [SDVSecVtx_ndof,'>1']
+      #    - [SDVSecVtx_dphi_L_MET,'<1.5']
+      #    - [SDVSecVtx_dphi_L_jet0,'>1']
+      #    - [SDVSecVtx_LxySig,'>=20']
+      #    - [SDVSecVtx_pAngle,'>0.2']
+      #    - [SDVSecVtx_ndof,'>1']
 
 ### PLOT SETTING
 # This section defines the name, titles, binning of histograms
@@ -98,6 +118,8 @@ objects:
 plot_setting:
   LHE_HT: [LHE_HT, ';LHE HT (GeV);A.U.', 500, 0, 5000]
   MET_pt: [MET_pt, ';MET (GeV);A.U.', 100, 0, 1000]
+  #met_weight: [met_weight, ';Rescale Factor;A.U.', 100, 0, 20]
+  met_weight: [met_weight, ';MET Rescale Factor;A.U.', 100, 0.994, 0.999]
   SDVTrack_dxy_InSV: [SDVTrack_dxy_InSV, ";track dxy (cm);A.U.",400,-20,20]
   SDVTrack_dxyError_InSV: [SDVTrack_dxyError_InSV,";track #sigma dxy (cm);A.U.",100,0,1]
   SDVTrack_dxySig_InSV: [SDVTrack_dxySig_InSV,";track |dxy/#sigma dxy|;A.U.",500,0,100]
@@ -131,6 +153,7 @@ plot_setting:
   SDVRefitTrack_dxydzratio: [SDVRefitTrack_dxydzratio,";track |dxy/dz|;A.U.",100,0,1]
   SDVRefitTrack_dphi_MET: [SDVRefitTrack_dphi_MET,";#Delta #phi (track,MET);A.U.",64,0,3.2]
   SDVRefitTrack_dphi_jet0: [SDVRefitTrack_dphi_jet0,";#Delta #phi (track,jet0);A.U.",64,0,3.2]
+  SDVSecVtx_pt: [SDVSecVtx_pt, ';vertex pt (GeV);A.U.',100, 0, 10]
   SDVSecVtx_x: [SDVSecVtx_x, ';vertex x (cm);A.U.',400, -20, 20]
   SDVSecVtx_y: [SDVSecVtx_y, ';vertex y (cm);A.U.',400, -20, 20]
   SDVSecVtx_r: [SDVSecVtx_r, ';vertex r (cm);A.U.',200, 0, 20]
@@ -159,8 +182,13 @@ plot_setting:
   SDVSecVtx_nGoodTrack: [SDVSecVtx_nGoodTrack, ';vertex ngoodTrack;A.U.', 20, 0, 20]
   SDVSecVtx_nTracks: [SDVSecVtx_nTracks, ';vertex nTracks;A.U.', 20, 0, 20]
   SDVSecVtx_ndof: [SDVSecVtx_ndof, ';vertex ndof;A.U.', 20, 0, 20]
+  SDVSecVtx_ndof_minus3_2: [SDVSecVtx_ndof_minus3_2, ';vertex ndof;A.U.', 50, -3, 2]
   SDVSecVtx_normalizedChi2: [SDVSecVtx_normalizedChi2, ';vertex norm chi2;A.U.', 50, 0, 10]
   SDVSecVtx_pAngle: [SDVSecVtx_pAngle, ';vertex pAngle;A.U.', 64, 0, 3.2]
+  SDVSecVtx_mass: [SDVSecVtx_mass, ';Invariant mass (GeV);A.U.', 500, 0, 1000]
+  SDVSecVtx_mass_0_100: [SDVSecVtx_mass_0_100, ';Invariant mass (GeV);A.U.', 200, 0, 100]
+  SDVSecVtx_mass_jpsi: [SDVSecVtx_mass_jpsi, ';Invariant mass (GeV);A.U.', 60, 3.07, 3.13]
+  SDVSecVtx_mass_K0: [SDVSecVtx_mass_K0, ';Invariant mass (GeV);A.U.', 60, 0.47, 0.53]
   nSDVSecVtx_CCsel: [nSDVSecVtx_CCsel, ';Number of vertices (CC);A.U.', 20, 0, 20]
   nSDVSecVtx_MLsel: [nSDVSecVtx_MLsel, ';Number of vertices (ML);A.U.', 20, 0, 20]
   nSDVSecVtx_sel: [nSDVSecVtx_sel, ';Number of vertices;A.U.', 20, 0, 20]

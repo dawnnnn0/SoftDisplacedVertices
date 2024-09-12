@@ -115,7 +115,10 @@ class Plotter:
     return d_filter
 
   def AddWeights(self,d,weight):
-      d = d.Define("evt_weight","Generator_weight*{0}".format(weight))
+      #d = d.Define("evt_weight","Generator_weight*{0}".format(weight))
+      d = d.Define("evt_weight0","Generator_weight*{0}".format(weight))
+      d = d.Define("met_weight","returnRS(MET_pt)")
+      d = d.Define("evt_weight","evt_weight0*met_weight")
       return d
   
   def getRDF(self):
