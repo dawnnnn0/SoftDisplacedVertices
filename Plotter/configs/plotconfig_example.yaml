@@ -72,7 +72,7 @@ objects:
   SDVSecVtx:
     selections:
       K0: SDVSecVtx_mass>0.48 && SDVSecVtx_mass<0.52 && SDVSecVtx_nTracks==2
-      #all:
+      all:
         #goodvtx: ( acos(cos(SDVSecVtx_L_phi-MET_phi))<1.5 )&&(SDVSecVtx_LxySig>=20.)&&(SDVSecVtx_pAngle>0.2)&&(SDVSecVtx_nGoodTrack>=2)&&( acos(cos(SDVSecVtx_L_phi-Jet_phi[0]))>1 ) && (SDVSecVtx_ndof>1)
     variables:
       #    - SDVSecVtx_nTracks
