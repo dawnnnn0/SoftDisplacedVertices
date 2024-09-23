@@ -172,7 +172,20 @@
             "qcdht0700_2018" : "/store/user/aguven/QCD_HT700to1000_TuneCP5_PSWeights_13TeV-madgraph-pythia8/RunIISummer20UL18CustomNanoAOD-106X_upgrade2018_realistic_v16_L1_pv1/",
             "qcdht1000_2018" : "/store/user/aguven/QCD_HT1000to1500_TuneCP5_PSWeights_13TeV-madgraph-pythia8/RunIISummer20UL18CustomNanoAOD-106X_upgrade2018_realistic_v16_L1_pv1/",
             "qcdht1500_2018" : "/store/user/aguven/QCD_HT1500to2000_TuneCP5_PSWeights_13TeV-madgraph-pythia8/RunIISummer20UL18CustomNanoAOD-106X_upgrade2018_realistic_v16_L1_pv1/",
-            "qcdht2000_2018" : "/store/user/aguven/QCD_HT2000toInf_TuneCP5_PSWeights_13TeV-madgraph-pythia8/RunIISummer20UL18CustomNanoAOD-106X_upgrade2018_realistic_v16_L1_pv1/"
+            "qcdht2000_2018" : "/store/user/aguven/QCD_HT2000toInf_TuneCP5_PSWeights_13TeV-madgraph-pythia8/RunIISummer20UL18CustomNanoAOD-106X_upgrade2018_realistic_v16_L1_pv1/",
+
+	    "stop_M1000_985_ct20_2018": "/store/user/lian/CustomNanoAOD_v3/stop_M1000_985_ct20_2018/output",
+            "stop_M600_580_ct2_2018": "/store/user/lian/CustomNanoAOD_v3/stop_M600_580_ct2_2018/output",
+            "stop_M600_588_ct200_2018": "/store/user/lian/CustomNanoAOD_v3/stop_M600_588_ct200_2018/output",
+            "stop_M1000_980_ct2_2018": "/store/user/lian/CustomNanoAOD_v3/stop_M1000_980_ct2_2018/output",
+            "stop_M600_585_ct20_2018": "/store/user/lian/CustomNanoAOD_v3/stop_M600_585_ct20_2018/output",
+            "stop_M1000_988_ct200_2018": "/store/user/lian/CustomNanoAOD_v3/stop_M1000_988_ct200_2018/output",
+            "stop_M600_575_ct0p2_2018": "/store/user/felang/SignalProduction/samples/Stop/600_575_0p2/CustomNanoAODv3/",
+            "stop_M1000_975_ct0p2_2018": "/store/user/felang/SignalProduction/samples/Stop/1000_975_0p2/CustomNanoAODv3/",
+            "stop_M1400_1388_ct200_2018": "/store/user/felang/SignalProduction/samples/Stop/1400_1388_200/CustomNanoAODv3/",
+            "stop_M1400_1385_ct20_2018": "/store/user/felang/SignalProduction/samples/Stop/1400_1385_20/CustomNanoAODv3/",
+            "stop_M1400_1380_ct2_2018": "/store/user/felang/SignalProduction/samples/Stop/1400_1380_2/CustomNanoAODv3/",
+            "stop_M1400_1375_ct0p2_2018": "/store/user/felang/SignalProduction/samples/Stop/1400_1375_0p2/CustomNanoAODv3/"
 
         },
 
