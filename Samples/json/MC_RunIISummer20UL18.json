@@ -90,8 +90,6 @@
             "qcdht2000_2018" : "/store/user/aguven/QCD_HT2000toInf_TuneCP5_PSWeights_13TeV-madgraph-pythia8/RunIISummer20UL18CustomMiniAOD-106X_upgrade2018_realistic_v16_L1v1_pv1/"
         },
 
-
-
         "dataset": {
             "wjetstolnuht0070_2018" : "/WJetsToLNu_HT-70To100_TuneCP5_13TeV-madgraphMLM-pythia8/aguven-WJetsToLNu_HT-70To100-d13e91b570034360476e0a62dfd690a8/USER",
             "wjetstolnuht0100_2018" : "/WJetsToLNu_HT-100To200_TuneCP5_13TeV-madgraphMLM-pythia8/aguven-WJetsToLNu_HT-100To200-d13e91b570034360476e0a62dfd690a8/USER",
@@ -229,6 +227,7 @@
             "C1N2_M1400_1380_ct2_2018": "/eos/vbc/experiments/cms/store/user/felang/SignalProduction/samples/C1N2/1400_1380_2/CustomNanoAODv3/", 
             "C1N2_M1400_1375_ct0p2_2018": "/eos/vbc/experiments/cms/store/user/felang/SignalProduction/samples/C1N2/1400_1375_0p2/CustomNanoAODv3/"
         },
+
         "logical_dir": {
             "wjetstolnuht0070_2018" : "/store/user/aguven/WJetsToLNu_HT-70To100_TuneCP5_13TeV-madgraphMLM-pythia8/CustomNanoAOD_pv1",
             "wjetstolnuht0100_2018" : "/store/user/aguven/WJetsToLNu_HT-100To200_TuneCP5_13TeV-madgraphMLM-pythia8/CustomNanoAOD_pv1",
@@ -288,6 +287,7 @@
             "qcdht2000_2018" : "/QCD_HT2000toInf_TuneCP5_PSWeights_13TeV-madgraph-pythia8/aguven-RunIISummer20UL18CustomNanoAOD-106X_upgrade2018_realistic_v16_L1_pv1-00000000000000000000000000000000/USER"
 
         },
+      
         "totalsumWeights": {
             "wjetstolnuht0070_2018" : 66949006,
             "wjetstolnuht0100_2018" : 57843857,

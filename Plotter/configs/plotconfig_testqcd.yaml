@@ -6,15 +6,17 @@
 # usage: variable_name: content
 # The user can define any `variable_name` and `content`, 
 # but make sure the `variable_name` is not used below
-vertex_selections: ( SDVSecVtx_LxySig >= 20. ) && ( SDVSecVtx_pAngle > 0.2 )
+#vertex_selections: ( SDVSecVtx_LxySig >= 20. ) && ( SDVSecVtx_pAngle > 0.2 )
+vertex_selections: ( SDVSecVtx_LxySig >= 0. ) && ( SDVSecVtx_pAngle > 0. )
 
 ### PRE-SELECTIONS
 # This part defines the event preselection
 # This selection is applied before any plotting
 # usage: presel: content
 # The user can define `content` but cannot change the `presel`
-presel: MET_pt>400&&HLT_PFMET120_PFMHT120_IDTight && Jet_pt[0]>100 && !nMuon && !nPhoton
-  && !nTau && !nElectron && Flag_METFilters && Jet_chHEF[0]>0.1 && Jet_neHEF[0]<0.8
+#presel: MET_pt>400&&HLT_PFMET120_PFMHT120_IDTight && Jet_pt[0]>100 && !nMuon && !nPhoton
+#  && !nTau && !nElectron && Flag_METFilters && Jet_chHEF[0]>0.1 && Jet_neHEF[0]<0.8
+presel: MET_pt>400
 
 ### NEW VARIABLE DEFINITION
 # This part defines new variables
@@ -42,7 +44,7 @@ new_variables:
 # usage: name: selections
 regions:
   All: 
-  CCSR400: nSDVSecVtx_sel>0 && MET_pt>400
+    #CCSR400: nSDVSecVtx_sel>0 && MET_pt>400
 
 ### EVENT VARIABLES
 # event_variables:
@@ -72,7 +74,7 @@ objects:
   SDVSecVtx:
     selections:
       K0: SDVSecVtx_mass>0.48 && SDVSecVtx_mass<0.52 && SDVSecVtx_nTracks==2
-        #all:
+      All:
         #goodvtx: ( acos(cos(SDVSecVtx_L_phi-MET_phi))<1.5 )&&(SDVSecVtx_LxySig>=20.)&&(SDVSecVtx_pAngle>0.2)&&(SDVSecVtx_nGoodTrack>=2)&&( acos(cos(SDVSecVtx_L_phi-Jet_phi[0]))>1 ) && (SDVSecVtx_ndof>1)
     variables:
       #    - SDVSecVtx_nTracks
