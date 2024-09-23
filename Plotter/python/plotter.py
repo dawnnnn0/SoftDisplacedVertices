@@ -129,6 +129,7 @@ class Plotter:
     - Produce normalisation weights based on xsec
     '''
     fns = self.s.getFileList(self.datalabel,"")
+    print("Load file {}".format(fns))
     d = ROOT.RDataFrame("Events",fns)
     #d = d(1000)
     d = self.AddVars(d)
