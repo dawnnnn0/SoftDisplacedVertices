@@ -36,8 +36,8 @@ MessageLogger = cms.Service("MessageLogger")
 
 # Input source
 process.source = cms.Source("PoolSource",
-    #fileNames = cms.untracked.vstring('file:/eos/vbc/experiments/cms/store/user/felang/SignalProduction/samples/Stop/600_585_20/CustomMiniAOD/MINIAODSIMoutput_0.root'),
-    fileNames = cms.untracked.vstring('file:/scratch-cbe/users/ang.li/SoftDV/MiniAOD_vtxreco/Stop_600_588_200/MINIAODSIMoutput_0.root'),
+    fileNames = cms.untracked.vstring('file:/eos/vbc/experiments/cms/store/user/lian/CustomMiniAOD_v3_MLTraining_new/stop_M600_580_ct2_2018/output/out_MINIAODSIMoutput_0.root'),
+    # fileNames = cms.untracked.vstring('file:/scratch-cbe/users/ang.li/SoftDV/MiniAOD_vtxreco/Stop_600_588_200/MINIAODSIMoutput_0.root'),
     #fileNames = cms.untracked.vstring('file:/eos/vbc/experiments/cms/store/user/liko/ZJetsToNuNu_HT-1200To2500_TuneCP5_13TeV-madgraphMLM-pythia8/ZJetsToNuNu_HT-1200To2500_MC_UL18_CustomMiniAODv1/231029_221242/0000/MiniAOD_1.root'),
     secondaryFileNames = cms.untracked.vstring()
 )
@@ -74,7 +74,9 @@ VertexRecoSeq(process, 'vtxReco', useMINIAOD=False, useIVF=True)
 #process.NANOAODSIMoutput = output_mod
 
 # Defining globally acessible service object that does not affect physics results.
-process.TFileService = cms.Service("TFileService", fileName = cms.string("/users/ang.li/public/SoftDV/CMSSW_10_6_30/src/SoftDisplacedVertices/ML/test/mltree.root") )
+import os
+USER = os.environ.get('USER')
+process.TFileService = cms.Service("TFileService", fileName = cms.string("/scratch-cbe/users/{0}/mltree.root".format(USER)))
 
 process.reco_step = cms.Path(process.vtxReco + process.MLTree)
 process.endjob_step = cms.EndPath(process.endOfProcess)

@@ -149,7 +149,9 @@ def comparehists(name,hs,legend,colors=None,scale=False):
     if scale and hs[i].Integral()!=0:
       hs[i].Scale(1./hs[i].Integral())
     y_max = max(y_max,hs[i].GetMaximum())
-    y_min = min(y_min,hs[i].GetMinimum())
+    #y_min = min(y_min,hs[i].GetBinContent(hs[i].GetMinimumBin()))
+    y_min = min(y_min,hs[i].GetMinimum(1e-08))
+    #y_min = max(1e03,y_min)
 
   for i in range(len(hs)):
     if i==0:

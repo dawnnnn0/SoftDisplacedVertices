@@ -1,24 +1,48 @@
 import os
 import yaml
 import ROOT
+import correctionlib
+correctionlib.register_pyroot_binding()
 import SoftDisplacedVertices.Samples.Samples as s
 ROOT.gInterpreter.Declare('#include "{}/src/SoftDisplacedVertices/Plotter/RDFHelper.h"'.format(os.environ['CMSSW_BASE']))
-ROOT.EnableImplicitMT(4)
+ROOT.gInterpreter.Declare('#include "{}/src/SoftDisplacedVertices/Plotter/METxyCorrection.h"'.format(os.environ['CMSSW_BASE']))
+ROOT.EnableImplicitMT(16)
 ROOT.gROOT.SetBatch(ROOT.kTRUE)
 ROOT.TH1.SetDefaultSumw2(True)
 ROOT.gStyle.SetOptStat(0)
 
 class Plotter:
-  def __init__(self,s=None,datalabel="",outputDir="./",lumi=1,info_path="",input_json="",config=""):
+  def __init__(self,s=None,datalabel="",outputDir="./",lumi=1,info_path="",input_json="",config="",year="",isData=False):
     self.s = None
     self.datalabel = datalabel
     self.outputDir = outputDir
     self.lumi = lumi
     self.info_path = info_path
     self.input_json = input_json
+    self.year = year
+    self.isData = isData
     with open(config, "r") as f_cfg:
       cfg = yaml.load(f_cfg, Loader=yaml.FullLoader)
     self.cfg = cfg
+    if not self.isData:
+      self.setCorrections()
+
+  def setCorrections(self):
+    if self.cfg['corrections'] is not None:
+      if self.cfg['corrections']['PU'] is not None:
+        ROOT.gInterpreter.Declare('auto puf = correction::CorrectionSet::from_file("{}");'.format(self.cfg['corrections']['PU']['path']))
+        ROOT.gInterpreter.Declare('auto pu = puf->at("{}");'.format(self.cfg['corrections']['PU']['name']))
+
+  def applyCorrections(self,d):
+    self.weightstr = ''
+    if self.isData:
+      d = d.Define("puweight","1")
+    else:
+      if self.cfg['corrections'] is not None:
+        if self.cfg['corrections']['PU'] is not None:
+          d = d.Define("puweight",('pu->evaluate({{Pileup_nTrueInt,"{0}"}})'.format(self.cfg['corrections']['PU']['mode'])))
+          self.weightstr += ' * puweight'
+    return d
 
     self.f1 = ROOT.TFile.Open("/eos/user/w/wuzh/dv/CMSSW_13_3_0/src/SoftDisplacedVertices/Plotter/Material_Map_HIST.root")
     ROOT.gInterpreter.ProcessLine("auto h_mm = material_map; h_mm->SetDirectory(0);")
@@ -69,6 +93,11 @@ class Plotter:
       d = d.Define("SDVSecVtx_TkMaxdR","SDV_TkMaxdR(SDVIdxLUT_TrackIdx, SDVIdxLUT_SecVtxIdx, nSDVSecVtx, SDVTrack_eta, SDVTrack_phi)")
       d = d.Define("SDVSecVtx_TkMindR","SDV_TkMindR(SDVIdxLUT_TrackIdx, SDVIdxLUT_SecVtxIdx, nSDVSecVtx, SDVTrack_eta, SDVTrack_phi)")
       d = d.Define("SDVSecVtx_mmoverlap","return ROOT::VecOps::Map(SDVSecVtx_x,SDVSecVtx_y, [](float x, float y){return h_mm->GetBinContent(h_mm->FindBin(x,y)) > 0.01;})")
+      
+      # MET xy corrections
+      d = d.Define("MET_corr",'SDV::METXYCorr_Met_MetPhi(MET_pt,MET_phi,run,"{}",{},PV_npvs)'.format(self.year,"false" if self.isData else "true"))
+      d = d.Define("MET_pt_corr",'MET_corr.first')
+      d = d.Define("MET_phi_corr",'MET_corr.second')
       if self.cfg['new_variables'] is not None:
         for newvar in self.cfg['new_variables']:
           if isinstance(self.cfg['new_variables'][newvar],list):
@@ -78,6 +107,11 @@ class Plotter:
             var_define = self.cfg['new_variables'][newvar]
           d = d.Define(newvar,var_define)
       print("Defining new variables finished") 
+      # HEM veto for 2018 data
+      if self.year=="2018" and self.isData:
+        d = d.Define("nJetHEM", self.cfg['nJetHEM'])
+      else:
+        d = d.Define("nJetHEM", "0")
       return d
   
   def AddVarsWithSelection(self,d):
@@ -115,11 +149,15 @@ class Plotter:
     return d_filter
 
   def AddWeights(self,d,weight):
-      #d = d.Define("evt_weight","Generator_weight*{0}".format(weight))
-      d = d.Define("evt_weight0","Generator_weight*{0}".format(weight))
+    if self.isData:
+      d = self.applyCorrections(d)
+      d = d.Define("evt_weight","{0}".format(weight))
+    else:
+      d = self.applyCorrections(d)
+      d = d.Define("evt_weight0","Generator_weight*{0}{1}".format(weight,self.weightstr))
       d = d.Define("met_weight","returnRS(MET_pt)")
       d = d.Define("evt_weight","evt_weight0*met_weight")
-      return d
+    return d
   
   def getRDF(self):
     '''
@@ -136,15 +174,18 @@ class Plotter:
     d = self.AddVarsWithSelection(d)
     if self.cfg['presel'] is not None:
       d = d.Filter(self.cfg['presel'])
-    nevt = self.getSumWeight()
-    if nevt==-1:
-      print("No sum weight record, using total events in NanoAOD...")
-      dw = ROOT.RDataFrame("Runs",fns)
-      nevt = dw.Sum("genEventSumw")
-      nevt = nevt.GetValue()
-      print("Total events in NanoAOD {}".format(nevt))
-    xsec_weights = self.lumi*self.s.xsec/(nevt)
-    print("Total gen events {}, xsec {}, weight {}".format(nevt,self.s.xsec,xsec_weights))
+    if self.lumi==-1:
+      xsec_weights = 1
+    else:
+      nevt = self.getSumWeight()
+      if nevt==-1:
+        print("No sum weight record, using total events in NanoAOD...")
+        dw = ROOT.RDataFrame("Runs",fns)
+        nevt = dw.Sum("genEventSumw")
+        nevt = nevt.GetValue()
+        print("Total events in NanoAOD {}".format(nevt))
+      xsec_weights = self.lumi*self.s.xsec/(nevt)
+      print("Total gen events {}, xsec {}, weight {}".format(nevt,self.s.xsec,xsec_weights))
     d = self.AddWeights(d,xsec_weights)
     #d = d.Range(1000)
     #print("RDF finished initializing with range 1000")
@@ -157,7 +198,10 @@ class Plotter:
       plots = self.dplots[varlabel][0]
       plots_2d = self.dplots[varlabel][1]
       for plt in plots:
-        h = d.Histo1D(tuple(self.cfg['plot_setting'][plt]),plt+varlabel,weight)
+        if self.isData:
+          h = d.Histo1D(tuple(self.cfg['plot_setting'][plt]),plt+varlabel)
+        else:
+          h = d.Histo1D(tuple(self.cfg['plot_setting'][plt]),plt+varlabel,weight)
         hs.append(h)
   
       for x in plots_2d:
@@ -171,7 +215,10 @@ class Plotter:
           ytitle_idx1 = yax[1].find(';',ytitle_idx0+1)
           ytitle = yax[1][ytitle_idx0+1:ytitle_idx1]
           hset = (xax[0]+'_vs_'+yax[0],";{0};{1}".format(xtitle,ytitle),xax[2],xax[3],xax[4],yax[2],yax[3],yax[4])
-          h = d.Histo2D(hset,x+varlabel,y_varlabel,weight)
+          if self.isData:
+            h = d.Histo2D(hset,x+varlabel,y_varlabel)
+          else:
+            h = d.Histo2D(hset,x+varlabel,y_varlabel,weight)
           hs.append(h)
   
       for i in range(len(hs)):
@@ -192,14 +239,20 @@ class Plotter:
       plots_nm1 = []
 
     for plt in plots_1d:
-      h = d.Histo1D(tuple(self.cfg['plot_setting'][plt]),plt+varlabel,weight)
+      if self.isData:
+        h = d.Histo1D(tuple(self.cfg['plot_setting'][plt]),plt+varlabel)
+      else:
+        h = d.Histo1D(tuple(self.cfg['plot_setting'][plt]),plt+varlabel,weight)
       hs.append(h)
 
     for plt in plots_nm1:
       nm1_setting = (self.cfg['plot_setting'][plt[0]]).copy()
       nm1_setting[0] += 'nm1'
       nm1_setting = tuple(nm1_setting)
-      h = d.Histo1D(nm1_setting,plt[0]+varlabel+'_nm1',weight)
+      if self.isData:
+        h = d.Histo1D(nm1_setting,plt[0]+varlabel+'_nm1')
+      else:
+        h = d.Histo1D(nm1_setting,plt[0]+varlabel+'_nm1',weight)
       hs.append(h)
   
     for x,y in plots_2d:
@@ -221,7 +274,10 @@ class Plotter:
           print("Warning! Variable {} not registered in this level!".format(y))
           y2d = y
         #h = d.Histo2D(hset,x+varlabel,y+varlabel,weight)
-        h = d.Histo2D(hset,x2d,y2d,weight)
+        if self.isData:
+          h = d.Histo2D(hset,x2d,y2d)
+        else:
+          h = d.Histo2D(hset,x2d,y2d,weight)
         hs.append(h)
   
     for i in range(len(hs)):

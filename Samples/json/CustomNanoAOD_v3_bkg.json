@@ -90,7 +90,7 @@
             "wjetstolnuht0200_2018" : "/eos/vbc/experiments/cms/store/user/aguven/WJetsToLNu_HT-200To400_TuneCP5_13TeV-madgraphMLM-pythia8/CustomNanoAOD_pv1",
             "wjetstolnuht0400_2018" : "/eos/vbc/experiments/cms/store/user/aguven/WJetsToLNu_HT-400To600_TuneCP5_13TeV-madgraphMLM-pythia8/CustomNanoAOD_pv1",
             "wjetstolnuht0600_2018" : "/eos/vbc/experiments/cms/store/user/aguven/WJetsToLNu_HT-600To800_TuneCP5_13TeV-madgraphMLM-pythia8/CustomNanoAOD_pv1",
-            "wjetstolnuht0800_2018" : "/eos/vbc/experiments/cms/store/user/aguven/WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8/CustomNanoAOD_pv1",
+            "wjetstolnuht0800_2018" : "/eos/vbc/experiments/cms/store/user/aguven/WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8/CustomNanoAOD_pv2",
             "wjetstolnuht1200_2018" : "/eos/vbc/experiments/cms/store/user/aguven/WJetsToLNu_HT-1200To2500_TuneCP5_13TeV-madgraphMLM-pythia8/CustomNanoAOD_pv1",
             "wjetstolnuht2500_2018" : "/eos/vbc/experiments/cms/store/user/aguven/WJetsToLNu_HT-2500ToInf_TuneCP5_13TeV-madgraphMLM-pythia8/CustomNanoAOD_pv1",
 
@@ -115,7 +115,7 @@
             "wjetstolnuht0200_2018" : "/store/user/aguven/WJetsToLNu_HT-200To400_TuneCP5_13TeV-madgraphMLM-pythia8/CustomNanoAOD_pv1",
             "wjetstolnuht0400_2018" : "/store/user/aguven/WJetsToLNu_HT-400To600_TuneCP5_13TeV-madgraphMLM-pythia8/CustomNanoAOD_pv1",
             "wjetstolnuht0600_2018" : "/store/user/aguven/WJetsToLNu_HT-600To800_TuneCP5_13TeV-madgraphMLM-pythia8/CustomNanoAOD_pv1",
-            "wjetstolnuht0800_2018" : "/store/user/aguven/WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8/CustomNanoAOD_pv1",
+            "wjetstolnuht0800_2018" : "/store/user/aguven/WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8/CustomNanoAOD_pv2",
             "wjetstolnuht1200_2018" : "/store/user/aguven/WJetsToLNu_HT-1200To2500_TuneCP5_13TeV-madgraphMLM-pythia8/CustomNanoAOD_pv1",
             "wjetstolnuht2500_2018" : "/store/user/aguven/WJetsToLNu_HT-2500ToInf_TuneCP5_13TeV-madgraphMLM-pythia8/CustomNanoAOD_pv1",
 
