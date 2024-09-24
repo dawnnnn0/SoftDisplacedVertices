@@ -11,20 +11,27 @@ Parameters:
 
 `--output`: directory of output.
 
-`--config`: configure file that defines event selections and what variables to plot. [Example config](https://github.com/HephyAnalysisSW/SoftDisplacedVertices/blob/new_CMSSW/Plotter/configs/plotconfig_sig.yaml) is provided. When new variables are added, please add a new entry in the [plot\_setting module](https://github.com/HephyAnalysisSW/SoftDisplacedVertices/blob/new_CMSSW/Plotter/python/plot_setting.py) to set the plot binning and title.
+`--config`: configure file that defines event selections and what variables to plot. [Example config](https://github.com/HephyAnalysisSW/SoftDisplacedVertices/blob/new_CMSSW/Plotter/configs/plotconfig_diffregions.yaml) is provided. When new variables are added, please add a new entry in the [plot\_setting module](https://github.com/HephyAnalysisSW/SoftDisplacedVertices/blob/new_CMSSW/Plotter/python/plot_setting.py) to set the plot binning and title.
 
 `--lumi`: luminosity to normalise the MC, unit in `pb-1`.
 
 `--json`: Name of the json file that records the file path of the samples. The default path is under `SoftDisplacedVertices/Samples/json`.
 
-`--metadata`: Name of the yaml file that records the GenSumWeight of MC samples. The default path is under `SoftDisplacedVertices/Samples/json`.
+`--metadata`: This is deprecated. Name of the yaml file that records the GenSumWeight of MC samples. The default path is under `SoftDisplacedVertices/Samples/json`.
 
 `--datalabel`: Lable of the dataset used for making histogram. It should be consistent with what is available in the json file.
+
+`--data`: Optional. Specifies whether the input is data.
+
+`--year`: The data-taking year of the input data or MC.
+
+`--submit`: Optional. Whether to submit jobs to slurm. Only works in CLIP.
 
 ## Prerequisites:
 
 - The NanoAOD files are recorded in a json file, like the ones under `SoftDisplacedVertices/Samples/json`.
-- If Filters are applied before or during the generation of MiniAOD, a metadata yaml file should be available to provide the information of total events generated without filters. This ensures the normalisation for MC is done correctly.
+- The json file should also include the total number of events generated without filters. This information was provided by the metadata yaml file before. It can be obtained by running [getMCInfo.py](https://github.com/HephyAnalysisSW/SoftDisplacedVertices/blob/new_CMSSW/Plotter/getMCInfo.py).
+- (Outdated) If Filters are applied before or during the generation of MiniAOD, a metadata yaml file should be available to provide the information of total events generated without filters. This ensures the normalisation for MC is done correctly.
 
 ## Environmental setup:
 
@@ -47,7 +54,7 @@ cmsenv
 
 ## Steps:
 
-First, generate the metadata yaml files if not already available:
+First, generate the metadata yaml files if not already available. Note that one need to modify the python script to specify the `input_samples`.
 ```
 python3 getMCInfo.py --sample_version CustomMiniAOD_v3 --json CustomMiniAOD_v3 --outDir ../Samples/json/
 ```
@@ -55,14 +62,16 @@ python3 getMCInfo.py --sample_version CustomMiniAOD_v3 --json CustomMiniAOD_v3 -
 Then generate the histograms:
 
 To run interactively:
+For MC:
 ```
-python3 autoplotter.py --sample stop_M600_580_ct2_2018 --output ./ --config /users/ang.li/public/SoftDV/CMSSW_13_3_0/src/SoftDisplacedVertices/Plotter/plotconfig_sig.yaml --lumi 59683. --json MLNanoAOD.json --metadata metadata_CustomMiniAOD_v3.yaml --datalabel MLNanoAODv2
+python3 autoplotter.py --sample stop_M600_580_ct2_2018 --output ./ --config configs/plotconfig.yaml --lumi 59683. --json MC_RunIISummer20UL18.json --datalabel CustomNanoAOD --year 2018
+```
+For data:
+```
+python3 autoplotter.py --sample met_2018 --output ./ --config configs/plotconfig.yaml --lumi -1 --json Data_production_20240326.json --datalabel CustomNanoAOD --data --year 2018
 ```
 
-To submit jobs:
-```
-python3 autoplotter.py --sample stop_2018 --output /eos/vbc/group/cms/ang.li/MLhists/MLNanoAODv2_submit/ --config /users/ang.li/public/SoftDV/CMSSW_13_3_0/src/SoftDisplacedVertices/Plotter/configs/plotconfig_sig.yaml --submit
-```
+To submit jobs, simply add the `--submit` to the commands above.
 
 
 To compare histograms, do:
@@ -79,7 +88,12 @@ scram-venv
 pip3 install cmsstyle
 ```
 
-Once the enviroment is set up, do:
+Once the enviroment is set up, multiple different kind of plots can be made:
+- Stacked background MC with data and signal (if data or signal is not specified, it will only plot whatever is available):
 ```
 python3 compare_data_new.py --data data_hist.root --bkg wjets_2018_hist.root zjets_2018_hist.root --bkgnice "WJets" "ZJets" --signal stop_M600_585_ct20_2018_hist.root --signice "signal" --output dir_output/ --dirs "All_SDVTrack_all" --commands "h.Rebin(5) if ('LxySig' in h.GetName()) else None" --ratio 
+```
+- Stacked background MC with signal, all histograms normalised to 1:
+```
+python3 compare_data_new.py  --bkg qcd_2018_hist.root wjets_2018_hist.root zjets_2018_hist.root  --bkgnice "QCD" "WJets" "ZJets" --signal stop_M600_585_ct20_2018_hist.root --signice "signal" --output ./ --dirs "All_SDVTrack_all" --commands "h.Rebin(5) if ('LxySig' in h.GetName()) else h.GetXaxis().SetRangeUser(0,20) if ('pfRel' in  h.GetName()) else None" --norm
 ```
