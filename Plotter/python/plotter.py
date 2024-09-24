@@ -6,7 +6,7 @@ correctionlib.register_pyroot_binding()
 import SoftDisplacedVertices.Samples.Samples as s
 ROOT.gInterpreter.Declare('#include "{}/src/SoftDisplacedVertices/Plotter/RDFHelper.h"'.format(os.environ['CMSSW_BASE']))
 ROOT.gInterpreter.Declare('#include "{}/src/SoftDisplacedVertices/Plotter/METxyCorrection.h"'.format(os.environ['CMSSW_BASE']))
-ROOT.EnableImplicitMT(16)
+ROOT.EnableImplicitMT(4)
 ROOT.gROOT.SetBatch(ROOT.kTRUE)
 ROOT.TH1.SetDefaultSumw2(True)
 ROOT.gStyle.SetOptStat(0)
@@ -26,6 +26,24 @@ class Plotter:
     self.cfg = cfg
     if not self.isData:
       self.setCorrections()
+      if ('new_variables_mc' in self.cfg) and (self.cfg['new_variables_mc'] is not None):
+        if ('new_variables' in self.cfg):
+          for v in self.cfg['new_variables_mc']:
+              self.cfg['new_variables'][v] = self.cfg['new_variables_mc'][v]
+        else:
+          self.cfg['new_variables'] = self.cfg['new_variables_mc']
+      if ('event_variables_mc' in self.cfg) and (self.cfg['event_variables_mc'] is not None):
+        if ('event_variables' in self.cfg):
+          self.cfg['event_variables'] += self.cfg['event_variables_mc']
+        else:
+          self.cfg['event_variables'] = self.cfg['event_variables_mc']
+      if ('objects' in self.cfg) and (self.cfg['objects'] is not None):
+        for o in self.cfg['objects']:
+          if ('variables_mc' in self.cfg['objects'][o]) and (self.cfg['objects'][o]['variables_mc'] is not None):
+            if ('variables' in self.cfg['objects'][o]):
+              self.cfg['objects'][o]['variables'] += self.cfg['objects'][o]['variables_mc']
+            else:
+              self.cfg['objects'][o]['variables'] = self.cfg['objects'][o]['variables_mc']
 
   def setCorrections(self):
     if self.cfg['corrections'] is not None:
@@ -80,14 +98,18 @@ class Plotter:
       d = d.Define("MET_corr",'SDV::METXYCorr_Met_MetPhi(MET_pt,MET_phi,run,"{}",{},PV_npvs)'.format(self.year,"false" if self.isData else "true"))
       d = d.Define("MET_pt_corr",'MET_corr.first')
       d = d.Define("MET_phi_corr",'MET_corr.second')
-      if self.cfg['new_variables'] is not None:
-        for newvar in self.cfg['new_variables']:
-          if isinstance(self.cfg['new_variables'][newvar],list):
-            formatstr = [self.cfg[self.cfg['new_variables'][newvar][i]] for i in range(1,len(self.cfg['new_variables'][newvar]))]
-            var_define = self.cfg['new_variables'][newvar][0].format(*formatstr)
-          elif isinstance(self.cfg['new_variables'][newvar],str):
-            var_define = self.cfg['new_variables'][newvar]
-          d = d.Define(newvar,var_define)
+      vars_to_define = ['new_variables']
+      for v in vars_to_define:
+        if (not v in self.cfg) or (self.cfg[v] is None):
+          continue 
+        if self.cfg[v] is not None:
+          for newvar in self.cfg[v]:
+            if isinstance(self.cfg[v][newvar],list):
+              formatstr = [self.cfg[self.cfg[v][newvar][i]] for i in range(1,len(self.cfg[v][newvar]))]
+              var_define = self.cfg[v][newvar][0].format(*formatstr)
+            elif isinstance(self.cfg[v][newvar],str):
+              var_define = self.cfg[v][newvar]
+            d = d.Define(newvar,var_define)
       # HEM veto for 2018 data
       if self.year=="2018" and self.isData:
         d = d.Define("nJetHEM", self.cfg['nJetHEM'])

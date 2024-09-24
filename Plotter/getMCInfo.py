@@ -5,7 +5,7 @@
 from DataFormats.FWLite import Lumis, Handle
 import os
 import fnmatch
-import yaml
+import yaml,json
 import SoftDisplacedVertices.Samples.Samples as s
 
 
@@ -15,6 +15,8 @@ def get_metadata(ss, sample_version):
     Creates a metadata.yaml file.
     """
     yaml_dict = dict()
+    json_dict = dict()
+    json_dict['totalsumWeights'] = dict()
     
     for sp in ss:
       sample_dir = sp.getFileDirs(sample_version)
@@ -60,6 +62,7 @@ def get_metadata(ss, sample_version):
 
       yaml_dict[sp.name]['totalsumWeights'] = totalsumWeights
       yaml_dict[sp.name]['totalsumPassWeights'] = totalsumPassWeights
+      json_dict['totalsumWeights'][sp.name] = totalsumWeights
 
       if not yaml_dict[sp.name]['files']:
           yaml_dict.pop(sp.name)
@@ -68,6 +71,8 @@ def get_metadata(ss, sample_version):
     with open('metadata_'+sample_version+'.yaml', 'w') as outfile:
         yaml.safe_dump(yaml_dict, outfile, default_flow_style=False)
         
+    with open('metadata_'+sample_version+'.json', 'w') as outfile:
+        json.dump(json_dict, outfile)
 
 def get_metadata_dir(directory, outFileName):
     """
@@ -75,6 +80,8 @@ def get_metadata_dir(directory, outFileName):
     Creates a metadata.yaml file.
     """
     yaml_dict = dict()
+    json_dict = dict()
+    json_dict['totalsumWeights'] = dict()
     
     for root, dirnames, filenames in os.walk(directory):
         filename_list = []
@@ -112,6 +119,7 @@ def get_metadata_dir(directory, outFileName):
 
         yaml_dict[root]['totalsumWeights'] = totalsumWeights
         yaml_dict[root]['totalsumPassWeights'] = totalsumPassWeights
+        json_dict['totalsumWeights'][root] = totalsumWeights
 
         if not yaml_dict[root]['files']:
             yaml_dict.pop(root)
@@ -129,6 +137,8 @@ if __name__ == '__main__':
     parser.add_argument('--outDir')
     parser.add_argument('--json')
     args = parser.parse_args()
-    input_samples = s.znunu_2017
+    #input_samples = s.c1n2_2018
+    input_samples = s.stop_2018
+    #input_samples = [s.C1N2_M1000_988_ct200_2018]
     s.loadData(input_samples,os.path.join(os.environ['CMSSW_BASE'],'src/SoftDisplacedVertices/Samples/json/{}'.format(args.json)),args.sample_version)
     get_metadata(input_samples,args.sample_version)
