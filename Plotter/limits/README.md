@@ -18,7 +18,7 @@ git checkout v10.0.2
 scramv1 b clean; scramv1 b # always make a clean build
 ```
 
-A simple script that automatically runs Combine using Asymptotic method is provided. You can put the script under `HiggsAnalysis/CombinedLimit` if you like.
+[A simple script](https://github.com/HephyAnalysisSW/SoftDisplacedVertices/blob/new_CMSSW/Plotter/limits/runCombine.sh) that automatically runs Combine using Asymptotic method is provided. You can put the script under `HiggsAnalysis/CombinedLimit` if you like.
 
 Limit plots are produced with the following procedure:
 - Run the autoplotter to get events in all serach regions:
