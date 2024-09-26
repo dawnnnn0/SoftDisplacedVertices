@@ -6,6 +6,7 @@
 #include "Math/Vector4D.h"
 #include "TStyle.h"
 #include <algorithm> 
+#include "correction.h"
 
 float dPhi(float phi1, float phi2) {
   float x = phi1-phi2;
@@ -31,7 +32,7 @@ void printVec(T v) {
     return;
 }
 
-//This functino removes duplicated elements in a vector
+//This function removes duplicated elements in a vector
 template<typename T>
 T removeDuplicate(T v) {
     //printVec(v);
@@ -40,6 +41,30 @@ T removeDuplicate(T v) {
     //printVec(v);
     
     return v;
+}
+
+float EGamma_weight(correction::Correction::Ref sf, ROOT::RVecF pt, ROOT::RVecF eta, std::string mode, std::string wp, std::string year, std::string kind) {
+  float weight = 1;
+  for (size_t i=0; i<pt.size(); ++i) {
+    float newpt = pt[i];
+    if (kind=="photon" && newpt<20)
+      newpt = 20.0;
+    float isf = sf->evaluate({year, mode, wp, std::abs(eta[i]), newpt});
+    weight *= isf;
+  }
+  return weight;
+}
+
+float Muon_weight(correction::Correction::Ref sf, ROOT::RVecF pt, ROOT::RVecF eta, std::string mode) {
+  float weight = 1;
+  for (size_t i=0; i<pt.size(); ++i) {
+    float newpt = pt[i];
+    if (newpt<15)
+      newpt = 15.0;
+    float isf = sf->evaluate({std::abs(eta[i]), newpt, mode});
+    weight *= isf;
+  }
+  return weight;
 }
 
 int Leading_Vtx_Idx(ROOT::RVecI Vertex_nGoodTracks, ROOT::RVecF Vertex_LxySig) {

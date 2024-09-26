@@ -6,7 +6,7 @@ correctionlib.register_pyroot_binding()
 import SoftDisplacedVertices.Samples.Samples as s
 ROOT.gInterpreter.Declare('#include "{}/src/SoftDisplacedVertices/Plotter/RDFHelper.h"'.format(os.environ['CMSSW_BASE']))
 ROOT.gInterpreter.Declare('#include "{}/src/SoftDisplacedVertices/Plotter/METxyCorrection.h"'.format(os.environ['CMSSW_BASE']))
-ROOT.EnableImplicitMT(4)
+ROOT.EnableImplicitMT(8)
 ROOT.gROOT.SetBatch(ROOT.kTRUE)
 ROOT.TH1.SetDefaultSumw2(True)
 ROOT.gStyle.SetOptStat(0)
@@ -46,10 +46,20 @@ class Plotter:
               self.cfg['objects'][o]['variables'] = self.cfg['objects'][o]['variables_mc']
 
   def setCorrections(self):
-    if self.cfg['corrections'] is not None:
-      if self.cfg['corrections']['PU'] is not None:
+    if 'corrections' in self.cfg and self.cfg['corrections'] is not None:
+      if 'PU' in self.cfg['corrections'] and self.cfg['corrections']['PU'] is not None:
         ROOT.gInterpreter.Declare('auto puf = correction::CorrectionSet::from_file("{}");'.format(self.cfg['corrections']['PU']['path']))
         ROOT.gInterpreter.Declare('auto pu = puf->at("{}");'.format(self.cfg['corrections']['PU']['name']))
+      if 'electron' in self.cfg['corrections'] and self.cfg['corrections']['electron'] is not None:
+        ROOT.gInterpreter.Declare('auto elec = correction::CorrectionSet::from_file("{}");'.format(self.cfg['corrections']['electron']['path']))
+        ROOT.gInterpreter.Declare('auto elesf = elec->at("{}");'.format(self.cfg['corrections']['electron']['name']))
+      if 'photon' in self.cfg['corrections'] and self.cfg['corrections']['photon'] is not None:
+        ROOT.gInterpreter.Declare('auto phoc = correction::CorrectionSet::from_file("{}");'.format(self.cfg['corrections']['photon']['path']))
+        ROOT.gInterpreter.Declare('auto phosf = phoc->at("{}");'.format(self.cfg['corrections']['photon']['name']))
+      if 'muon' in self.cfg['corrections'] and self.cfg['corrections']['muon'] is not None:
+        ROOT.gInterpreter.Declare('auto muc = correction::CorrectionSet::from_file("{}");'.format(self.cfg['corrections']['muon']['path']))
+        ROOT.gInterpreter.Declare('auto musf = muc->at("{}");'.format(self.cfg['corrections']['muon']['name']))
+
 
   def applyCorrections(self,d):
     self.weightstr = ''
@@ -57,9 +67,19 @@ class Plotter:
       d = d.Define("puweight","1")
     else:
       if self.cfg['corrections'] is not None:
-        if self.cfg['corrections']['PU'] is not None:
+        if 'PU' in self.cfg['corrections'] and  self.cfg['corrections']['PU'] is not None:
           d = d.Define("puweight",('pu->evaluate({{Pileup_nTrueInt,"{0}"}})'.format(self.cfg['corrections']['PU']['mode'])))
           self.weightstr += ' * puweight'
+        if 'electron' in self.cfg['corrections'] and  self.cfg['corrections']['electron'] is not None:
+          d = d.Define("eleweight",'EGamma_weight(elesf,Electron_pt[{0}],Electron_eta[{0}],"{1}","Veto","{2}","electron")'.format(self.cfg['ele_sel'],self.cfg['corrections']['electron']['mode'],str(self.year)))
+          self.weightstr += ' * eleweight'
+        if 'photon' in self.cfg['corrections'] and  self.cfg['corrections']['photon'] is not None:
+          d = d.Define("phoweight",'EGamma_weight(phosf,Photon_pt[{0}],Photon_eta[{0}],"{1}","Loose","{2}","photon")'.format(self.cfg['photon_sel'],self.cfg['corrections']['photon']['mode'],str(self.year)))
+          self.weightstr += ' * phoweight'
+        if 'muon' in self.cfg['corrections'] and  self.cfg['corrections']['muon'] is not None:
+          d = d.Define("muweight",'Muon_weight(musf,Muon_pt[{0}],Muon_eta[{0}],"{1}")'.format(self.cfg['muon_sel'],self.cfg['corrections']['muon']['mode'],str(self.year)))
+          self.weightstr += ' * muweight'
+
     return d
 
 
