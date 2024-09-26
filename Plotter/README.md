@@ -97,3 +97,17 @@ python3 compare_data_new.py --data data_hist.root --bkg wjets_2018_hist.root zje
 ```
 python3 compare_data_new.py  --bkg qcd_2018_hist.root wjets_2018_hist.root zjets_2018_hist.root  --bkgnice "QCD" "WJets" "ZJets" --signal stop_M600_585_ct20_2018_hist.root --signice "signal" --output ./ --dirs "All_SDVTrack_all" --commands "h.Rebin(5) if ('LxySig' in h.GetName()) else h.GetXaxis().SetRangeUser(0,20) if ('pfRel' in  h.GetName()) else None" --norm
 ```
+
+# Closure test / Event yield check
+
+Scripts are provided to print out the number of events in different serach regions:
+- To print events when search regions are defined individually in different directories in the root file: 
+```
+python3 printNevt.py --input /eos/vbc/group/cms/ang.li/MCHistos_VRCRdatacard_1/ --SR SR_evt SR_CRlowMET_evt SR_CRlowLxy_evt SR_CRlowLxylowMET_evt VR1_evt VR1_CRlowMET_evt VR1_CRlowLxy_evt VR1_CRlowLxylowMET_evt VR2_evt VR2_CRlowMET_evt VR2_CRlowLxy_evt VR2_CRlowLxylowMET_evt --metcut 0
+```
+- To print events when there are 2D histograms in the root file directories. Will integral the 2D histogram depending on cut values. Currently, the script takes the 2D histogram of MET vs. Lxy significance, and integral the histogram using different MET and Lxy significance cut to get the number of events in different regions.
+```
+python3 printNevt2D.py --input /eos/vbc/group/cms/ang.li/DataHistos_VRCRVRdPhirevert_12/ --SR VR1s_evt/MET_pt_corr_vs_SDVSecVtx_LxySig_max_val1 VR2s_evt/MET_pt_corr_vs_SDVSecVtx_LxySig_max_val2 --metcut 0
+```
+
+Two different sets of scripts are provided, `printNevt` and `getNevt`, basically they do the same thing. But the printouts are formatted differently.
