@@ -73,6 +73,10 @@ python3 autoplotter.py --sample met_2018 --output ./ --config configs/plotconfig
 
 To submit jobs, simply add the `--submit` to the commands above.
 
+When jobs finish, one can use the haddplots.py to `hadd` the output files together for each process.
+```
+python3 haddplots.py --dir /path/to/job
+```
 
 To compare histograms, do:
 ```

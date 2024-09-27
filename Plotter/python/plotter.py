@@ -6,21 +6,25 @@ correctionlib.register_pyroot_binding()
 import SoftDisplacedVertices.Samples.Samples as s
 ROOT.gInterpreter.Declare('#include "{}/src/SoftDisplacedVertices/Plotter/RDFHelper.h"'.format(os.environ['CMSSW_BASE']))
 ROOT.gInterpreter.Declare('#include "{}/src/SoftDisplacedVertices/Plotter/METxyCorrection.h"'.format(os.environ['CMSSW_BASE']))
-ROOT.EnableImplicitMT(8)
+#ROOT.EnableImplicitMT(4)
+# Maybe let ROOT decide the number of threads to use
+ROOT.EnableImplicitMT()
 ROOT.gROOT.SetBatch(ROOT.kTRUE)
 ROOT.TH1.SetDefaultSumw2(True)
 ROOT.gStyle.SetOptStat(0)
 
 class Plotter:
-  def __init__(self,s=None,datalabel="",outputDir="./",lumi=1,info_path="",input_json="",config="",year="",isData=False):
+  def __init__(self,s=None,datalabel="",outputDir="./",lumi=1,info_path="",input_json="",input_filelist=None,config="",year="",isData=False,postfix=""):
     self.s = None
     self.datalabel = datalabel
     self.outputDir = outputDir
     self.lumi = lumi
     self.info_path = info_path
     self.input_json = input_json
+    self.input_filelist = input_filelist
     self.year = year
     self.isData = isData
+    self.postfix = postfix
     with open(config, "r") as f_cfg:
       cfg = yaml.load(f_cfg, Loader=yaml.FullLoader)
     self.cfg = cfg
@@ -100,7 +104,25 @@ class Plotter:
   def setJson(self,input_json):
     self.input_json = input_json
 
+  def getFileList(self):
+    self.filelist = []
+    # First try to get the input file list from the txt file
+    if (self.input_filelist is not None) and (os.path.exists( self.input_filelist )) and (os.path.isfile( self.input_filelist )):
+      with open( self.input_filelist, 'r') as inputfile:
+          for line in inputfile.readlines():
+              line = line.rstrip('\n').rstrip()
+              if line.endswith('.root'):
+                  self.filelist.append(line)
+    elif self.s is not None:
+      self.filelist = self.s.getFileList(self.datalabel,"")
+    if len(self.filelist)==0:
+      print("No files provided as input!")
+
+
   def getSumWeight(self):
+    if self.s is None:
+      print("Sample not provided, cannot get SumWeight.")
+      return -1
     nevt = self.s.getNEvents(self.datalabel)
     if nevt != -1:
       return nevt
@@ -187,8 +209,7 @@ class Plotter:
     - Filter events
     - Produce normalisation weights based on xsec
     '''
-    fns = self.s.getFileList(self.datalabel,"")
-    d = ROOT.RDataFrame("Events",fns)
+    d = ROOT.RDataFrame("Events",self.filelist)
     d = self.AddVars(d)
     d = self.AddVarsWithSelection(d)
     if self.cfg['presel'] is not None:
@@ -198,8 +219,8 @@ class Plotter:
     else:
       nevt = self.getSumWeight()
       if nevt==-1:
-        print("No sum weight record, using total events in NanoAOD...")
-        dw = ROOT.RDataFrame("Runs",fns)
+        print("No sum weight record, using total events in NanoAOD... This is deprecated because it could introduce a problem when splitting a sample into multiple jobs.")
+        dw = ROOT.RDataFrame("Runs",self.filelist)
         nevt = dw.Sum("genEventSumw")
         nevt = nevt.GetValue()
         print("Total events in NanoAOD {}".format(nevt))
@@ -312,7 +333,8 @@ class Plotter:
   def makeHistFiles(self):
       if not os.path.exists(self.outputDir):
           os.makedirs(self.outputDir)
-      fout = ROOT.TFile("{}/{}_hist.root".format(self.outputDir,self.s.name),"RECREATE")
+      fout = ROOT.TFile("{}/{}_hist{}.root".format(self.outputDir,self.s.name,self.postfix),"RECREATE")
+      self.getFileList()
       d,w = self.getRDF()
 
       for sr in self.cfg['regions']:
