@@ -6,36 +6,68 @@ correctionlib.register_pyroot_binding()
 import SoftDisplacedVertices.Samples.Samples as s
 ROOT.gInterpreter.Declare('#include "{}/src/SoftDisplacedVertices/Plotter/RDFHelper.h"'.format(os.environ['CMSSW_BASE']))
 ROOT.gInterpreter.Declare('#include "{}/src/SoftDisplacedVertices/Plotter/METxyCorrection.h"'.format(os.environ['CMSSW_BASE']))
-ROOT.EnableImplicitMT(16)
+#ROOT.EnableImplicitMT(4)
+# Maybe let ROOT decide the number of threads to use
+ROOT.EnableImplicitMT()
 ROOT.gROOT.SetBatch(ROOT.kTRUE)
 ROOT.TH1.SetDefaultSumw2(True)
 ROOT.gStyle.SetOptStat(0)
 
 class Plotter:
-  def __init__(self,s=None,datalabel="",outputDir="./",lumi=1,info_path="",input_json="",config="",year="",isData=False):
+  def __init__(self,s=None,datalabel="",outputDir="./",lumi=1,info_path="",input_json="",input_filelist=None,config="",year="",isData=False,postfix=""):
     self.s = None
     self.datalabel = datalabel
     self.outputDir = outputDir
     self.lumi = lumi
     self.info_path = info_path
     self.input_json = input_json
+    self.input_filelist = input_filelist
     self.year = year
     self.isData = isData
+    self.postfix = postfix
     with open(config, "r") as f_cfg:
       cfg = yaml.load(f_cfg, Loader=yaml.FullLoader)
     self.cfg = cfg
     if not self.isData:
       self.setCorrections()
+      if ('new_variables_mc' in self.cfg) and (self.cfg['new_variables_mc'] is not None):
+        if ('new_variables' in self.cfg):
+          for v in self.cfg['new_variables_mc']:
+              self.cfg['new_variables'][v] = self.cfg['new_variables_mc'][v]
+        else:
+          self.cfg['new_variables'] = self.cfg['new_variables_mc']
+      if ('event_variables_mc' in self.cfg) and (self.cfg['event_variables_mc'] is not None):
+        if ('event_variables' in self.cfg):
+          self.cfg['event_variables'] += self.cfg['event_variables_mc']
+        else:
+          self.cfg['event_variables'] = self.cfg['event_variables_mc']
+      if ('objects' in self.cfg) and (self.cfg['objects'] is not None):
+        for o in self.cfg['objects']:
+          if ('variables_mc' in self.cfg['objects'][o]) and (self.cfg['objects'][o]['variables_mc'] is not None):
+            if ('variables' in self.cfg['objects'][o]):
+              self.cfg['objects'][o]['variables'] += self.cfg['objects'][o]['variables_mc']
+            else:
+              self.cfg['objects'][o]['variables'] = self.cfg['objects'][o]['variables_mc']
 
     self.f1 = ROOT.TFile.Open("/eos/user/w/wuzh/dv/CMSSW_13_3_0/src/SoftDisplacedVertices/Plotter/Material_Map_HIST.root")
     ROOT.gInterpreter.ProcessLine("auto h_mm = material_map; h_mm->SetDirectory(0);")
     self.f1.Close()
 
   def setCorrections(self):
-    if self.cfg['corrections'] is not None:
-      if self.cfg['corrections']['PU'] is not None:
+    if 'corrections' in self.cfg and self.cfg['corrections'] is not None:
+      if 'PU' in self.cfg['corrections'] and self.cfg['corrections']['PU'] is not None:
         ROOT.gInterpreter.Declare('auto puf = correction::CorrectionSet::from_file("{}");'.format(self.cfg['corrections']['PU']['path']))
         ROOT.gInterpreter.Declare('auto pu = puf->at("{}");'.format(self.cfg['corrections']['PU']['name']))
+      if 'electron' in self.cfg['corrections'] and self.cfg['corrections']['electron'] is not None:
+        ROOT.gInterpreter.Declare('auto elec = correction::CorrectionSet::from_file("{}");'.format(self.cfg['corrections']['electron']['path']))
+        ROOT.gInterpreter.Declare('auto elesf = elec->at("{}");'.format(self.cfg['corrections']['electron']['name']))
+      if 'photon' in self.cfg['corrections'] and self.cfg['corrections']['photon'] is not None:
+        ROOT.gInterpreter.Declare('auto phoc = correction::CorrectionSet::from_file("{}");'.format(self.cfg['corrections']['photon']['path']))
+        ROOT.gInterpreter.Declare('auto phosf = phoc->at("{}");'.format(self.cfg['corrections']['photon']['name']))
+      if 'muon' in self.cfg['corrections'] and self.cfg['corrections']['muon'] is not None:
+        ROOT.gInterpreter.Declare('auto muc = correction::CorrectionSet::from_file("{}");'.format(self.cfg['corrections']['muon']['path']))
+        ROOT.gInterpreter.Declare('auto musf = muc->at("{}");'.format(self.cfg['corrections']['muon']['name']))
+
 
   def applyCorrections(self,d):
     self.weightstr = ''
@@ -43,9 +75,19 @@ class Plotter:
       d = d.Define("puweight","1")
     else:
       if self.cfg['corrections'] is not None:
-        if self.cfg['corrections']['PU'] is not None:
+        if 'PU' in self.cfg['corrections'] and  self.cfg['corrections']['PU'] is not None:
           d = d.Define("puweight",('pu->evaluate({{Pileup_nTrueInt,"{0}"}})'.format(self.cfg['corrections']['PU']['mode'])))
           self.weightstr += ' * puweight'
+        if 'electron' in self.cfg['corrections'] and  self.cfg['corrections']['electron'] is not None:
+          d = d.Define("eleweight",'EGamma_weight(elesf,Electron_pt[{0}],Electron_eta[{0}],"{1}","Veto","{2}","electron")'.format(self.cfg['ele_sel'],self.cfg['corrections']['electron']['mode'],str(self.year)))
+          self.weightstr += ' * eleweight'
+        if 'photon' in self.cfg['corrections'] and  self.cfg['corrections']['photon'] is not None:
+          d = d.Define("phoweight",'EGamma_weight(phosf,Photon_pt[{0}],Photon_eta[{0}],"{1}","Loose","{2}","photon")'.format(self.cfg['photon_sel'],self.cfg['corrections']['photon']['mode'],str(self.year)))
+          self.weightstr += ' * phoweight'
+        if 'muon' in self.cfg['corrections'] and  self.cfg['corrections']['muon'] is not None:
+          d = d.Define("muweight",'Muon_weight(musf,Muon_pt[{0}],Muon_eta[{0}],"{1}")'.format(self.cfg['muon_sel'],self.cfg['corrections']['muon']['mode'],str(self.year)))
+          self.weightstr += ' * muweight'
+
     return d
 
   def setLumi(self,lumi):
@@ -65,7 +107,25 @@ class Plotter:
   def setJson(self,input_json):
     self.input_json = input_json
 
+  def getFileList(self):
+    self.filelist = []
+    # First try to get the input file list from the txt file
+    if (self.input_filelist is not None) and (os.path.exists( self.input_filelist )) and (os.path.isfile( self.input_filelist )):
+      with open( self.input_filelist, 'r') as inputfile:
+          for line in inputfile.readlines():
+              line = line.rstrip('\n').rstrip()
+              if line.endswith('.root'):
+                  self.filelist.append(line)
+    elif self.s is not None:
+      self.filelist = self.s.getFileList(self.datalabel,"")
+    if len(self.filelist)==0:
+      print("No files provided as input!")
+
+
   def getSumWeight(self):
+    if self.s is None:
+      print("Sample not provided, cannot get SumWeight.")
+      return -1
     nevt = self.s.getNEvents(self.datalabel)
     if nevt != -1:
       return nevt
@@ -98,14 +158,18 @@ class Plotter:
       d = d.Define("MET_corr",'SDV::METXYCorr_Met_MetPhi(MET_pt,MET_phi,run,"{}",{},PV_npvs)'.format(self.year,"false" if self.isData else "true"))
       d = d.Define("MET_pt_corr",'MET_corr.first')
       d = d.Define("MET_phi_corr",'MET_corr.second')
-      if self.cfg['new_variables'] is not None:
-        for newvar in self.cfg['new_variables']:
-          if isinstance(self.cfg['new_variables'][newvar],list):
-            formatstr = [self.cfg[self.cfg['new_variables'][newvar][i]] for i in range(1,len(self.cfg['new_variables'][newvar]))]
-            var_define = self.cfg['new_variables'][newvar][0].format(*formatstr)
-          elif isinstance(self.cfg['new_variables'][newvar],str):
-            var_define = self.cfg['new_variables'][newvar]
-          d = d.Define(newvar,var_define)
+      vars_to_define = ['new_variables']
+      for v in vars_to_define:
+        if (not v in self.cfg) or (self.cfg[v] is None):
+          continue 
+        if self.cfg[v] is not None:
+          for newvar in self.cfg[v]:
+            if isinstance(self.cfg[v][newvar],list):
+              formatstr = [self.cfg[self.cfg[v][newvar][i]] for i in range(1,len(self.cfg[v][newvar]))]
+              var_define = self.cfg[v][newvar][0].format(*formatstr)
+            elif isinstance(self.cfg[v][newvar],str):
+              var_define = self.cfg[v][newvar]
+            d = d.Define(newvar,var_define)
       print("Defining new variables finished") 
       # HEM veto for 2018 data
       if self.year=="2018" and self.isData:
@@ -166,9 +230,7 @@ class Plotter:
     - Filter events
     - Produce normalisation weights based on xsec
     '''
-    fns = self.s.getFileList(self.datalabel,"")
-    print("Load file {}".format(fns))
-    d = ROOT.RDataFrame("Events",fns)
+    d = ROOT.RDataFrame("Events",self.filelist)
     #d = d(1000)
     d = self.AddVars(d)
     d = self.AddVarsWithSelection(d)
@@ -179,8 +241,8 @@ class Plotter:
     else:
       nevt = self.getSumWeight()
       if nevt==-1:
-        print("No sum weight record, using total events in NanoAOD...")
-        dw = ROOT.RDataFrame("Runs",fns)
+        print("No sum weight record, using total events in NanoAOD... This is deprecated because it could introduce a problem when splitting a sample into multiple jobs.")
+        dw = ROOT.RDataFrame("Runs",self.filelist)
         nevt = dw.Sum("genEventSumw")
         nevt = nevt.GetValue()
         print("Total events in NanoAOD {}".format(nevt))
@@ -296,7 +358,8 @@ class Plotter:
   def makeHistFiles(self):
       if not os.path.exists(self.outputDir):
           os.makedirs(self.outputDir)
-      fout = ROOT.TFile("{}/{}_hist.root".format(self.outputDir,self.s.name),"RECREATE")
+      fout = ROOT.TFile("{}/{}_hist{}.root".format(self.outputDir,self.s.name,self.postfix),"RECREATE")
+      self.getFileList()
       d,w = self.getRDF()
 
       for sr in self.cfg['regions']:
