@@ -7,6 +7,7 @@
 # The user can define any `variable_name` and `content`, 
 # but make sure the `variable_name` is not used below
 vertex_selections: ( SDVSecVtx_LxySig >= 20. ) && ( SDVSecVtx_pAngle > 0.2 )
+jet_selHEM: (Jet_jetId==6)
 
 ### PRE-SELECTIONS
 # This part defines the event preselection
@@ -16,6 +17,12 @@ vertex_selections: ( SDVSecVtx_LxySig >= 20. ) && ( SDVSecVtx_pAngle > 0.2 )
 presel: MET_pt>400&&HLT_PFMET120_PFMHT120_IDTight && Jet_pt[0]>100 && !nMuon && !nPhoton
   && !nTau && !nElectron && Flag_METFilters && Jet_chHEF[0]>0.1 && Jet_neHEF[0]<0.8
 
+nJetHEM: "Sum((Jet_eta_selHEM>-3.0) && (Jet_eta_selHEM<-1.3) && (Jet_phi_selHEM>-1.57) && (Jet_phi_selHEM<-0.87))"
+
+corrections:
+  PU:
+
+
 ### NEW VARIABLE DEFINITION
 # This part defines new variables
 # It calls the `Define` method of an RDataFrame
@@ -23,6 +30,8 @@ presel: MET_pt>400&&HLT_PFMET120_PFMHT120_IDTight && Jet_pt[0]>100 && !nMuon && 
 # usage2: new_variable_name: [definition(format string),global defined variables]
 # if a global defined variable is used
 new_variables:
+  Jet_eta_selHEM: ['Jet_eta[{0}]',jet_selHEM]
+  Jet_phi_selHEM: ['Jet_phi[{0}]',jet_selHEM]
   SDVTrack_dxySig: abs(SDVTrack_dxy)/SDVTrack_dxyError
   nSDVSecVtx_sel: ['Sum({0})', vertex_selections]
   SDVTrack_isGoodTrack: ( (abs(SDVTrack_dxy)/SDVTrack_dxyError)>4 ) && (SDVTrack_normalizedChi2 < 5) && (abs(SDVTrack_dz)<4.) && (SDVTrack_numberOfValidHits>13) && ( (SDVTrack_ptError/SDVTrack_pt)<0.015 ) && ( acos(cos(SDVTrack_phi-Jet_phi[0]))>1 ) && ( acos(cos(SDVTrack_phi-MET_phi))<1.5 )
