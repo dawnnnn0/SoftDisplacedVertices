@@ -49,6 +49,10 @@ class Plotter:
             else:
               self.cfg['objects'][o]['variables'] = self.cfg['objects'][o]['variables_mc']
 
+    self.f1 = ROOT.TFile.Open("/eos/user/w/wuzh/dv/CMSSW_13_3_0/src/SoftDisplacedVertices/Plotter/Material_Map_HIST.root")
+    ROOT.gInterpreter.ProcessLine("auto h_mm = material_map; h_mm->SetDirectory(0);")
+    self.f1.Close()
+
   def setCorrections(self):
     if 'corrections' in self.cfg and self.cfg['corrections'] is not None:
       if 'PU' in self.cfg['corrections'] and self.cfg['corrections']['PU'] is not None:
@@ -85,7 +89,6 @@ class Plotter:
           self.weightstr += ' * muweight'
 
     return d
-
 
   def setLumi(self,lumi):
     self.lumi = lumi
@@ -136,6 +139,21 @@ class Plotter:
     return -1
   
   def AddVars(self,d):
+      d = d.Define("SDVSecVtx_dphi_L_MET","acos(cos(SDVSecVtx_L_phi-MET_phi))")
+      d = d.Define("SDVSecVtx_dphi_L_jet0","acos(cos(SDVSecVtx_L_phi-Jet_phi[0]))")
+  
+      d = d.Define("SDVSecVtx_Lxy_err","SDVSecVtx_Lxy/SDVSecVtx_LxySig")
+      d = d.Define("SDVSecVtx_dlen_err","SDVSecVtx_dlen/SDVSecVtx_dlenSig")
+      d = d.Define("SDVSecVtx_L_eta_abs","abs(SDVSecVtx_L_eta)")
+  
+      d = d.Define("SDVSecVtx_TkMaxdphi","SDV_TkMaxdphi(SDVIdxLUT_TrackIdx, SDVIdxLUT_SecVtxIdx, nSDVSecVtx, SDVTrack_phi)")
+      d = d.Define("SDVSecVtx_TkMindphi","SDV_TkMindphi(SDVIdxLUT_TrackIdx, SDVIdxLUT_SecVtxIdx, nSDVSecVtx, SDVTrack_phi)")
+      d = d.Define("SDVSecVtx_TkMaxdeta","SDV_TkMaxdphi(SDVIdxLUT_TrackIdx, SDVIdxLUT_SecVtxIdx, nSDVSecVtx, SDVTrack_eta)")
+      d = d.Define("SDVSecVtx_TkMindeta","SDV_TkMindphi(SDVIdxLUT_TrackIdx, SDVIdxLUT_SecVtxIdx, nSDVSecVtx, SDVTrack_eta)")
+      d = d.Define("SDVSecVtx_TkMaxdR","SDV_TkMaxdR(SDVIdxLUT_TrackIdx, SDVIdxLUT_SecVtxIdx, nSDVSecVtx, SDVTrack_eta, SDVTrack_phi)")
+      d = d.Define("SDVSecVtx_TkMindR","SDV_TkMindR(SDVIdxLUT_TrackIdx, SDVIdxLUT_SecVtxIdx, nSDVSecVtx, SDVTrack_eta, SDVTrack_phi)")
+      d = d.Define("SDVSecVtx_mmoverlap","return ROOT::VecOps::Map(SDVSecVtx_x,SDVSecVtx_y, [](float x, float y){return h_mm->GetBinContent(h_mm->FindBin(x,y)) > 0.01;})")
+      
       # MET xy corrections
       d = d.Define("MET_corr",'SDV::METXYCorr_Met_MetPhi(MET_pt,MET_phi,run,"{}",{},PV_npvs)'.format(self.year,"false" if self.isData else "true"))
       d = d.Define("MET_pt_corr",'MET_corr.first')
@@ -152,6 +170,7 @@ class Plotter:
             elif isinstance(self.cfg[v][newvar],str):
               var_define = self.cfg[v][newvar]
             d = d.Define(newvar,var_define)
+      print("Defining new variables finished") 
       # HEM veto for 2018 data
       if self.year=="2018" and self.isData:
         d = d.Define("nJetHEM", self.cfg['nJetHEM'])
@@ -199,7 +218,9 @@ class Plotter:
       d = d.Define("evt_weight","{0}".format(weight))
     else:
       d = self.applyCorrections(d)
-      d = d.Define("evt_weight","Generator_weight*{0}{1}".format(weight,self.weightstr))
+      d = d.Define("evt_weight0","Generator_weight*{0}{1}".format(weight,self.weightstr))
+      d = d.Define("met_weight","returnRS(MET_pt)")
+      d = d.Define("evt_weight","evt_weight0*met_weight")
     return d
   
   def getRDF(self):
@@ -210,6 +231,7 @@ class Plotter:
     - Produce normalisation weights based on xsec
     '''
     d = ROOT.RDataFrame("Events",self.filelist)
+    #d = d(1000)
     d = self.AddVars(d)
     d = self.AddVarsWithSelection(d)
     if self.cfg['presel'] is not None:
@@ -227,6 +249,8 @@ class Plotter:
       xsec_weights = self.lumi*self.s.xsec/(nevt)
       print("Total gen events {}, xsec {}, weight {}".format(nevt,self.s.xsec,xsec_weights))
     d = self.AddWeights(d,xsec_weights)
+    #d = d.Range(1000)
+    #print("RDF finished initializing with range 1000")
     return d,xsec_weights
 
   def getplotsOld(self,d,weight):
@@ -319,9 +343,10 @@ class Plotter:
         hs.append(h)
   
     for i in range(len(hs)):
+      print(hs[i].GetName(),"passes")
       hs[i] = hs[i].Clone()
       hs[i].SetName(hs[i].GetName())
-
+      #print(hs[i].GetName(),"passes")
     return hs
 
   def writeplots(self,rootdir,d,weight,plots_1d,plots_2d,varlabel):
