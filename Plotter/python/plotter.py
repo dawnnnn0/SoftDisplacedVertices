@@ -27,6 +27,10 @@ class Plotter:
     if not self.isData:
       self.setCorrections()
 
+    self.f1 = ROOT.TFile.Open("/eos/user/w/wuzh/dv/CMSSW_13_3_0/src/SoftDisplacedVertices/Plotter/Material_Map_HIST.root")
+    ROOT.gInterpreter.ProcessLine("auto h_mm = material_map; h_mm->SetDirectory(0);")
+    self.f1.Close()
+
   def setCorrections(self):
     if self.cfg['corrections'] is not None:
       if self.cfg['corrections']['PU'] is not None:
@@ -43,10 +47,6 @@ class Plotter:
           d = d.Define("puweight",('pu->evaluate({{Pileup_nTrueInt,"{0}"}})'.format(self.cfg['corrections']['PU']['mode'])))
           self.weightstr += ' * puweight'
     return d
-
-    self.f1 = ROOT.TFile.Open("/eos/user/w/wuzh/dv/CMSSW_13_3_0/src/SoftDisplacedVertices/Plotter/Material_Map_HIST.root")
-    ROOT.gInterpreter.ProcessLine("auto h_mm = material_map; h_mm->SetDirectory(0);")
-    self.f1.Close()
 
   def setLumi(self,lumi):
     self.lumi = lumi
