@@ -712,14 +712,14 @@ Float_t returnRS(Float_t MET_pt)
 }
 
 
-// This function finds whether the charges of tracks in SDV are neutral or not
+// This function finds whether the sum of charges of tracks in SDV are neutral or not
 ROOT::VecOps::RVec<int> SDVSecVtx_tkneutral(ROOT::RVecI SDVIdxLUT_SecVtxIdx, ROOT::RVecI SDVIdxLUT_TrackIdx, ROOT::RVecI SDVTrack_charge, int nSDV)
 {
 	ROOT::VecOps::RVec<int> tkneutral;
 	for (int i=0; i<nSDV; ++i){
 		auto tkIdx = SDVIdxLUT_TrackIdx[SDVIdxLUT_SecVtxIdx==i];
 		auto SDVTrack_charge_filtered = ROOT::VecOps::Take(SDVTrack_charge,tkIdx);
-		if (ROOT::VecOps::Min(SDVTrack_charge_filtered)==0 && ROOT::VecOps::Max(SDVTrack_charge_filtered)==0) tkneutral.push_back(1);
+		if (ROOT::VecOps::Sum(SDVTrack_charge_filtered)==0) tkneutral.push_back(1);
 		else tkneutral.push_back(0);
 	}
 	return tkneutral;
