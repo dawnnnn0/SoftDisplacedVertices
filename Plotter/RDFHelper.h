@@ -689,6 +689,7 @@ ROOT::RVecF SDV_TkMindR(ROOT::RVecI SDVIdxLUT_TrackIdx, ROOT::RVecI SDVIdxLUT_Se
     return SDVSecVtx_mindR;
 }
 
+// This function rescales the MET_pt using given numbers
 Float_t returnRS(Float_t MET_pt)
 {
     ROOT::RVecI MET_bins = {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190 ,200, 220, 240, 270, 300, 350, 400, 450, 500, 600, 700, 800};
@@ -711,5 +712,16 @@ Float_t returnRS(Float_t MET_pt)
 }
 
 
-
+// This function finds whether the charges of tracks in SDV are neutral or not
+ROOT::VecOps::RVec<int> SDVSecVtx_tkneutral(ROOT::RVecI SDVIdxLUT_SecVtxIdx, ROOT::RVecI SDVIdxLUT_TrackIdx, ROOT::RVecI SDVTrack_charge, int nSDV)
+{
+	ROOT::VecOps::RVec<int> tkneutral;
+	for (int i=0; i<nSDV; ++i){
+		auto tkIdx = SDVIdxLUT_TrackIdx[SDVIdxLUT_SecVtxIdx==i];
+		auto SDVTrack_charge_filtered = ROOT::VecOps::Take(SDVTrack_charge,tkIdx);
+		if (ROOT::VecOps::Min(SDVTrack_charge_filtered)==0 && ROOT::VecOps::Max(SDVTrack_charge_filtered)==0) tkneutral.push_back(1);
+		else tkneutral.push_back(0);
+	}
+	return tkneutral;
+}
 
