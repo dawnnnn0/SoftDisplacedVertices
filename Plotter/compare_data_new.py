@@ -14,7 +14,7 @@ import os,math
 import ROOT
 import cmsstyle as CMS
 import SoftDisplacedVertices.Samples.Samples as s
-ROOT.EnableImplicitMT(4)
+ROOT.EnableImplicitMT()
 ROOT.gROOT.SetBatch(ROOT.kTRUE)
 ROOT.TH1.SetDefaultSumw2(True)
 ROOT.gStyle.SetOptStat(0)
@@ -191,15 +191,16 @@ def comparehists_cms(name,hs,colors,legends,sig_scale=[], scale_to_data=False, r
       d_bkg[h].Scale(w_value)
 
   if norm:
-    if data is not None:
+    if data is not None and data.Integral(0,1000000)!=0:
       data.Scale(1.0/data.Integral(0,1000000))
-    if bkg_mc is not None:
+    if bkg_mc is not None and bkg_mc.Integral(0,1000000)!=0:
       w_value = 1.0/bkg_mc.Integral(0,1000000)
       bkg_mc.Scale(w_value)
       for h in d_bkg:
         d_bkg[h].Scale(w_value)
     for h in hs['sig']:
-      h.Scale(1.0/h.Integral(0,1000000))
+      if h.Integral(0,1000000)!=0:
+        h.Scale(1.0/h.Integral(0,1000000))
 
   hlist = []
   if data is not None:
