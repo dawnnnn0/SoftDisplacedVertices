@@ -69,6 +69,9 @@ class Plotter:
     self.weightstr = ''
     if self.isData:
       d = d.Define("puweight","1")
+      if ('weights' in self.cfg) and (self.cfg['weights'] is not None):
+        for w in self.cfg['weights']:
+          self.weightstr += ' * {}'.format(w)
     else:
       if self.cfg['corrections'] is not None:
         if 'PU' in self.cfg['corrections'] and  self.cfg['corrections']['PU'] is not None:
@@ -83,6 +86,12 @@ class Plotter:
         if 'muon' in self.cfg['corrections'] and  self.cfg['corrections']['muon'] is not None:
           d = d.Define("muweight",'Muon_weight(musf,Muon_pt[{0}],Muon_eta[{0}],"{1}")'.format(self.cfg['muon_sel'],self.cfg['corrections']['muon']['mode'],str(self.year)))
           self.weightstr += ' * muweight'
+      if ('weights' in self.cfg) and (self.cfg['weights'] is not None):
+        for w in self.cfg['weights']:
+          self.weightstr += ' * {}'.format(w)
+      if ('mcweights' in self.cfg) and (self.cfg['mcweights'] is not None):
+        for w in self.cfg['mcweights']:
+          self.weightstr += ' * {}'.format(w)
 
     return d
 
@@ -196,7 +205,7 @@ class Plotter:
   def AddWeights(self,d,weight):
     if self.isData:
       d = self.applyCorrections(d)
-      d = d.Define("evt_weight","{0}".format(weight))
+      d = d.Define("evt_weight","{0}{1}".format(weight,self.weightstr))
     else:
       d = self.applyCorrections(d)
       d = d.Define("evt_weight","Generator_weight*{0}{1}".format(weight,self.weightstr))
@@ -277,6 +286,8 @@ class Plotter:
       plots_nm1 = []
 
     for plt in plots_1d:
+      if not plt in self.cfg['plot_setting']:
+        print("{} not registered in plot setting!".format(plt))
       if self.isData:
         h = d.Histo1D(tuple(self.cfg['plot_setting'][plt]),plt+varlabel)
       else:
