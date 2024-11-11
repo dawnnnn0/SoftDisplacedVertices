@@ -21,6 +21,7 @@ ROOT.gStyle.SetOptStat(0)
 ROOT.TGaxis.SetExponentOffset(-0.10, 0.01, "Y")
 
 import argparse
+import numpy as np
 
 ## This part copied from https://github.com/Ang-Li-95/cmssw-usercode/blob/UL/Tools/python/ROOTTools.py#L27C1-L37C34
 class TH1EntriesProtector(object):
@@ -268,6 +269,16 @@ def comparehists_cms(name,hs,colors,legends,sig_scale=[], scale_to_data=False, r
         yerr_root.SetPointY(i,1)
     CMS.cmsDraw(yerr_root, "e2same0", lwidth = 100, msize = 0, fcolor = ROOT.kBlack, fstyle = 3004)  
     CMS.cmsDraw(ratio, "E1X0", mcolor=ROOT.kBlack)
+    
+    ratio.BufferEmpty()
+    arr_ratio = ratio.GetArray()
+    np_ratio = np.ndarray((ratio.GetNbinsX()+2,), dtype=np.float64, buffer=arr_ratio, order='C')
+    #yerr_root.BufferEmpty()
+    #arr_yerr = yerr_root.GetArray()
+    #np_yerr = np.ndarray((yerr_root.GetNbinsX()+2,), dtype=np.float64, buffer=arr_yerr, order='C')
+    print("{} Data/MC ratio is {}".format(name,np_ratio))
+    #print("{} Data/MC ratio_err is {}".format(name,np_yerr))
+    print("------------------------------------------------------")
     ref_line = ROOT.TLine(x_min, 1, x_max, 1)
     CMS.cmsDrawLine(ref_line, lcolor=ROOT.kBlack, lstyle=ROOT.kDotted)
 
