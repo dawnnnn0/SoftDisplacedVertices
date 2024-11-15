@@ -79,7 +79,6 @@ new_variables:
   SDVTrack_dxydzratio: abs(SDVTrack_dxy/SDVTrack_dz)
   SDVTrack_isGoodTrack: ( (abs(SDVTrack_dxy)/SDVTrack_dxyError)>4 ) && (SDVTrack_normalizedChi2 < 5) && (SDVTrack_numberOfValidHits>13) && ( (SDVTrack_ptError/SDVTrack_pt)<0.015 ) && ( SDVTrack_dxydzratio>0.25 ) && ( SDVTrack_dphi_jet0>1 ) && ( SDVTrack_dphi_MET<1.5 ) && (SDVTrack_pfRelIso03_all<5)
   SDVSecVtx_nGoodTrack: SDVSecVtx_nGoodTrack(SDVIdxLUT_SecVtxIdx,SDVIdxLUT_TrackIdx,SDVTrack_isGoodTrack,nSDVSecVtx)
-  SDVSecVtx_r: "hypot(SDVSecVtx_x,SDVSecVtx_y)"
   SDVSecVtx_dphiMET: 'acos(cos(SDVSecVtx_L_phi-MET_phi_corr))'
   SDVSecVtx_dphijet0: 'acos(cos(SDVSecVtx_L_phi-leadingjet_phi))'
   SDVSecVtx_Lxy_err: "SDVSecVtx_Lxy/SDVSecVtx_LxySig"
@@ -131,22 +130,21 @@ new_variables_mc:
 
 regions:
   All: 
-  Rs: (nSDVSecVtx_sel>0) || (nSDVSecVtx_sel_val1>0) || (nSDVSecVtx_sel_val2>0)
   SRs: nSDVSecVtx_sel>0
-  #SR: nSDVSecVtx_sel>0 && MET_pt_corr>700 && SDVSecVtx_LxySig_max>20.0
-  #SR_CRlowMET: nSDVSecVtx_sel>0 && MET_pt_corr<700 && SDVSecVtx_LxySig_max>20.0
-  #SR_CRlowLxy:  nSDVSecVtx_sel>0 && MET_pt_corr>700 && SDVSecVtx_LxySig_max<20.0
-  #SR_CRlowLxylowMET: nMuon_sel==0 && nEle_sel==0 && nPhoton_sel==0 && nTau_sel==0 && nSDVSecVtx_sel>0 && MET_pt_corr<700 && SDVSecVtx_LxySig_max<20.0
+  SR: nSDVSecVtx_sel>0 && MET_pt_corr>700 && SDVSecVtx_LxySig_max>20.0
+  SR_CRlowMET: nSDVSecVtx_sel>0 && MET_pt_corr<700 && SDVSecVtx_LxySig_max>20.0
+  SR_CRlowLxy:  nSDVSecVtx_sel>0 && MET_pt_corr>700 && SDVSecVtx_LxySig_max<20.0
+  SR_CRlowLxylowMET: nMuon_sel==0 && nEle_sel==0 && nPhoton_sel==0 && nTau_sel==0 && nSDVSecVtx_sel>0 && MET_pt_corr<700 && SDVSecVtx_LxySig_max<20.0
   VR1s: nSDVSecVtx_sel==0 && nSDVSecVtx_sel_val1>0
-  #VR1: nSDVSecVtx_sel==0 && nSDVSecVtx_sel_val1>0 && MET_pt_corr>700 && SDVSecVtx_LxySig_max_val1>20.0
-  #VR1_CRlowMET: nSDVSecVtx_sel_val1>0 && nSDVSecVtx_sel==0 && MET_pt_corr<700 && SDVSecVtx_LxySig_max_val1>20.0
-  #VR1_CRlowLxy: nSDVSecVtx_sel_val1>0 && nSDVSecVtx_sel==0 && MET_pt_corr>700 && SDVSecVtx_LxySig_max_val1<20.0
-  #VR1_CRlowLxylowMET: nSDVSecVtx_sel_val1>0 && nSDVSecVtx_sel==0 && MET_pt_corr<700 && SDVSecVtx_LxySig_max_val1<20.0
+  VR1: nSDVSecVtx_sel==0 && nSDVSecVtx_sel_val1>0 && MET_pt_corr>700 && SDVSecVtx_LxySig_max_val1>20.0
+  VR1_CRlowMET: nSDVSecVtx_sel_val1>0 && nSDVSecVtx_sel==0 && MET_pt_corr<700 && SDVSecVtx_LxySig_max_val1>20.0
+  VR1_CRlowLxy: nSDVSecVtx_sel_val1>0 && nSDVSecVtx_sel==0 && MET_pt_corr>700 && SDVSecVtx_LxySig_max_val1<20.0
+  VR1_CRlowLxylowMET: nSDVSecVtx_sel_val1>0 && nSDVSecVtx_sel==0 && MET_pt_corr<700 && SDVSecVtx_LxySig_max_val1<20.0
   VR2s: nSDVSecVtx_sel==0 && nSDVSecVtx_sel_val1==0 && nSDVSecVtx_sel_val2>0
-  #VR2: nSDVSecVtx_sel==0 && nSDVSecVtx_sel_val1==0 && nSDVSecVtx_sel_val2>0 && MET_pt_corr>700 && SDVSecVtx_LxySig_max_val2>20.0
-  #VR2_CRlowMET: nSDVSecVtx_sel_val2>0 && nSDVSecVtx_sel_val1==0 && nSDVSecVtx_sel==0 && MET_pt_corr<700 && SDVSecVtx_LxySig_max_val2>20.0
-  #VR2_CRlowLxy: nSDVSecVtx_sel_val2>0 && nSDVSecVtx_sel_val1==0 && nSDVSecVtx_sel==0 && MET_pt_corr>700 && SDVSecVtx_LxySig_max_val2<20.0
-  #VR2_CRlowLxylowMET: nSDVSecVtx_sel_val2>0 && nSDVSecVtx_sel_val1==0 && nSDVSecVtx_sel==0 && MET_pt_corr<700 && SDVSecVtx_LxySig_max_val2<20.0
+  VR2: nSDVSecVtx_sel==0 && nSDVSecVtx_sel_val1==0 && nSDVSecVtx_sel_val2>0 && MET_pt_corr>700 && SDVSecVtx_LxySig_max_val2>20.0
+  VR2_CRlowMET: nSDVSecVtx_sel_val2>0 && nSDVSecVtx_sel_val1==0 && nSDVSecVtx_sel==0 && MET_pt_corr<700 && SDVSecVtx_LxySig_max_val2>20.0
+  VR2_CRlowLxy: nSDVSecVtx_sel_val2>0 && nSDVSecVtx_sel_val1==0 && nSDVSecVtx_sel==0 && MET_pt_corr>700 && SDVSecVtx_LxySig_max_val2<20.0
+  VR2_CRlowLxylowMET: nSDVSecVtx_sel_val2>0 && nSDVSecVtx_sel_val1==0 && nSDVSecVtx_sel==0 && MET_pt_corr<700 && SDVSecVtx_LxySig_max_val2<20.0
 event_variables:
 - nSDVSecVtx_sel
 - nSDVSecVtx_sel_val1
@@ -186,111 +184,12 @@ event_variables:
 - evt_weight
 event_variables_mc:
 - puweight
-- nbJet_gen
 event_2d_plots:
   - [MET_pt_corr,SDVSecVtx_LxySig_max]
   - [MET_pt_corr,SDVSecVtx_LxySig_max_val1]
   - [MET_pt_corr,SDVSecVtx_LxySig_max_val2]
-  - [PV_npvsGood,leadingjet_pt]
-  - [PV_npvsGood,nSDVTrack]
-  - [PV_npvsGood,nTrack_dxysel]
-objects:
-  SDVSecVtx:
-    selections:
-      all:
-      mapveto: (SDVSecVtx_mapveto==0)
-      sel_val1: ( SDVSecVtx_dphiMET<1.5 )&&(SDVSecVtx_pAngle>0.2)&&(SDVSecVtx_nGoodTrack==1)&&( SDVSecVtx_dphijet0>1 ) && (SDVSecVtx_ndof>1) && (SDVSecVtx_mapveto==0)
-      sel_val2: ( SDVSecVtx_dphiMET<1.5 )&&(SDVSecVtx_pAngle>0.2)&&(SDVSecVtx_nGoodTrack==0)&&( SDVSecVtx_dphijet0>1 ) && (SDVSecVtx_ndof>1) && (SDVSecVtx_mapveto==0)
-      sel: ( SDVSecVtx_dphiMET<1.5 )&&(SDVSecVtx_pAngle>0.2)&&(SDVSecVtx_nGoodTrack>=2)&&( SDVSecVtx_dphijet0>1 ) && (SDVSecVtx_ndof>1) && (SDVSecVtx_mapveto==0)
-    variables:
-    - SDVSecVtx_x
-    - SDVSecVtx_y
-    - SDVSecVtx_L_phi
-    - SDVSecVtx_L_eta
-    - SDVSecVtx_nTracks
-    - SDVSecVtx_pAngle
-    - SDVSecVtx_nGoodTrack
-    - SDVSecVtx_dlen
-    - SDVSecVtx_dlenSig
-    - SDVSecVtx_dlen_err
-    - SDVSecVtx_r
-    - SDVSecVtx_Lxy
-    - SDVSecVtx_LxySig
-    - SDVSecVtx_Lxy_err
-    - SDVSecVtx_chi2
-    - SDVSecVtx_normalizedChi2
-    - SDVSecVtx_ndof
-    - SDVSecVtx_mass
-    - SDVSecVtx_dphiMET
-    - SDVSecVtx_dphijet0
-    - SDVSecVtx_TkMaxdphi
-    - SDVSecVtx_TkMindphi
-    - SDVSecVtx_TkMaxdeta
-    - SDVSecVtx_TkMindeta
-    - SDVSecVtx_TkMaxdR
-    - SDVSecVtx_TkMindR
-    - SDVSecVtx_closestJetdR
-    - SDVSecVtx_closestJetdphi
-    - SDVSecVtx_closestJetdeta
-    - SDVSecVtx_closestbJetdRloose
-    - SDVSecVtx_closestbJetdphi_loose
-    - SDVSecVtx_closestbJetdeta_loose
-    - SDVSecVtx_closestbJetdRmedium
-    - SDVSecVtx_closestbJetdphi_medium
-    - SDVSecVtx_closestbJetdeta_medium
-    - SDVSecVtx_closestbJetdRtight
-    - SDVSecVtx_closestbJetdphi_tight
-    - SDVSecVtx_closestbJetdeta_tight
-    variables_mc:
-    - SDVSecVtx_closestbJetdRgen
-    - SDVSecVtx_closestbJetdphi_gen
-    - SDVSecVtx_closestbJetdeta_gen
-    2d_plots:
-    - [SDVSecVtx_Lxy,SDVSecVtx_pAngle]
-    - [SDVSecVtx_Lxy,SDVSecVtx_mass]
-    - [SDVSecVtx_x,SDVSecVtx_y]
-  SDVTrack:
-    selections:
-      all: 
-      #loweta: abs(SDVTrack_eta)<1.0
-      #higheta: abs(SDVTrack_eta)>1.5
-      #phisel: ( SDVTrack_dphi_jet0>1 ) && ( SDVTrack_dphi_MET<1.5 )
-      GoodTrack: SDVTrack_dxySig>4 && SDVTrack_normalizedChi2<5 && SDVTrack_numberOfValidHits>13 && SDVTrack_ptqual < 0.015 && ( SDVTrack_dxydzratio>0.25 ) && (SDVTrack_pfRelIso03_all<5) && ( SDVTrack_dphi_jet0>1 ) && ( SDVTrack_dphi_MET<1.5 )
-      allInSV: SDVTrack_isInSV==1
-      GoodTrackdxydzInSV: SDVTrack_dxySig>4 && SDVTrack_normalizedChi2<5 && SDVTrack_numberOfValidHits>13 && SDVTrack_ptqual < 0.015 && SDVTrack_dxydzratio>0.25 && (SDVTrack_pfRelIso03_all<5) && ( SDVTrack_dphi_jet0>1 ) && ( SDVTrack_dphi_MET<1.5 ) && SDVTrack_isInSV==1
-    variables:
-    - SDVTrack_dxy
-    - SDVTrack_dxyError
-    - SDVTrack_dxySig
-    - SDVTrack_dz
-    - SDVTrack_dzError
-    - SDVTrack_dzSig
-    - SDVTrack_normalizedChi2
-    - SDVTrack_numberOfValidHits
-    - SDVTrack_isHighPurity
-    - SDVTrack_pt
-    - SDVTrack_phi
-    - SDVTrack_eta
-    - SDVTrack_ptError
-    - SDVTrack_ptqual
-    - SDVTrack_dxydzratio
-    - SDVTrack_dphi_MET
-    - SDVTrack_dphi_jet0
-    - SDVTrack_dR_jet0
-    - SDVTrack_pfRelIso03_all
-    - SDVTrack_pfRelIso03_chg
-    2d_plots:
-    - [SDVTrack_eta,SDVTrack_numberOfValidHits]
 
-    nm1:
-    - ['SDVTrack_pfRelIso03_all','<5']
-    - ['SDVTrack_dxySig','>4']
-    - ['SDVTrack_normalizedChi2','<5']
-    - ['SDVTrack_numberOfValidHits','>13']
-    - ['SDVTrack_ptqual','<0.015']
-    - ['SDVTrack_dxydzratio','>0.25']
-    - ['SDVTrack_dphi_MET','<1.5']
-    - ['SDVTrack_dphi_jet0','>1']
+objects:
 
 
 plot_setting:
@@ -341,9 +240,8 @@ plot_setting:
   SDVTrack_minJetdeta: [SDVTrack_minJetdeta,";min(#Delta#eta(track, jet));A.U.",100,0,5]
   SDVTrack_minJetdR: [SDVTrack_minJetdR,";min(#DeltaR(track, jet));A.U.",100,0,5]
   SDVTrack_minJetdR_pt: [SDVTrack_minJetdR_pt,";pt of jet with minimum dR with track;A.U.",100,0,100]
-  SDVSecVtx_x: [SDVSecVtx_x, ';vertex x (cm);A.U.',500, -25, 25]
-  SDVSecVtx_y: [SDVSecVtx_y, ';vertex y (cm);A.U.',500, -25, 25]
-  SDVSecVtx_r: [SDVSecVtx_r, ';vertex r (cm);A.U.', 500, 0, 50]
+  SDVSecVtx_x: [SDVSecVtx_x, ';vertex x (cm);A.U.',400, -20, 20]
+  SDVSecVtx_y: [SDVSecVtx_y, ';vertex y (cm);A.U.',400, -20, 20]
   SDVSecVtx_L_phi: [SDVSecVtx_L_phi,";vertex #phi;A.U.",128,-3.2,3.2]
   SDVSecVtx_L_eta: [SDVSecVtx_L_eta,";vertex #eta;A.U.",200,-5,5]
   SDVSecVtx_L_eta_abs: [SDVSecVtx_L_eta_abs, ';vertex |#eta|;A.U.', 200, 0, 10]
