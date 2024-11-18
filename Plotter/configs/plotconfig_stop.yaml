@@ -112,14 +112,14 @@ event_2d_plots:
 objects:
   SDVSecVtx:
     selections:
-      K0: SDVSecVtx_mass>0.48 && SDVSecVtx_mass<0.52 && SDVSecVtx_nTracks==2 && SDVSecVtx_tkneutral==1
+      #K0: SDVSecVtx_mass>0.48 && SDVSecVtx_mass<0.52 && SDVSecVtx_nTracks==2 && SDVSecVtx_tkneutral==1
         #all:
-        #genLLP: (SDVSecVtx_matchedLLPnDau_bydau>1)
-        #genLLP_2tks: (SDVSecVtx_matchedLLPnDau_bydau>1) && (SDVSecVtx_nTracks==2)
-        #goodvtx: ( acos(cos(SDVSecVtx_L_phi-MET_phi))<1.5 )&&(SDVSecVtx_LxySig>=20.)&&(SDVSecVtx_pAngle>0.2)&&(SDVSecVtx_nGoodTrack>=2)&&( acos(cos(SDVSecVtx_L_phi-Jet_phi[0]))>1 ) && (SDVSecVtx_ndof>1)
-        #goodvtx_2tks: ( acos(cos(SDVSecVtx_L_phi-MET_phi))<1.5 )&&(SDVSecVtx_LxySig>=20.)&&(SDVSecVtx_pAngle>0.2)&&(SDVSecVtx_nGoodTrack>=2)&&( acos(cos(SDVSecVtx_L_phi-Jet_phi[0]))>1 ) && (SDVSecVtx_ndof>1) && (SDVSecVtx_nTracks==2)
-        #genLLP_goodvtx: ( acos(cos(SDVSecVtx_L_phi-MET_phi))<1.5 )&&(SDVSecVtx_LxySig>=20.)&&(SDVSecVtx_pAngle>0.2)&&(SDVSecVtx_nGoodTrack>=2)&&( acos(cos(SDVSecVtx_L_phi-Jet_phi[0]))>1 ) && (SDVSecVtx_ndof>1) && (SDVSecVtx_matchedLLPnDau_bydau>1)
-        #genLLP_goodvtx_2tks: ( acos(cos(SDVSecVtx_L_phi-MET_phi))<1.5 )&&(SDVSecVtx_LxySig>=20.)&&(SDVSecVtx_pAngle>0.2)&&(SDVSecVtx_nGoodTrack>=2)&&( acos(cos(SDVSecVtx_L_phi-Jet_phi[0]))>1 ) && (SDVSecVtx_ndof>1) && (SDVSecVtx_matchedLLPnDau_bydau>1) && (SDVSecVtx_nTracks==2)
+      genLLP: (SDVSecVtx_matchedLLPnDau_bydau>1)
+      genLLP_2tks: (SDVSecVtx_matchedLLPnDau_bydau>1) && (SDVSecVtx_nTracks==2)
+      goodvtx: ( acos(cos(SDVSecVtx_L_phi-MET_phi))<1.5 )&&(SDVSecVtx_LxySig>=20.)&&(SDVSecVtx_pAngle>0.2)&&(SDVSecVtx_nGoodTrack>=2)&&( acos(cos(SDVSecVtx_L_phi-Jet_phi[0]))>1 ) && (SDVSecVtx_ndof>1)
+      goodvtx_2tks: ( acos(cos(SDVSecVtx_L_phi-MET_phi))<1.5 )&&(SDVSecVtx_LxySig>=20.)&&(SDVSecVtx_pAngle>0.2)&&(SDVSecVtx_nGoodTrack>=2)&&( acos(cos(SDVSecVtx_L_phi-Jet_phi[0]))>1 ) && (SDVSecVtx_ndof>1) && (SDVSecVtx_nTracks==2)
+      genLLP_goodvtx: ( acos(cos(SDVSecVtx_L_phi-MET_phi))<1.5 )&&(SDVSecVtx_LxySig>=20.)&&(SDVSecVtx_pAngle>0.2)&&(SDVSecVtx_nGoodTrack>=2)&&( acos(cos(SDVSecVtx_L_phi-Jet_phi[0]))>1 ) && (SDVSecVtx_ndof>1) && (SDVSecVtx_matchedLLPnDau_bydau>1)
+      genLLP_goodvtx_2tks: ( acos(cos(SDVSecVtx_L_phi-MET_phi))<1.5 )&&(SDVSecVtx_LxySig>=20.)&&(SDVSecVtx_pAngle>0.2)&&(SDVSecVtx_nGoodTrack>=2)&&( acos(cos(SDVSecVtx_L_phi-Jet_phi[0]))>1 ) && (SDVSecVtx_ndof>1) && (SDVSecVtx_matchedLLPnDau_bydau>1) && (SDVSecVtx_nTracks==2)
     variables:
       #    - SDVSecVtx_nTracks
       - SDVSecVtx_pAngle
