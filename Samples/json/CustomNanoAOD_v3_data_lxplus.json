@@ -1,0 +1,14 @@
+{
+    "CustomNanoAOD_v3": {
+        "dir": {}, 
+        "dataset": {},
+        "logical_dir":{
+            "MET2018A": "/MET/liko-MET_2018A_Data_UL18_CustomNanoAODv1-00000000000000000000000000000000/USER", 
+            "MET2018B": "/MET/liko-MET_2018B_Data_UL18_CustomNanoAODv1-00000000000000000000000000000000/USER", 
+            "MET2018C": "/MET/liko-MET_2018A_Data_UL18_CustomNanoAODv1-00000000000000000000000000000000/USER", 
+            "MET2018D": "/MET/liko-MET_2018D_Data_UL18_CustomNanoAODv1-00000000000000000000000000000000/USER",
+        }
+    }
+}
+
+
