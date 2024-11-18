@@ -144,14 +144,14 @@ stop_2018 = [
     Sample("stop_M600_585_ct20_2018", xsec=0.205),
     Sample("stop_M600_580_ct2_2018", xsec=0.205),
     Sample("stop_M600_575_ct0p2_2018", xsec=0.205),
-    #Sample("stop_M1000_988_ct200_2018", xsec=0.00683),
-    #Sample("stop_M1000_985_ct20_2018", xsec=0.00683),
-    #Sample("stop_M1000_980_ct2_2018", xsec=0.00683),
-    #Sample("stop_M1000_975_ct0p2_2018", xsec=0.00683),
-    #Sample("stop_M1400_1388_ct200_2018", xsec=0.473E-03),
-    #Sample("stop_M1400_1385_ct20_2018", xsec=0.473E-03),
-    #Sample("stop_M1400_1380_ct2_2018", xsec=0.473E-03),
-    #Sample("stop_M1400_1375_ct0p2_2018", xsec=0.473E-03),
+    Sample("stop_M1000_988_ct200_2018", xsec=0.00683),
+    Sample("stop_M1000_985_ct20_2018", xsec=0.00683),
+    Sample("stop_M1000_980_ct2_2018", xsec=0.00683),
+    Sample("stop_M1000_975_ct0p2_2018", xsec=0.00683),
+    Sample("stop_M1400_1388_ct200_2018", xsec=0.473E-03),
+    Sample("stop_M1400_1385_ct20_2018", xsec=0.473E-03),
+    Sample("stop_M1400_1380_ct2_2018", xsec=0.473E-03),
+    Sample("stop_M1400_1375_ct0p2_2018", xsec=0.473E-03),
     ]
 
 c1n2_2018 = [
