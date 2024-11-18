@@ -725,3 +725,35 @@ ROOT::VecOps::RVec<int> SDVSecVtx_tkneutral(ROOT::RVecI SDVIdxLUT_SecVtxIdx, ROO
 	return tkneutral;
 }
 
+
+// This function finds the maximal dxy of the tracks within the vertex
+ROOT::RVecF SDV_TkMaxdxy(ROOT::RVecI SDVIdxLUT_TrackIdx, ROOT::RVecI SDVIdxLUT_SecVtxIdx, int nSDV, ROOT::RVecF SDVTrack_dxy)
+{
+    ROOT::RVecF SDVSecVtx_maxdxy(nSDV,-1);
+    for (size_t iSDV=0; iSDV<nSDV; ++iSDV){
+        auto tkIdx = SDVIdxLUT_TrackIdx[SDVIdxLUT_SecVtxIdx==iSDV];
+        ROOT::RVecF dxys;
+        for (size_t i=0; i<tkIdx.size(); ++i){
+            dxys.push_back(abs(SDVTrack_dxy[tkIdx[i]]));
+        }
+        SDVSecVtx_maxdxy[iSDV] = ROOT::VecOps::Max(dxys);
+    }
+    return SDVSecVtx_maxdxy;
+}
+
+
+// This function finds the minimal dxy of the tracks within the vertex
+ROOT::RVecF SDV_TkMindxy(ROOT::RVecI SDVIdxLUT_TrackIdx, ROOT::RVecI SDVIdxLUT_SecVtxIdx, int nSDV, ROOT::RVecF SDVTrack_dxy)
+{
+    ROOT::RVecF SDVSecVtx_mindxy(nSDV,-1);
+    for (size_t iSDV=0; iSDV<nSDV; ++iSDV){
+	auto tkIdx = SDVIdxLUT_TrackIdx[SDVIdxLUT_SecVtxIdx==iSDV];    
+	ROOT::RVecF dxys;
+	for (size_t i=0; i<tkIdx.size(); ++i){
+	    dxys.push_back(abs(SDVTrack_dxy[tkIdx[i]]));
+	}
+        SDVSecVtx_mindxy[iSDV] = ROOT::VecOps::Min(dxys);
+    }
+    return SDVSecVtx_mindxy;
+}
+
