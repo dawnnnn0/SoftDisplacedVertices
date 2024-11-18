@@ -49,15 +49,30 @@ class Plotter:
             else:
               self.cfg['objects'][o]['variables'] = self.cfg['objects'][o]['variables_mc']
 
-    self.f1 = ROOT.TFile.Open("/eos/user/w/wuzh/dv/CMSSW_13_3_0/src/SoftDisplacedVertices/Plotter/Material_Map_HIST.root")
-    ROOT.gInterpreter.ProcessLine("auto h_mm = material_map; h_mm->SetDirectory(0);")
-    self.f1.Close()
+
+    if ('mapveto' in self.cfg):
+      mappath = ''
+      if self.isData:
+        assert 'data_path' in self.cfg['mapveto'], "data_path not available in config!"
+        mappath = self.cfg['mapveto']['data_path']
+      else:
+        assert 'mc_path' in self.cfg['mapveto'], "mc_path not available in config!"
+        mappath = self.cfg['mapveto']['data_path']
+      self.f1 = ROOT.TFile.Open(mappath)
+      ROOT.gInterpreter.ProcessLine("auto h_mm = material_map; h_mm->SetDirectory(0);")
+      self.f1.Close()
+
+    #self.f1 = ROOT.TFile.Open("/eos/user/w/wuzh/dv/CMSSW_13_3_0/src/SoftDisplacedVertices/Plotter/Material_Map_HIST.root")
+    #ROOT.gInterpreter.ProcessLine("auto h_mm = material_map; h_mm->SetDirectory(0);")
+    #self.f1.Close()
+
 
   def setCorrections(self):
     if 'corrections' in self.cfg and self.cfg['corrections'] is not None:
       if 'PU' in self.cfg['corrections'] and self.cfg['corrections']['PU'] is not None:
-        ROOT.gInterpreter.Declare('auto puf = correction::CorrectionSet::from_file("{}");'.format(self.cfg['corrections']['PU']['path']))
-        ROOT.gInterpreter.Declare('auto pu = puf->at("{}");'.format(self.cfg['corrections']['PU']['name']))
+        assert str(self.year) in self.cfg['corrections']['PU'], "Year {} not defined in PU correction!".format(self.year)
+        ROOT.gInterpreter.Declare('auto puf = correction::CorrectionSet::from_file("{}");'.format(self.cfg['corrections']['PU'][str(self.year)]['path']))
+        ROOT.gInterpreter.Declare('auto pu = puf->at("{}");'.format(self.cfg['corrections']['PU'][str(self.year)]['name']))
       if 'electron' in self.cfg['corrections'] and self.cfg['corrections']['electron'] is not None:
         ROOT.gInterpreter.Declare('auto elec = correction::CorrectionSet::from_file("{}");'.format(self.cfg['corrections']['electron']['path']))
         ROOT.gInterpreter.Declare('auto elesf = elec->at("{}");'.format(self.cfg['corrections']['electron']['name']))
@@ -73,10 +88,13 @@ class Plotter:
     self.weightstr = ''
     if self.isData:
       d = d.Define("puweight","1")
+      if ('weights' in self.cfg) and (self.cfg['weights'] is not None):
+        for w in self.cfg['weights']:
+          self.weightstr += ' * {}'.format(w)
     else:
       if self.cfg['corrections'] is not None:
         if 'PU' in self.cfg['corrections'] and  self.cfg['corrections']['PU'] is not None:
-          d = d.Define("puweight",('pu->evaluate({{Pileup_nTrueInt,"{0}"}})'.format(self.cfg['corrections']['PU']['mode'])))
+          d = d.Define("puweight",('pu->evaluate({{Pileup_nTrueInt,"{0}"}})'.format(self.cfg['corrections']['PU'][str(self.year)]['mode'])))
           self.weightstr += ' * puweight'
         if 'electron' in self.cfg['corrections'] and  self.cfg['corrections']['electron'] is not None:
           d = d.Define("eleweight",'EGamma_weight(elesf,Electron_pt[{0}],Electron_eta[{0}],"{1}","Veto","{2}","electron")'.format(self.cfg['ele_sel'],self.cfg['corrections']['electron']['mode'],str(self.year)))
@@ -87,6 +105,15 @@ class Plotter:
         if 'muon' in self.cfg['corrections'] and  self.cfg['corrections']['muon'] is not None:
           d = d.Define("muweight",'Muon_weight(musf,Muon_pt[{0}],Muon_eta[{0}],"{1}")'.format(self.cfg['muon_sel'],self.cfg['corrections']['muon']['mode'],str(self.year)))
           self.weightstr += ' * muweight'
+        if 'met' in self.cfg['corrections'] and  self.cfg['corrections']['met'] is not None:
+          d = d.Define("metweight",'METweight(MET_pt_corr, "{}", "{}")'.format(str(self.year),self.cfg['corrections']['met']['mode']))
+          self.weightstr += ' * metweight'
+      if ('weights' in self.cfg) and (self.cfg['weights'] is not None):
+        for w in self.cfg['weights']:
+          self.weightstr += ' * {}'.format(w)
+      if ('mcweights' in self.cfg) and (self.cfg['mcweights'] is not None):
+        for w in self.cfg['mcweights']:
+          self.weightstr += ' * {}'.format(w)
 
     return d
 
@@ -158,6 +185,8 @@ class Plotter:
       d = d.Define("MET_corr",'SDV::METXYCorr_Met_MetPhi(MET_pt,MET_phi,run,"{}",{},PV_npvs)'.format(self.year,"false" if self.isData else "true"))
       d = d.Define("MET_pt_corr",'MET_corr.first')
       d = d.Define("MET_phi_corr",'MET_corr.second')
+      if ('mapveto' in self.cfg):
+        d = d.Define("SDVSecVtx_mapveto","return ROOT::VecOps::Map(SDVSecVtx_x,SDVSecVtx_y, [](float x, float y){return h_mm->GetBinContent(h_mm->FindBin(x,y)) > 0.01;})")
       vars_to_define = ['new_variables']
       for v in vars_to_define:
         if (not v in self.cfg) or (self.cfg[v] is None):
@@ -215,7 +244,7 @@ class Plotter:
   def AddWeights(self,d,weight):
     if self.isData:
       d = self.applyCorrections(d)
-      d = d.Define("evt_weight","{0}".format(weight))
+      d = d.Define("evt_weight","{0}{1}".format(weight,self.weightstr))
     else:
       d = self.applyCorrections(d)
       d = d.Define("evt_weight0","Generator_weight*{0}{1}".format(weight,self.weightstr))
@@ -301,6 +330,8 @@ class Plotter:
       plots_nm1 = []
 
     for plt in plots_1d:
+      if not plt in self.cfg['plot_setting']:
+        print("{} not registered in plot setting!".format(plt))
       if self.isData:
         h = d.Histo1D(tuple(self.cfg['plot_setting'][plt]),plt+varlabel)
       else:

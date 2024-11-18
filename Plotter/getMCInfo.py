@@ -33,7 +33,7 @@ def get_metadata(ss, sample_version):
         
 
         for filename in fnmatch.filter(filenames, '*.root'):
-            print(filename)
+            #print(filename)
             filename_list.append(filename)
             file_path = os.path.join(root, filename)
             lumis = Lumis(file_path)
@@ -68,10 +68,10 @@ def get_metadata(ss, sample_version):
           yaml_dict.pop(sp.name)
 
 
-    with open('metadata_'+sample_version+'.yaml', 'w') as outfile:
+    with open(args.outDir+'/metadata_'+sample_version+'.yaml', 'w') as outfile:
         yaml.safe_dump(yaml_dict, outfile, default_flow_style=False)
         
-    with open('metadata_'+sample_version+'.json', 'w') as outfile:
+    with open(args.outDir+'/metadata_'+sample_version+'.json', 'w') as outfile:
         json.dump(json_dict, outfile)
 
 def get_metadata_dir(directory, outFileName):
@@ -137,8 +137,10 @@ if __name__ == '__main__':
     parser.add_argument('--outDir')
     parser.add_argument('--json')
     args = parser.parse_args()
+    if not os.path.exists(args.outDir):
+      os.makedirs(args.outDir)
     #input_samples = s.c1n2_2018
-    input_samples = s.stop_2018
+    input_samples = s.stop_2017
     #input_samples = [s.C1N2_M1000_988_ct200_2018]
     s.loadData(input_samples,os.path.join(os.environ['CMSSW_BASE'],'src/SoftDisplacedVertices/Samples/json/{}'.format(args.json)),args.sample_version)
     get_metadata(input_samples,args.sample_version)

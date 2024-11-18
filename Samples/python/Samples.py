@@ -70,6 +70,14 @@ def loadData(samples, json_path, label):
     if not setable:
       print("Sample {} has no records!".format(s.name))
 
+met_2017 = [
+    Sample("met2017b", xsec=-1),
+    Sample("met2017c", xsec=-1),
+    Sample("met2017d", xsec=-1),
+    Sample("met2017e", xsec=-1),
+    Sample("met2017f", xsec=-1),
+    ]
+
 wlnu_2017 = [
     Sample("wjetstolnuht0100_2017",xsec=1530.0),
     Sample("wjetstolnuht0200_2017", xsec=405.96),
@@ -88,6 +96,42 @@ znunu_2017 = [
     Sample("zjetstonunuht0800_2017", xsec=1.451),
     Sample("zjetstonunuht1200_2017",xsec=0.355),
     Sample("zjetstonunuht2500_2017",xsec=0.00855),
+    ]
+
+qcd_2017 = [
+  Sample("qcdht0050_2017", xsec=187700000.0),
+  Sample("qcdht0100_2017", xsec=23640000.0),
+  Sample("qcdht0200_2017", xsec=1555000.0),
+  Sample("qcdht0300_2017", xsec=324500.0),
+  Sample("qcdht0500_2017", xsec=30980.0),
+  Sample("qcdht0700_2017", xsec=6444.0),
+  Sample("qcdht1000_2017", xsec=1127.0),
+  Sample("qcdht1500_2017", xsec=109.8),
+  Sample("qcdht2000_2017", xsec=22.36)
+
+]
+
+top_2017 = [
+  Sample("ttbar_2017", xsec=833.9),
+  Sample("st_tch_tbar_2017", xsec=80.0),
+  Sample("st_tch_t_2017", xsec=134.2),
+  Sample("st_tW_tbar_2017", xsec=39.68),
+  Sample("st_tW_t_2017", xsec=39.91),
+]
+
+stop_2017 = [
+    Sample("stop_M600_588_ct200_2017", xsec=0.205),
+    Sample("stop_M600_585_ct20_2017", xsec=0.205),
+    Sample("stop_M600_580_ct2_2017", xsec=0.205),
+    Sample("stop_M600_575_ct0p2_2017", xsec=0.205),
+    Sample("stop_M1000_988_ct200_2017", xsec=0.00683),
+    Sample("stop_M1000_985_ct20_2017", xsec=0.00683),
+    Sample("stop_M1000_980_ct2_2017", xsec=0.00683),
+    Sample("stop_M1000_975_ct0p2_2017", xsec=0.00683),
+    Sample("stop_M1400_1388_ct200_2017", xsec=0.473E-03),
+    Sample("stop_M1400_1385_ct20_2017", xsec=0.473E-03),
+    Sample("stop_M1400_1380_ct2_2017", xsec=0.473E-03),
+    Sample("stop_M1400_1375_ct0p2_2017", xsec=0.473E-03),
     ]
 
 met_2018 = [
@@ -156,7 +200,7 @@ stop_2018 = [
 
 c1n2_2018 = [
     #Sample("C1N2_M600_588_ct200_2018", xsec=20.1372e-03),
-    #Sample("C1N2_M600_585_ct20_2018", xsec=20.1372e-03),
+    Sample("C1N2_M600_585_ct20_2018", xsec=20.1372e-03),
     #Sample("C1N2_M600_580_ct2_2018", xsec=20.1372e-03),
     #Sample("C1N2_M600_575_ct0p2_2018", xsec=20.1372e-03),
     #Sample("C1N2_M1000_988_ct200_2018", xsec=1.34352e-03),
@@ -208,23 +252,19 @@ c1n2_2018 = [
     ]
 
 all_samples = [
+    met_2017,
     wlnu_2017,
     znunu_2017,
-    wlnu_2017,
-    znunu_2017,
+    qcd_2017,
+    top_2017,
+    stop_2017,
     met_2018,
     znunu_2018,
     wlnu_2018,
     qcd_2018,
     stop_2018,
     c1n2_2018,
-    qcd_2018,
     top_2018
-]
-
-tmp_2017 = [
-  wlnu_2017,
-  znunu_2017
 ]
 
 all_signals = [

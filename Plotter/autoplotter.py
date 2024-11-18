@@ -59,17 +59,28 @@ if __name__=="__main__":
     else:
       all_samples.append(s_samp)
 
+  print("Using config {}".format(args.config))
+
   if args.submit:
     s.loadData(all_samples,os.path.join(os.environ['CMSSW_BASE'],'src/SoftDisplacedVertices/Samples/json/{}'.format(args.json)),args.datalabel)
-    if os.path.exists(os.path.join(args.output,'input')):
-      print("Config files and plotter file might already exist in {}. Using them for plotting...".format(args.output))
+    inputdir = args.output+'/input'
+    if os.path.exists(args.output):
+      print("WARNING! {} already exists! Continuing...".format(args.output))
     else:
-      #assert (not os.path.exists(args.output)),"Path {} already exists!".format(args.output)
       os.makedirs(args.output)
-      inputdir = args.output+'/input'
+    if os.path.exists(os.path.join(args.output,'input')):
+      print("WARNING! Input dir already exists! Continuing...".format(args.output))
+    else:
       os.makedirs(inputdir)
+    if os.path.exists(os.path.join(inputdir,os.path.basename(args.config))):
+      print("WARNING! Config {} already exists! Reusing for plotting...".format(os.path.basename(args.config)))
+    else:
       shutil.copy2(args.config,inputdir)
+    if os.path.exists(os.path.join(inputdir,'autoplotter.py')):
+      print("WARNING! File autoplotter.py already exists! Reusing for plotting...")
+    else:
       shutil.copy2(os.path.join(os.getcwd(),'autoplotter.py'),inputdir)
+
     jobf = open('jobs.sh',"w")
     if args.data:
       data = '--data'
@@ -111,7 +122,13 @@ if __name__=="__main__":
         command += "\n"
         jobf.write(command)
     jobf.close()
-    shutil.copy2('jobs.sh',inputdir)
+    jbfn = 'jobs{}.sh'
+    ij = ''
+    if os.path.exists(os.path.join(inputdir,jbfn.format(ij))):
+      ij=1
+      while os.path.exists(os.path.join(inputdir,jbfn.format(ij))):
+        ij += 1
+    shutil.copy2('jobs.sh',os.path.join(inputdir,jbfn.format(ij)))
 
   else:
     lumi = args.lumi # units in pb-1

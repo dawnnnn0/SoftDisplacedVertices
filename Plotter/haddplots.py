@@ -16,7 +16,9 @@ if __name__=="__main__":
     njobs = len(glob.glob(os.path.join(args.dir,d,'input','*.txt')))
     nfiles = len(glob.glob(os.path.join(args.dir,d,'*.root')))
     if not nfiles==njobs:
-      print("\033[1;31m Not all files are processed. Will hadd whatever if availible.\033[0m")
+      #print("\033[1;31m Not all files are processed. Will hadd whatever if availible.\033[0m")
+      print("\033[1;31m Not all files are processed. Skipping...\033[0m")
+      continue
     targetpath = os.path.join(args.dir,'{0}_hist.root'.format(d))
     if os.path.exists(targetpath):
       print("\033[1;31m File {} already exists! Skipping...\033[0m".format(targetpath))
