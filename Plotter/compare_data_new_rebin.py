@@ -14,15 +14,15 @@ import os,math
 import ROOT
 import cmsstyle as CMS
 import SoftDisplacedVertices.Samples.Samples as s
-ROOT.EnableImplicitMT(4)
+ROOT.EnableImplicitMT()
 ROOT.gROOT.SetBatch(ROOT.kTRUE)
 ROOT.TH1.SetDefaultSumw2(True)
 ROOT.gStyle.SetOptStat(0)
 ROOT.TGaxis.SetExponentOffset(-0.10, 0.01, "Y")
+from array import array
 
 import argparse
 import numpy as np
-from array import array
 
 ## This part copied from https://github.com/Ang-Li-95/cmssw-usercode/blob/UL/Tools/python/ROOTTools.py#L27C1-L37C34
 class TH1EntriesProtector(object):
@@ -153,8 +153,7 @@ def h_command(h):
     l_dict = {'h': h}
     exec(c, globals(), l_dict)
     h = l_dict['h']
-    #exec(c)
-    return h
+  return h
 
 def comparehists_cms(name,hs,colors,legends,sig_scale=[], scale_to_data=False, ratio=True, norm=False):
   assert not (scale_to_data and norm), "Cannot set scale_to_data and norm in the same time!"
@@ -196,15 +195,16 @@ def comparehists_cms(name,hs,colors,legends,sig_scale=[], scale_to_data=False, r
       d_bkg[h].Scale(w_value)
 
   if norm:
-    if data is not None:
+    if data is not None and data.Integral(0,1000000)!=0:
       data.Scale(1.0/data.Integral(0,1000000))
-    if bkg_mc is not None:
+    if bkg_mc is not None and bkg_mc.Integral(0,1000000)!=0:
       w_value = 1.0/bkg_mc.Integral(0,1000000)
       bkg_mc.Scale(w_value)
       for h in d_bkg:
         d_bkg[h].Scale(w_value)
     for h in hs['sig']:
-      h.Scale(1.0/h.Integral(0,1000000))
+      if h.Integral(0,1000000)!=0:
+        h.Scale(1.0/h.Integral(0,1000000))
 
   hlist = []
   if data is not None:
@@ -273,18 +273,14 @@ def comparehists_cms(name,hs,colors,legends,sig_scale=[], scale_to_data=False, r
         yerr_root.SetPointY(i,1)
     CMS.cmsDraw(yerr_root, "e2same0", lwidth = 100, msize = 0, fcolor = ROOT.kBlack, fstyle = 3004)  
     CMS.cmsDraw(ratio, "E1X0", mcolor=ROOT.kBlack)
+    ref_line = ROOT.TLine(x_min, 1, x_max, 1)
+    CMS.cmsDrawLine(ref_line, lcolor=ROOT.kBlack, lstyle=ROOT.kDotted)
     
     ratio.BufferEmpty()
     arr_ratio = ratio.GetArray()
     np_ratio = np.ndarray((ratio.GetNbinsX()+2,), dtype=np.float64, buffer=arr_ratio, order='C')
-    #yerr_root.BufferEmpty()
-    #arr_yerr = yerr_root.GetArray()
-    #np_yerr = np.ndarray((yerr_root.GetNbinsX()+2,), dtype=np.float64, buffer=arr_yerr, order='C')
     print("{} Data/MC ratio is {}".format(name,np_ratio))
-    #print("{} Data/MC ratio_err is {}".format(name,np_yerr))
     print("------------------------------------------------------")
-    ref_line = ROOT.TLine(x_min, 1, x_max, 1)
-    CMS.cmsDrawLine(ref_line, lcolor=ROOT.kBlack, lstyle=ROOT.kDotted)
 
   if ratio:
     canv.cd(1)
@@ -298,6 +294,11 @@ def comparehists_cms(name,hs,colors,legends,sig_scale=[], scale_to_data=False, r
   if ratio:
     canv.cd(1)
   CMS.cmsCanvasResetAxes(ROOT.gPad, x_min, x_max, y_min_log, y_min_log*((y_max/y_min_log)**(1/0.65)))
+  print("y_min: ", y_min)
+  print("y_min_log: ", y_min_log)
+  print("y_min_log*((y_max/y_min_log)**(1/0.65)): ", y_min_log*((y_max/y_min_log)**(1/0.65)))
+  print("x_min: ", x_min)
+  print("x_max: ", x_max)
   ROOT.gPad.SetLogy()
   canv.Update()
   CMS.SaveCanvas(canv,"{}_log.pdf".format(args.output+'/'+name),False)
@@ -356,7 +357,18 @@ def makeplots(datafn, bkgfns, sigfns,bkglegend,siglegend,bkgcolors,sigcolors,sig
         if not ('TH1' in str(type(h))):
           break
         h.SetDirectory(0)
-        h_command(h)
+        # if h.GetName() == 'SDVSecVtx_TkMaxdxy': h=h.Rebin(5, '', array('d', [0,1,2,4,6,10]))
+        h = h_command(h)
+        # if args.commands is not None:
+        #   for c in args.commands:
+        #     exec(c)
+        #     print('h.GetName()', h.GetName())
+        #     if h.GetName() == 'SDVSecVtx_TkMaxdxy':
+        #       print('total bins: ', h.GetNbinsX())
+
+        # if h.GetName() == 'SDVSecVtx_TkMaxdxy': h=h.Rebin(5, '', array('d', [0,1,2,4,6,10]))
+        # if h.GetName() == 'SDVSecVtx_TkMaxdxy':
+        #   h=h.Rebin(5, '', array('d', [0,1,2,4,6,10]))
         hs[k].append(h)
         doit = True
     #datamccomparison(plt,hs,colors,legends,scale_to_data=False, ratio=True)
