@@ -231,7 +231,7 @@ class Plotter:
     - Produce normalisation weights based on xsec
     '''
     d = ROOT.RDataFrame("Events",self.filelist)
-    #d = d(1000)
+    print("Load file {}".format(self.filelist))
     d = self.AddVars(d)
     d = self.AddVarsWithSelection(d)
     if self.cfg['presel'] is not None:
