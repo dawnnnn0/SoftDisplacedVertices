@@ -24,9 +24,21 @@ nJetHEM: "Sum((Jet_eta_selHEM>-3.0) && (Jet_eta_selHEM<-1.3) && (Jet_phi_selHEM>
 
 corrections:
   PU:
-    path: "/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/LUM/2018_UL/puWeights.json.gz"
-    name: "Collisions18_UltraLegacy_goldenJSON"
+    PU:
+    "2017":
+      path: "/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/LUM/2017_UL/puWeights.json.gz"
+      name: "Collisions17_UltraLegacy_goldenJSON"
+      mode: "nominal"
+    "2018":
+      path: "/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/LUM/2018_UL/puWeights.json.gz"
+      name: "Collisions18_UltraLegacy_goldenJSON"
+      mode: "nominal"
+  met:
     mode: "nominal"
+      
+    #path: "/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/LUM/2018_UL/puWeights.json.gz"
+    #name: "Collisions18_UltraLegacy_goldenJSON"
+    #mode: "nominal"
 
 ### NEW VARIABLE DEFINITION
 # This part defines new variables
@@ -63,9 +75,9 @@ new_variables:
   SDVSecVtx_tkneutral: SDVSecVtx_tkneutral(SDVIdxLUT_SecVtxIdx,SDVIdxLUT_TrackIdx,SDVTrack_charge,nSDVSecVtx)
   SDVSecVtx_nGoodTrack: SDVSecVtx_nGoodTrack(SDVIdxLUT_SecVtxIdx,SDVIdxLUT_TrackIdx,SDVTrack_isGoodTrack,nSDVSecVtx)
   SDVSecVtx_r: sqrt(SDVSecVtx_x*SDVSecVtx_x+SDVSecVtx_y*SDVSecVtx_y)
-  SDVSecVtx_x_sel: SDVSecVtx_x[SDVSecVtx_mmoverlap == false]
-  SDVSecVtx_y_sel: SDVSecVtx_y[SDVSecVtx_mmoverlap == false]
-  SDVSecVtx_r_sel: sqrt(SDVSecVtx_x_sel*SDVSecVtx_x_sel+SDVSecVtx_y_sel*SDVSecVtx_y_sel)
+    #SDVSecVtx_x_sel: SDVSecVtx_x[SDVSecVtx_mmoverlap == false]
+    #SDVSecVtx_y_sel: SDVSecVtx_y[SDVSecVtx_mmoverlap == false]
+    #SDVSecVtx_r_sel: sqrt(SDVSecVtx_x_sel*SDVSecVtx_x_sel+SDVSecVtx_y_sel*SDVSecVtx_y_sel)
   SDVSecVtx_mass_0_100: SDVSecVtx_mass
   SDVSecVtx_mass_jpsi: SDVSecVtx_mass
   SDVSecVtx_mass_K0: SDVSecVtx_mass
@@ -221,7 +233,7 @@ plot_setting:
   SDVSecVtx_x: [SDVSecVtx_x, ';vertex x (cm);A.U.',400, -20, 20]
   SDVSecVtx_y: [SDVSecVtx_y, ';vertex y (cm);A.U.',400, -20, 20]
   SDVSecVtx_r: [SDVSecVtx_r, ';vertex r (cm);A.U.',200, 0, 20]
-  SDVSecVtx_r_sel: [SDVSecVtx_r_sel, ';vertex r selected (cm);A.U.',200, 0, 20]
+    #SDVSecVtx_r_sel: [SDVSecVtx_r_sel, ';vertex r selected (cm);A.U.',200, 0, 20]
   SDVSecVtx_L_eta_abs: [SDVSecVtx_L_eta_abs, ';vertex |#eta|;A.U.', 200, 0, 10]
   SDVSecVtx_Lxy: [SDVSecVtx_Lxy, ';vertex L_{xy} (cm);A.U.', 200, 0, 20]
   SDVSecVtx_LxySig: [SDVSecVtx_LxySig, ';vertex L_{xy}/#sigmaL_{xy};A.U.', 400, 0, 400]
