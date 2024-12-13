@@ -40,6 +40,12 @@ corrections:
     #name: "Collisions18_UltraLegacy_goldenJSON"
     #mode: "nominal"
 
+weights:
+
+mcweights:
+  - L1PreFiringWeight_Nom
+
+
 ### NEW VARIABLE DEFINITION
 # This part defines new variables
 # It calls the `Define` method of an RDataFrame
@@ -179,6 +185,7 @@ objects:
       - [SDVSecVtx_pt,SDVSecVtx_pAngle]
       - [SDVSecVtx_L_eta,SDVSecVtx_L_phi]
       - [SDVSecVtx_TkMaxdxy,SDVSecVtx_TkMindxy]
+      - [SDVSecVtx_TkMaxdxy,SDVSecVtx_Lxy]
     nm1:
       #    - [SDVSecVtx_dphi_L_MET,'<1.5']
       #    - [SDVSecVtx_dphi_L_jet0,'>1']
