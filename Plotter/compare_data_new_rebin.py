@@ -279,7 +279,17 @@ def comparehists_cms(name,hs,colors,legends,sig_scale=[], scale_to_data=False, r
     ratio.BufferEmpty()
     arr_ratio = ratio.GetArray()
     np_ratio = np.ndarray((ratio.GetNbinsX()+2,), dtype=np.float64, buffer=arr_ratio, order='C')
+    
+    np_yerr_high = np.full(yerr_root.GetN(), -1.)
+    np_yerr_low = np.full(yerr_root.GetN(), -1.)
+    for i in range(0,yerr_root.GetN()):
+        np_yerr_high[i] = yerr_root.GetErrorYhigh(i)
+        np_yerr_low[i] = yerr_root.GetErrorYlow(i)
+    #yerr0_low = yerr_root.GetErrorYlow(0)
+    
     print("{} Data/MC ratio is {}".format(name,np_ratio))
+    print("{} Data/MC ratio Yerror high is {}".format(name,np_yerr_high))
+    print("{} Data/MC ratio Yerror low is {}".format(name,np_yerr_low))
     print("------------------------------------------------------")
 
   if ratio:
